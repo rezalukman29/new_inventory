@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axEmi = axios.create({
-  baseURL: 'https://emi-backend-staging.emi-project.my.id',
+  baseURL: 'https://emi-backend-production.emi-project.my.id',
 });
 
 axEmi.interceptors.request.use(

@@ -211,7 +211,7 @@ export const InventoryService = {
   },
   loginFetch: async (body: any): Promise<APIResponse<any>> => {
     // Using Fetch API
-    const result = await fetch('https://emi-backend-staging.emi-project.my.id/v1/login', {
+    const result = await fetch('https://emi-backend-production.emi-project.my.id/v1/login', {
       method: 'POST',
       body: JSON.stringify({
         email: body.email,
@@ -226,7 +226,7 @@ export const InventoryService = {
   },
   postRegister: async (body: any): Promise<APIResponse<any>> => {
     // Using Fetch API
-    const result = await fetch('https://emi-backend-staging.emi-project.my.id/v1/register', {
+    const result = await fetch('https://emi-backend-production.emi-project.my.id/v1/register', {
       method: 'POST',
       body: JSON.stringify({
         fullname: body.name,
