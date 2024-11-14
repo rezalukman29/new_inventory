@@ -210,7 +210,6 @@ export const InventoryService = {
     return response.data;
   },
   loginFetch: async (body: any): Promise<APIResponse<any>> => {
-    // Using Fetch API
     const result = await fetch('https://emi-backend-staging.emi-project.my.id/v1/login', {
       method: 'POST',
       body: JSON.stringify({
@@ -225,7 +224,6 @@ export const InventoryService = {
     return data;
   },
   postRegister: async (body: any): Promise<APIResponse<any>> => {
-    // Using Fetch API
     const result = await fetch('https://emi-backend-staging.emi-project.my.id/v1/register', {
       method: 'POST',
       body: JSON.stringify({
