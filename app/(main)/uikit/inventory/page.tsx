@@ -684,7 +684,7 @@ const TableDemo = () => {
             emptyMessage="No customers found."
             header={header1}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-            currentPageReportTemplate="{first} to {last} of {totalRecords} cars"
+            currentPageReportTemplate="{first} to {last} of {totalRecords} inventory"
           >
             <Column
               field="nama"

@@ -14,11 +14,36 @@ const AppMenu = () => {
     {
       label: "Home",
       items: [
-        { label: "Dashboard", icon: "pi pi-fw pi-home", to: "/" },
+        { label: "Dashboard", icon: "pi pi-list", to: "/" },
+        {
+          label: "Event",
+          icon: "pi pi-calendar",
+          to: "/uikit/event",
+        },
         {
           label: "Inventory",
           icon: "pi pi-fw pi-id-card",
           to: "/uikit/inventory",
+        },
+        {
+          label: "Warehouse",
+          icon: "pi pi-home",
+          to: "/uikit/warehouse",
+        },
+        {
+          label: "Warehouse Inventory",
+          icon: "pi pi-file-import",
+          to: "/uikit/warehouse_inventory",
+        },
+        {
+          label: "Area",
+          icon: "pi pi-map-marker",
+          to: "/uikit/area",
+        },
+        {
+          label: "Sub Area",
+          icon: "pi pi-file-import",
+          to: "/uikit/sub_area",
         },
       ],
     },

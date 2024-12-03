@@ -38,6 +38,15 @@ export const InventoryService = {
     const response = await ax.get(`/v1/${URL_BARANG_GUDANG}/${barangGudangId}`);
     return response.data;
   },
+  getEvent: async (filter: any) => {
+    const response = await ax.get(`/v1/event-filter`, {
+    params: {
+      page: filter.page,
+      limit: filter.limit,
+    }
+    });
+    return response.data.data;
+  },
   getScanEventBarang: async (
     barangGudangId: number | null,
     fixListItemId: number,
@@ -244,6 +253,10 @@ export const InventoryService = {
   },
   getGudang: async () => {
     const response = await ax.get(`/v1/gudang`);
+    return response.data;
+  },
+  deleteGudang: async (id: string) => {
+    const response = await ax.delete(`/v1/gudang/${id}`);
     return response.data;
   },
 };
