@@ -33,6 +33,10 @@ import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
 import moment from "moment";
 import { Toast } from "primereact/toast";
+import { Dialog } from "primereact/dialog";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 
 interface ISelect {
   label: string;
@@ -53,6 +57,66 @@ const TableDemo = () => {
   const [total, setTotal] = useState<number>(10);
   const [gudang, setGudang] = useState<any | null>(null);
   const [gudangs, setGudangs] = React.useState<any>([]);
+  const [productDialog, setProductDialog] = useState(false);
+
+  const formik = useFormik<any>({
+    initialValues: {
+      nama: isModify ? gudang.nama : "",
+      lokasi: isModify ? gudang.lokasi : "",
+      pic: isModify ? gudang.pic : "",
+    },
+    validationSchema: Yup.object({
+      nama: Yup.string().required("Required"),
+      lokasi: Yup.string().required("Required"),
+      pic: Yup.string().required("Required"),
+    }),
+    validateOnChange: false,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      setIsLoading(true);
+      const payload: any = {
+        nama: values.nama,
+        lokasi: values.lokasi,
+        pic: values.pic,
+      };
+      if (isModify) {
+        const result: APIResponse<any> = await InventoryService.editGudang({
+          ...payload,
+          id: gudang.id,
+        });
+        if (result.success) {
+          setTimeout(() => {
+            setProductDialog(false);
+          }, 200);
+          toast?.current?.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Modify warehouse",
+            life: 3000,
+          });
+        }
+      } else {
+        const result: APIResponse<any> = await InventoryService.addGudang(
+          payload
+        );
+        if (result.success) {
+          setTimeout(() => {
+            setProductDialog(false);
+          }, 200);
+          toast?.current?.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Adding warehouse",
+            life: 3000,
+          });
+        }
+      }
+      setIsModify(false);
+      setIsLoading(false);
+      formik.resetForm();
+      getGudang();
+    },
+  });
 
   const onChangeStatus = (e: any) => {
     setSelectedStatus(e.target.value);
@@ -102,11 +166,35 @@ const TableDemo = () => {
             placeholder="Keyword Search"
           />
         </span>
+        <Button
+          label="New"
+          icon="pi pi-plus"
+          severity="success"
+          className=" mr-2"
+          onClick={() => setProductDialog(true)}
+        />
       </div>
     );
   };
 
   const header1 = renderHeader1();
+
+  const hideDialog = () => {
+    setProductDialog(false);
+    setIsModify(false);
+  };
+
+  const productDialogFooter = (
+    <>
+      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Save"
+        icon="pi pi-check"
+        text
+        onClick={() => formik.handleSubmit()}
+      />
+    </>
+  );
 
   return (
     <div className="grid">
@@ -165,8 +253,8 @@ const TableDemo = () => {
             <Column
               field="address"
               header="Action"
-              headerStyle={{justifyItems: 'center'}}
-              bodyStyle={{textAlign: 'center'}}
+              headerStyle={{ justifyItems: "center" }}
+              bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
               body={(data) => (
@@ -180,6 +268,11 @@ const TableDemo = () => {
                 >
                   <div
                     className="pi pi-file-edit"
+                    onClick={() => {
+                      setIsModify(true);
+                      setGudang(data);
+                      setProductDialog(true);
+                    }}
                     style={{ fontSize: 18, cursor: "pointer" }}
                   ></div>
 
@@ -213,6 +306,52 @@ const TableDemo = () => {
               body={inventoryWarehouse}
             /> */}
           </DataTable>
+          <Dialog
+            visible={productDialog}
+            style={{ width: "450px" }}
+            header={isModify ? "Modify Warehouse" : "Add Warehouse"}
+            modal
+            className="p-fluid"
+            footer={productDialogFooter}
+            onHide={hideDialog}
+          >
+            <div className="field">
+              <label htmlFor="name">Name</label>
+              <InputText
+                id="name"
+                value={formik.values.nama}
+                onChange={(e) => formik.setFieldValue("nama", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.nama ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="name">Location</label>
+              <InputText
+                id="name"
+                value={formik.values.lokasi}
+                onChange={(e) => formik.setFieldValue("lokasi", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.lokasi ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="name">PIC</label>
+              <InputText
+                id="name"
+                value={formik.values.pic}
+                onChange={(e) => formik.setFieldValue("pic", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.pic ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+          </Dialog>
         </div>
       </div>
     </div>

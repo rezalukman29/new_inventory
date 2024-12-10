@@ -255,6 +255,14 @@ export const InventoryService = {
     const response = await ax.get(`/v1/gudang`);
     return response.data;
   },
+  addGudang: async (payload: any) => {
+    const response = await ax.post(`/v1/gudang`, payload);
+    return response.data;
+  },
+  editGudang: async (payload: any) => {
+    const response = await ax.put(`/v1/gudang`, payload);
+    return response.data;
+  },
   deleteGudang: async (id: string) => {
     const response = await ax.delete(`/v1/gudang/${id}`);
     return response.data;

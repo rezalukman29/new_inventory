@@ -25,10 +25,16 @@ import { Slider } from "primereact/slider";
 import { ToggleButton } from "primereact/togglebutton";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { classNames } from "primereact/utils";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { Demo } from "@/types";
 import { InventoryService } from "@/app/service/InventoryService";
 import { isValidUrl, noImage } from "@/app/util/function";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { APIResponse } from "@/app/interfaces/BaseApiResponse";
+import { Toast } from "primereact/toast";
+import { Dialog } from "primereact/dialog";
+import { Icon } from "@iconify/react";
 
 interface ISelect {
   label: string;
@@ -36,6 +42,7 @@ interface ISelect {
 }
 
 const TableDemo = () => {
+  const toast = useRef<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModify, setIsModify] = useState<boolean>(false);
   const [listBarang, setListBarang] = useState<any[]>([]);
@@ -53,8 +60,124 @@ const TableDemo = () => {
   const [file, setFile] = useState<string>();
   const [imagePreview, setImagePreview] = useState<any>("");
   const [base64, setBase64] = useState<string>();
+  const [productDialog, setProductDialog] = useState(false);
 
   const onPageChange = (page: number) => setPage(page);
+
+  const formik = useFormik<any>({
+    initialValues: {
+      nama: isModify ? barang.nama : "",
+      detail: isModify ? barang.detail : "",
+      code: isModify ? barang.code : "",
+      kategori_id: isModify ? barang.kategori_id.toString() : "",
+      satuan_id: isModify ? barang.satuan_id.toString() : "",
+      stok: isModify ? barang.stok_barang.toString() : "",
+      panjang: isModify ? barang.panjang : "",
+      lebar: isModify ? barang.lebar : "",
+      tinggi: isModify ? barang.tinggi : "",
+      berat: isModify ? barang.berat : "",
+      lantai: isModify ? barang.lantai : "",
+      lorong: isModify ? barang.lorong : "",
+      rack: isModify ? barang.rack : "",
+    },
+    validationSchema: Yup.object({
+      nama: Yup.string().required("Required"),
+      detail: Yup.string().required("Required"),
+      code: Yup.string().required("Required"),
+      kategori_id: Yup.string().required("Required"),
+      satuan_id: Yup.string().required("Required"),
+      stok: Yup.string().required("Required"),
+    }),
+    validateOnChange: false,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      setIsLoading(true);
+      const payload = {
+        ...values,
+        satuan_id: Number(values.satuan_id),
+        kategori_id: Number(values.kategori_id),
+        stok: Number(values.stok),
+      };
+      if (isModify) {
+        try {
+          const result: APIResponse<any> = await InventoryService.editBarang({
+            ...payload,
+            id: barang.id,
+            ...(base64 && { photo: base64?.split(",")[1] as string }),
+          });
+          if (result.success) {
+            setTimeout(() => {
+              setProductDialog(false);
+            }, 200);
+            toast?.current?.show({
+              severity: "success",
+              summary: "Success",
+              detail: "Modify inventory",
+              life: 3000,
+            });
+            setIsModify(false);
+            setBase64("");
+            formik.resetForm();
+            setBarang(null);
+            setIsLoading(false);
+            getInventoryList();
+          }
+        } catch (error: any) {
+          setIsLoading(false);
+          if (
+            error.response.data.message ===
+            "Error 1062: Duplicate entry '123' for key 'barang.code'"
+          ) {
+            formik.setFieldError("code", error.response.data.message);
+          }
+          toast?.current?.show({
+            severity: "error",
+            summary: "Error",
+            detail: error.response.data.message,
+            life: 3000,
+          });
+        }
+      } else {
+        try {
+          const result: APIResponse<any> = await InventoryService.addBarang({
+            ...payload,
+            photo: base64?.split(",")[1] as string,
+          });
+          if (result.success) {
+            setTimeout(() => {
+              setProductDialog(false);
+            }, 200);
+            toast?.current?.show({
+              severity: "success",
+              summary: "Success",
+              detail: "Adding inventory",
+              life: 3000,
+            });
+            setIsModify(false);
+            setBase64("");
+            formik.resetForm();
+            setBarang(null);
+            setIsLoading(false);
+            getInventoryList();
+          }
+        } catch (error: any) {
+          setIsLoading(false);
+          if (
+            error.response.data.message ===
+            "Error 1062: Duplicate entry '123' for key 'barang.code'"
+          ) {
+            formik.setFieldError("code", error.response.data.message);
+          }
+          toast?.current?.show({
+            severity: "error",
+            summary: "Error",
+            detail: error.response.data.message,
+            life: 3000,
+          });
+        }
+      }
+    },
+  });
 
   const getInventoryList = async (size?: number) => {
     try {
@@ -110,9 +233,32 @@ const TableDemo = () => {
     }
   };
 
+  const onDeleteItem = async (id: string) => {
+    try {
+      setIsLoading(true);
+      await InventoryService.deleteBarang(id);
+      toast?.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Delete inventory",
+        life: 3000,
+      });
+      getInventoryList();
+      setIsLoading(false);
+    } catch (error: any) {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     getInventoryList();
   }, [page]);
+
+  useEffect(() => {
+    getInventoryList();
+    getSatuan();
+    getItemCategory();
+  }, []);
 
   const [customers1, setCustomers1] = useState<Demo.Customer[]>([]);
   const [customers2, setCustomers2] = useState<Demo.Customer[]>([]);
@@ -166,14 +312,33 @@ const TableDemo = () => {
   const renderHeader1 = () => {
     return (
       <div className="flex justify-content-between">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
-          <InputText
-            value={globalFilterValue1}
-            onChange={onGlobalFilterChange1}
-            placeholder="Keyword Search"
+        <div className="flex">
+          <span className="p-input-icon-left mr-4">
+            <i className="pi pi-search" />
+            <InputText
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Keyword Search"
+            />
+          </span>
+          <Button
+            label="Submit"
+            onClick={() => {
+              if (page === 1) {
+                getInventoryList();
+              } else {
+                setPage(1);
+              }
+            }}
           />
-        </span>
+        </div>
+        <Button
+          label="New"
+          icon="pi pi-plus"
+          severity="success"
+          className=" mr-2"
+          onClick={() => setProductDialog(true)}
+        />
       </div>
     );
   };
@@ -660,8 +825,54 @@ const TableDemo = () => {
 
   const header1 = renderHeader1();
 
+  const hideDialog = () => {
+    setProductDialog(false);
+    setIsModify(false);
+  };
+
+  const productDialogFooter = (
+    <>
+      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Save"
+        icon="pi pi-check"
+        text
+        onClick={() => formik.handleSubmit()}
+      />
+    </>
+  );
+
+  const convertToBase64 = (file: any) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
+
+  const handleProfile = async (e: any) => {
+    const file = e.target.files[0];
+    if (file?.size / 1024 / 1024 < 2) {
+      const base64 = await convertToBase64(file);
+      setBase64(base64 as any);
+    } else {
+      toast?.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Image size must be of 2MB or less",
+        life: 3000,
+      });
+    }
+  };
+
   return (
     <div className="grid">
+      <Toast ref={toast} />
       <div className="col-12">
         <div className="card">
           <h5>Inventory</h5>
@@ -725,6 +936,40 @@ const TableDemo = () => {
               style={{ minWidth: "4rem" }}
               body={inventoryWarehouse}
             />
+                      <Column
+              field="address"
+              header="Action"
+              headerStyle={{ justifyItems: "center" }}
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem" }}
+              bodyStyle={{ textAlign: "center" }}
+              body={(data) => (
+                <div
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flex: 1,
+                  }}
+                >
+                  <div
+                    onClick={() => {
+                      setIsModify(true);
+                      setBarang(data);
+                      setProductDialog(true);
+                    }}
+                    className="pi pi-file-edit"
+                    style={{ fontSize: 18, cursor: "pointer" }}
+                  ></div>
+
+                  <div
+                    className="pi pi-trash"
+                    onClick={() => onDeleteItem(data.id)}
+                    style={{ fontSize: 18, marginLeft: 8, cursor: "pointer" }}
+                  ></div>
+                </div>
+              )}
+            />
             {/* <Column header="Stok" filterField="country.name" style={{ minWidth: '12rem' }} body={countryBodyTemplate} filterPlaceholder="Search by country" filterClear={filterClearTemplate} filterApply={filterApplyTemplate} />
                         <Column
                             header="Agent"
@@ -742,6 +987,283 @@ const TableDemo = () => {
                         <Column field="activity" header="Activity" showFilterMatchModes={false} style={{ minWidth: '12rem' }} body={activityBodyTemplate} filter filterElement={activityFilterTemplate} />
                         <Column field="verified" header="Verified" dataType="boolean" bodyClassName="text-center" style={{ minWidth: '8rem' }} body={verifiedBodyTemplate} filter filterElement={verifiedFilterTemplate} /> */}
           </DataTable>
+
+          <Dialog
+            visible={productDialog}
+            style={{ width: "450px" }}
+            header={isModify ? "Modify Inventory" : "Add Inventory"}
+            modal
+            className="p-fluid"
+            footer={productDialogFooter}
+            onHide={hideDialog}
+          >
+            <div className="field">
+              <label htmlFor="name">Name</label>
+              <InputText
+                id="name"
+                value={formik.values.nama}
+                onChange={(e) => formik.setFieldValue("nama", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.nama ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="flex-1">
+              <label htmlFor="name">Image</label>
+              <div style={{ paddingTop: 8, paddingBottom: 8 }}>
+                {base64 ? (
+                  <div className="flex flex-row gap-x-4 items-center">
+                    <img
+                      src={base64}
+                      style={{
+                        height: 100,
+                        width: 180,
+                        objectFit: "cover",
+                      }}
+                    />
+
+                    <Icon
+                      icon="entypo:trash"
+                      className="cursor-pointer"
+                      fontSize={24}
+                      color="#000"
+                      onClick={() => setBase64("")}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-row items-center gap-x-4">
+                      {isModify && barang.photo ? (
+                        <>
+                          {base64 ? (
+                            <img
+                              src={base64}
+                              style={{
+                                height: 100,
+                                width: 180,
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            <img
+                              src={
+                                barang.photo?.includes("66.42.48.163")
+                                  ? barang.photo?.replace(
+                                      "http://66.42.48.163:9000/booqable/",
+                                      "https://storage-booqable.emi-project.my.id/booqable/"
+                                    )
+                                  : barang.photo
+                                  ? `https://democreation.site/home/public/${barang.photo}`
+                                  : noImage
+                              }
+                              style={{
+                                width: 86,
+                                height: 86,
+                                borderRadius: 8,
+                              }}
+                            />
+                          )}
+                          <input
+                            type="file"
+                            style={{ color: "#000" }}
+                            className="form-control"
+                            onChange={(e) => handleProfile(e)}
+                          />
+                        </>
+                      ) : (
+                        <input
+                          type="file"
+                          style={{ color: "#000" }}
+                          className="form-control"
+                          onChange={(e) => handleProfile(e)}
+                        />
+                      )}
+                      {/* {isModify && barang.photo && (
+                          <Icon
+                            icon="entypo:trash"
+                            className="cursor-pointer"
+                            fontSize={24}
+                            color="#000"
+                            onClick={() => setBase64("")}
+                          />
+                        )} */}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-row items-center">
+              <div className="field">
+                <label htmlFor="code">Item Code</label>
+                <InputText
+                  id="code"
+                  value={formik.values.code}
+                  onChange={(e) => formik.setFieldValue("code", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.code ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field">
+                <label htmlFor="stok">Stock</label>
+                <InputText
+                  id="stok"
+                  value={formik.values.stok}
+                  onChange={(e) => formik.setFieldValue("stok", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.stok ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="detail">Description</label>
+              <InputText
+                id="detail"
+                value={formik.values.detail}
+                onChange={(e) => formik.setFieldValue("detail", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.detail ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="flex flex-row items-center">
+              <div className="field flex-1">
+                <label htmlFor="name">Unit</label>
+                <Dropdown
+                  onChange={(e) =>
+                    formik.setFieldValue("satuan_id", e.target.value)
+                  }
+                  value={formik.values.satuan_id}
+                  options={[
+                    // ...[{ value: "", label: "Choose unit" }],
+                    ...listSatuan,
+                  ]}
+                  optionLabel="label"
+                  placeholder="Select unit"
+                  className="flex-1"
+                  // style={{ width: "100%"}}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field flex-1">
+                <label htmlFor="name">Category</label>
+                <Dropdown
+                  onChange={(e) =>
+                    formik.setFieldValue("kategori_id", e.target.value)
+                  }
+                  value={formik.values.kategori_id}
+                  options={[
+                    // ...[{ value: "", label: "Choose category" }],
+                    ...listCategory,
+                  ]}
+                  optionLabel="label"
+                  placeholder="Select category"
+                  className="flex-1"
+                  style={{ width: "100%" }}
+                />
+              </div>
+            </div>
+            <div className="flex flex-row items-center">
+              <div className="field">
+                <label htmlFor="panjang">Panjang</label>
+                <InputText
+                  id="panjang"
+                  value={formik.values.panjang}
+                  onChange={(e) => formik.setFieldValue("panjang", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.panjang ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field">
+                <label htmlFor="lebar">Lebar</label>
+                <InputText
+                  id="lebar"
+                  value={formik.values.lebar}
+                  onChange={(e) => formik.setFieldValue("lebar", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.lebar ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+            </div>
+            <div className="flex flex-row items-center">
+              <div className="field">
+                <label htmlFor="panjang">Tinggi</label>
+                <InputText
+                  id="panjang"
+                  value={formik.values.tinggi}
+                  onChange={(e) => formik.setFieldValue("tinggi", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.tinggi ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field">
+                <label htmlFor="berat">Berat</label>
+                <InputText
+                  id="berat"
+                  value={formik.values.berat}
+                  onChange={(e) => formik.setFieldValue("berat", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.berat ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+            </div>
+            <div className="flex flex-row items-center">
+              <div className="field">
+                <label htmlFor="lantai">Lantai</label>
+                <InputText
+                  id="lantai"
+                  value={formik.values.lantai}
+                  onChange={(e) => formik.setFieldValue("lantai", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.lantai ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field">
+                <label htmlFor="lorong">Lorong</label>
+                <InputText
+                  id="lorong"
+                  value={formik.values.lorong}
+                  onChange={(e) => formik.setFieldValue("lorong", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.lorong ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+            </div>
+
+            <div className="field">
+              <label htmlFor="name">Rack</label>
+              <InputText
+                id="name"
+                value={formik.values.rack}
+                onChange={(e) => formik.setFieldValue("rack", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.rack ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+          </Dialog>
           {/* <Pagination
             currentPage={page}
             totalPages={totalPages}

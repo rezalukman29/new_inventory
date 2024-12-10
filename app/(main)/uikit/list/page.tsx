@@ -114,6 +114,7 @@ const ListDemo = () => {
     };
 
     const dataviewGridItem = (data: Demo.Product) => {
+        console.log(data)
         return (
             <div className="col-12 lg:col-4">
                 <div className="card m-3 border-1 surface-border">

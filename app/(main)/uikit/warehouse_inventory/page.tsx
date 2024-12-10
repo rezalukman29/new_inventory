@@ -33,6 +33,11 @@ import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
 import moment from "moment";
 import { Toast } from "primereact/toast";
+import { Dialog } from "primereact/dialog";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { APIResponse } from "@/app/interfaces/BaseApiResponse";
+import { Text } from "@/app/components/atoms/Text";
 
 interface ISelect {
   label: string;
@@ -61,10 +66,127 @@ const TableDemo = () => {
   const [listBarang, setListBarang] = useState<any[]>([]);
   const [listCategory, setListCategory] = useState<ISelect[]>([]);
   const [searchInventory, setSearchInventory] = useState("");
+  const [productDialog, setProductDialog] = useState(false);
+  const [barang, setBarang] = useState<any | null>(null);
+  const [inventory, setInventory] = useState<any | null>(null);
 
-  const onChangeStatus = (e: any) => {
-    setSelectedStatus(e.target.value);
-  };
+  const formik = useFormik<any>({
+    initialValues: {
+      stok: isModify ? barang.stok_barang.toString() : "",
+      gudang_id: isModify ? barang.gudang_id.toString() : "",
+      kode: isModify ? barang.kode_gudang : "",
+      keyname: isModify ? barang.keyname : "",
+      asile: isModify ? barang.asile : "",
+      rack: isModify ? barang.asile : "",
+      level: isModify ? barang.level : "",
+      stok_minimum: isModify ? barang.stok_minimum.toString() : "",
+      lantai: isModify ? barang.lantai : "",
+      lorong: isModify ? barang.lorong : "",
+    },
+    validationSchema: Yup.object({
+      stok: Yup.string().required("Required"),
+      gudang_id: Yup.string().required("Required"),
+      stok_minimum: Yup.string().required("Required"),
+    }),
+    validateOnChange: false,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      if (!inventory)
+        return toast?.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Please select item",
+          life: 3000,
+        });
+      setProductDialog(false);
+      setIsLoading(true);
+      const payload = {
+        ...values,
+        barang_id: inventory?.id,
+        gudang_id: Number(values.gudang_id),
+        stok: Number(values.stok),
+        stok_minimum: Number(values.stok_minimum),
+        code: values.kode,
+      };
+      if (isModify) {
+        try {
+          delete payload.kode;
+          const result: APIResponse<any> = await InventoryService.editBarang({
+            ...payload,
+            id: barang.barang_gudang_id,
+          });
+          if (result.success) {
+            setTimeout(() => {
+              setProductDialog(false);
+            }, 200);
+            toast?.current?.show({
+              severity: "success",
+              summary: "Success",
+              detail: "Modify warehouse item",
+              life: 3000,
+            });
+            setIsModify(false);
+            formik.resetForm();
+            setBarang(null);
+            setIsLoading(false);
+            getInventoryList();
+          }
+        } catch (error: any) {
+          setIsLoading(false);
+          if (
+            error.response.data.message ===
+            "Error 1062: Duplicate entry '123' for key 'barang.code'"
+          ) {
+            formik.setFieldError("code", error.response.data.message);
+          }
+          toast?.current?.show({
+            severity: "error",
+            summary: "Error",
+            detail: error.response.data.message,
+            life: 3000,
+          });
+        }
+      } else {
+        try {
+          const result: APIResponse<any> =
+            await InventoryService.addBarangGudang(payload);
+          if (result.success) {
+            setTimeout(() => {
+              setProductDialog(false);
+            }, 200);
+            toast?.current?.show({
+              severity: "success",
+              summary: "Success",
+              detail: "Adding warehouse item",
+              life: 3000,
+            });
+            setIsModify(false);
+            formik.resetForm();
+            setBarang(null);
+            setIsLoading(false);
+            setInventory(null);
+            getInventoryList();
+            setSearchInventory('')
+          }
+        } catch (error: any) {
+          setIsLoading(false);
+          if (
+            error.response.data.message ===
+            "Error 1062: Duplicate entry '123' for key 'barang.code'"
+          ) {
+            formik.setFieldError("code", error.response.data.message);
+          }
+
+          toast?.current?.show({
+            severity: "error",
+            summary: "Error",
+            detail: error.response.data.message,
+            life: 3000,
+          });
+        }
+      }
+    },
+  });
 
   const getInventoryList = async (size?: number) => {
     try {
@@ -157,32 +279,41 @@ const TableDemo = () => {
 
   const renderHeader1 = () => {
     return (
-      <div className="flex">
-        <span className="p-input-icon-left mr-4">
-          <i className="pi pi-search" />
-          <InputText
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Keyword Search"
+      <div className="flex justify-content-between">
+        <div className="flex">
+          <span className="p-input-icon-left mr-4">
+            <i className="pi pi-search" />
+            <InputText
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Keyword Search"
+            />
+          </span>
+          <Dropdown
+            value={selectedGudang?.value}
+            onChange={(e) => setSelectedGudang(e)}
+            options={[...[{ value: "All", label: "All warehouse" }], ...gudang]}
+            optionLabel="label"
+            placeholder="Select warehouse"
+            className="w-full md:w-14rem mr-4"
           />
-        </span>
-        <Dropdown
-          value={selectedGudang?.value}
-          onChange={(e) => setSelectedGudang(e)}
-          options={[...[{ value: "All", label: "All warehouse" }], ...gudang]}
-          optionLabel="label"
-          placeholder="Select warehouse"
-          className="w-full md:w-14rem mr-4"
-        />
+          <Button
+            label="Submit"
+            onClick={() => {
+              if (page === 1) {
+                getInventoryList();
+              } else {
+                setPage(1);
+              }
+            }}
+          />
+        </div>
         <Button
-          label="Submit"
-          onClick={() => {
-            if (page === 1) {
-              getInventoryList();
-            } else {
-              setPage(1);
-            }
-          }}
+          label="New"
+          icon="pi pi-plus"
+          severity="success"
+          className=" mr-2"
+          onClick={() => setProductDialog(true)}
         />
       </div>
     );
@@ -216,6 +347,24 @@ const TableDemo = () => {
     getItemCategory();
   }, []);
 
+  const hideDialog = () => {
+    setProductDialog(false);
+    setIsModify(false);
+  };
+
+  const productDialogFooter = (
+    <>
+      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Save"
+        icon="pi pi-check"
+        text
+        type="submit"
+        onClick={() => formik.handleSubmit()}
+      />
+    </>
+  );
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -246,7 +395,7 @@ const TableDemo = () => {
             <Column
               field="nama_barang"
               header="Name"
-              headerStyle={{justifyItems: 'center'}}
+              headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
             />
@@ -255,41 +404,41 @@ const TableDemo = () => {
               header="Warehouse Stock"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
-              headerStyle={{justifyItems: 'center'}}
-              bodyStyle={{textAlign: 'center'}}
+              headerStyle={{ justifyItems: "center" }}
+              bodyStyle={{ textAlign: "center" }}
             />
             <Column
               field="stok_barang"
               header="Item Stock"
-              headerStyle={{justifyItems: 'center'}}
+              headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
-              bodyStyle={{textAlign: 'center'}}
+              bodyStyle={{ textAlign: "center" }}
             />
             <Column
               field="stok_minimum"
               header="Stok Min"
-              headerStyle={{justifyItems: 'center'}}
+              headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
-              bodyStyle={{textAlign: 'center'}}
+              bodyStyle={{ textAlign: "center" }}
             />
             <Column
               field="stok_minimum"
               header="Image"
-              headerStyle={{justifyItems: 'center'}}
+              headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
               body={inventoryImage}
-              bodyStyle={{padding: 4, textAlign: 'center'}}
+              bodyStyle={{ padding: 4, textAlign: "center" }}
             />
             <Column
               field="address"
               header="Action"
-              headerStyle={{justifyItems: 'center'}}
+              headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
-              bodyStyle={{textAlign: 'center'}}
+              bodyStyle={{ textAlign: "center" }}
               body={(data) => (
                 <div
                   style={{
@@ -300,6 +449,12 @@ const TableDemo = () => {
                   }}
                 >
                   <div
+                    onClick={() => {
+                      setIsModify(true);
+                      setBarang(data);
+                      setProductDialog(true);
+                      setInventory({ id: data.barang_id });
+                    }}
                     className="pi pi-file-edit"
                     style={{ fontSize: 18, cursor: "pointer" }}
                   ></div>
@@ -334,6 +489,198 @@ const TableDemo = () => {
               body={inventoryWarehouse}
             /> */}
           </DataTable>
+          <Dialog
+            visible={productDialog}
+            style={{ width: "500px" }}
+            header={isModify ? "Modify Warehouse Item" : "Add Warehouse Item"}
+            modal
+            className="p-fluid"
+            footer={productDialogFooter}
+            onHide={hideDialog}
+          >
+            <div className="field">
+              <label htmlFor="name">keywords</label>
+              <div className="flex flex-row items-center">
+                <InputText
+                  id="name"
+                  value={searchInventory}
+                  onChange={(e: any) => setSearchInventory(e.target.value)}
+                  autoFocus
+                />
+                <div style={{ width: 16 }} />
+                <Button
+                  label="Search"
+                  icon="pi pi-search"
+                  className="mr-2"
+                  style={{ width: 120 }}
+                  onClick={() => {
+                    getBarang();
+                  }}
+                />
+              </div>
+            </div>
+            <div
+              className="overflow-y-auto grid grid-cols-1 lg:grid-cols-2 lg:gap-3 gap-3 mt-3"
+              style={{ maxHeight: 300 }}
+            >
+              {listInventory?.map((item, idx) => {
+                const isSelected = inventory?.id === item.id;
+                return (
+                  <div
+                    onClick={() => {
+                      setInventory(item);
+                      formik.setFieldValue("stok", "");
+                    }}
+                    style={{
+                      backgroundColor: isSelected ? "#6366F1" : "#fff",
+                      width: "100%",
+                    }}
+                    key={`${item.id}_idx`}
+                    className={`cursor-pointer ml-2 px-3 py-2 rounded flex flex-row items-center ${
+                      isSelected ? "bg-[#6366F1]" : "bg-white"
+                    }`}
+                  >
+                    <img
+                      src={
+                        isValidUrl(item.photo)
+                          ? item.photo
+                          : item.photo
+                          ? `https://democreation.site/home/public/${item.photo}`
+                          : noImage
+                      }
+                      style={{ width: 86, height: 86, borderRadius: 8 }}
+                    />
+                    <div className="flex-col ml-3">
+                      <Text
+                        fontWeight="semi-bold"
+                        label={item.nama ? item.nama : "No name"}
+                        color={isSelected ? "white" : "black"}
+                      />
+                      <Text
+                        fontWeight="regular"
+                        label={`Stok: ${item.stok_barang}`}
+                        color={isSelected ? "white" : "black"}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ height: 16 }} />
+            <div className="flex flex-row items-center">
+              <div className="field flex-1">
+                <label htmlFor="name">Stok</label>
+                <InputText
+                  id="name"
+                  value={formik.values.stok}
+                  onChange={(e) => {
+                    if (
+                      (Number(e.target.value) > 0 &&
+                        Number(e.target.value) <= inventory?.stok_barang &&
+                        !e.target.value.includes(".")) ||
+                      (e.target.value === "" && !e.target.value.includes("."))
+                    ) {
+                      formik.setFieldValue("stok", e.target.value);
+                      formik.setFieldError("stok", undefined);
+                    }
+                  }}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.stok ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field flex-1">
+                <label htmlFor="name">Stok minimum</label>
+                <InputText
+                  id="name"
+                  value={formik.values.stok_minimum}
+                  onChange={(e) =>
+                    formik.setFieldValue("stok_minimum", e.target.value)
+                  }
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.stok_minimum
+                      ? "border-red-600"
+                      : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+            </div>
+            <div className="flex flex-row items-center">
+              <div className="field">
+                <label htmlFor="name">Kode</label>
+                <InputText
+                  id="name"
+                  value={formik.values.kode}
+                  onChange={(e) => formik.setFieldValue("kode", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.kode ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field">
+                <label htmlFor="name">Rack</label>
+                <InputText
+                  id="name"
+                  value={formik.values.rack}
+                  onChange={(e) => formik.setFieldValue("rack", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.rack ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+            </div>
+            <div className="flex flex-row items-center">
+              <div className="field">
+                <label htmlFor="name">Lantai</label>
+                <InputText
+                  id="name"
+                  value={formik.values.lantai}
+                  onChange={(e) =>
+                    formik.setFieldValue("lantai", e.target.value)
+                  }
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.lantai ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field">
+                <label htmlFor="name">Lorong</label>
+                <InputText
+                  id="name"
+                  value={formik.values.lorong}
+                  onChange={(e) =>
+                    formik.setFieldValue("lorong", e.target.value)
+                  }
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.lorong ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+            </div>
+            <Dropdown
+              onChange={(e) =>
+                formik.setFieldValue("gudang_id", e.target.value)
+              }
+              value={formik.values.gudang_id}
+              options={[
+                ...[{ value: "", label: "Select warehouse" }],
+                ...gudang,
+              ]}
+              optionLabel="label"
+              placeholder="Select warehouse"
+              className="mr-4 flex-1"
+              // style={{ width: "100%" }}
+            />
+          </Dialog>
         </div>
       </div>
     </div>

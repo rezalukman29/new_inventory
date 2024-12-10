@@ -15,9 +15,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     },
   });
   return (
-    <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} />
-      {children}
-    </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <ReactQueryDevtools initialIsOpen={false} />
+        {children}
+      </QueryClientProvider>
   );
 }
