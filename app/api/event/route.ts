@@ -1,7 +1,7 @@
 import ax from "@/app/service/axios";
 import axios from "axios";
 import type { NextApiResponse } from "next";
-import { NextRequest } from "next/server";
+import { NextRequest,NextResponse } from "next/server";
 
 type ResponseData = {
   message: string;
@@ -29,7 +29,7 @@ export async function GET(
         return error.response;
       });
 
-    return Response.json({ data: response.data.data });
+    return NextResponse.json({ data: response.data.data });
   } else {
     let response = await ax
       .get(`/v1/event/page/${page}`, {
@@ -44,6 +44,6 @@ export async function GET(
         return error.response;
       });
 
-    return Response.json({ data: response.data.data });
+      return NextResponse.json({ data: response.data.data });
   }
 }

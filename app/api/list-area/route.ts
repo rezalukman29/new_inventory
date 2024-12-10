@@ -1,7 +1,7 @@
 import ax from '@/app/service/axios';
 import axios from 'axios'
 import type { NextApiResponse } from 'next';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 type ResponseData = {
     message: string
@@ -29,5 +29,5 @@ export async function GET(req: NextRequest,
             return error.response;
         });
 
-    return Response.json({ data: response.data.data })
+    return NextResponse.json({ data: response.data.data })
 }
