@@ -50,13 +50,14 @@ const LoginPage = () => {
         setTimeout(() => {
           router.push("/");
         }, 1000);
+      } else {
+        toast?.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: response.message,
+          life: 3000,
+        });
       }
-      toast?.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: response.message,
-        life: 3000,
-      });
     } catch (error: any) {
       toast?.current?.show({
         severity: "error",
