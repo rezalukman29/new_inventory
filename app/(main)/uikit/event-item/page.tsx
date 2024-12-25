@@ -40,6 +40,7 @@ import { DataView, DataViewLayoutOptions } from "primereact/dataview";
 import { Dialog } from "primereact/dialog";
 import "./event.css";
 import Loading from "@/app/components/atoms/loading";
+import { useQRCode } from "next-qrcode";
 
 type Props = {};
 
@@ -64,6 +65,7 @@ interface IProduct {
 
 const Page = (props: Props) => {
   const toast = useRef<any>(null);
+  const { Canvas } = useQRCode();
   const [eventId, setEventId] = useState("");
   const [width, height] = useDeviceSize();
   const [statusEventId, setStatusEventId] = useState("");
@@ -75,6 +77,7 @@ const Page = (props: Props) => {
   const [gudang, setGudang] = useState<any>([]);
   const [selectedGudang, setSelectedGudang] = useState<any>(null);
   const [barangGudang, setBarangGudang] = useState<any>([]);
+  const [barang, setBarang] = useState<any>([]);
   const [selectedBarangGudang, setSelectedBarangGudang] = useState<any>(null);
   const [loadingGet, setLoadingGet] = useState(false);
   const [eventDetail, setEventDetail] = useState<any | null>(null);
@@ -99,6 +102,7 @@ const Page = (props: Props) => {
   const [listSubArea, setListSubArea] = useState<any[]>([]);
   const [subArea, setSubArea] = useState<any | null>(null);
   const [cartDialog, setCartDialog] = useState(false);
+  const [qrDialog, setQrDialog] = useState(false);
   const [productDialog, setProductDialog] = useState(false);
   const [imageDialog, setImageDialog] = useState(false);
   const pdfHeader = `            ${eventDetail?.name} | ${
@@ -299,7 +303,7 @@ const Page = (props: Props) => {
     if (eventDetail.data) {
       let listArea: any = await fetch(`/api/list-area?eventId=${eventId}`);
       listArea = await listArea.json();
-      const listingArea = listArea.data.map((item: any) => {
+      const listingArea = listArea?.data?.map((item: any) => {
         return {
           label: item.area_name,
           value: item.area_id,
@@ -806,7 +810,7 @@ const Page = (props: Props) => {
               {item.area ? item.area : "No Area"}
             </span>
           </div>
-          <div className="flex flex-column align-items-center text-center mb-3">
+          <div className="flex flex-column align-items-center text-center mb-3 mt-3">
             <img
               src={
                 isValidUrl(item.photo)
@@ -879,16 +883,29 @@ const Page = (props: Props) => {
 
           <div className="flex align-items-center justify-content-between">
             <span className="text-2xl font-semibold"></span>
-            <Button
-              icon="pi pi-trash"
-              onClick={() => {
-                if (isCart) {
-                  handleDeleteCart(item.id);
-                } else {
-                  handleDeleteFixItem(item.id);
-                }
-              }}
-            />
+            <div className="flex-row">
+              <Button
+                icon="pi pi-qrcode"
+                severity="secondary"
+                onClick={() => {
+                  setBarang(item);
+                  setTimeout(() => {
+                    setQrDialog(true);
+                  }, 500);
+                }}
+              />
+              <Button
+                icon="pi pi-trash"
+                style={{ marginLeft: 8 }}
+                onClick={() => {
+                  if (isCart) {
+                    handleDeleteCart(item.id);
+                  } else {
+                    handleDeleteFixItem(item.id);
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -935,7 +952,10 @@ const Page = (props: Props) => {
         label="Cancel"
         icon="pi pi-times"
         text
-        onClick={() => setCartDialog(false)}
+        onClick={() => {
+          setCartDialog(false);
+          setQrDialog(false);
+        }}
       />
       {itemCarts?.length ? (
         <Button label="Checkout" icon="pi pi-check" text onClick={onCheckOut} />
@@ -993,7 +1013,13 @@ const Page = (props: Props) => {
       </table>
       <div className="col-12">
         <div className="card">
-        <Text label={eventDetail?.name} color="black" fontWeight="bold" variant="large" textAlign="center" />
+          <Text
+            label={eventDetail?.name}
+            color="black"
+            fontWeight="bold"
+            variant="large"
+            textAlign="center"
+          />
           <div className="flex flex-row items-center">
             <Dropdown
               onChange={onChangeStatus}
@@ -1404,6 +1430,38 @@ const Page = (props: Props) => {
                 />
               </div>
             )}
+          </Dialog>
+          <Dialog
+            visible={qrDialog}
+            // style={{ width: width * 0.4 }}
+            header={"QR Code"}
+            modal
+            className="p-fluid"
+            footer={cartFooter}
+            onHide={() => setQrDialog(false)}
+          >
+            <div style={{ justifyContent: "center", textAlign: "center" }}>
+              <Canvas
+                text={barang?.id?.toString()}
+                options={{
+                  errorCorrectionLevel: "M",
+                  margin: 3,
+                  scale: 4,
+                  width: 200,
+                  color: {
+                    dark: "#000",
+                    light: "#FFBF60FF",
+                  },
+                }}
+              />
+              <Text
+                variant="large"
+                color="black"
+                label={barang?.nama_barang}
+                textAlign="center"
+                className="mt-2"
+              />
+            </div>
           </Dialog>
         </div>
       </div>

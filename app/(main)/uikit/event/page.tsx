@@ -3,7 +3,6 @@ import { CustomerService } from "../../../../demo/service/CustomerService";
 import { ProductService } from "../../../../demo/service/ProductService";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { Button } from "primereact/button";
-import { Calendar } from "primereact/calendar";
 import {
   Column,
   ColumnFilterApplyTemplateOptions,
@@ -33,6 +32,14 @@ import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
 import moment from "moment";
 import { Toast } from "primereact/toast";
+import { PayloadAddEventI } from "@/app/interfaces/InventoryInterface";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { Day, utils } from "react-modern-calendar-datepicker";
+import { APIResponse } from "@/app/interfaces/BaseApiResponse";
+import { Dialog } from "primereact/dialog";
+import { Calendar } from "@hassanmojab/react-modern-calendar-datepicker";
+import "./DatePicker.css";
 
 interface ISelect {
   label: string;
@@ -51,6 +58,74 @@ const TableDemo = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(10);
   const [total, setTotal] = useState<number>(10);
+  const [productDialog, setProductDialog] = useState(false);
+  const [showStart, setShowStart] = useState<boolean>(false);
+  const [showEnd, setShowEnd] = useState<boolean>(false);
+
+  const formik = useFormik<PayloadAddEventI>({
+    initialValues: {
+      name: "",
+      event_code: "",
+      description: "",
+      event_start: utils("en").getToday(),
+      event_end: utils("en").getToday(),
+      PIC: "",
+      images: "",
+      address: "",
+      files: "",
+      is_complete: 0,
+      status: selectedStatus,
+      notes: "",
+      type: "",
+      latitude: "",
+      longitude: "",
+      event_running: "",
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("Required"),
+      event_code: Yup.string().required("Required"),
+      description: Yup.string().required("Required"),
+      PIC: Yup.string().required("Required"),
+      notes: Yup.string().required("Required"),
+    }),
+    validateOnChange: false,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      setIsLoading(true);
+      const payload: any = {
+        description: values.description,
+        name: values.name,
+        event_start: `${formik.values.event_start?.year}-${formik.values.event_start?.month}-${formik.values.event_start?.day}`,
+        event_end: `${formik.values.event_end?.year}-${formik.values.event_end?.month}-${formik.values.event_end?.day}`,
+        PIC: values.PIC,
+        event_code: values.event_code,
+        is_complete: 0,
+        status: selectedStatus,
+        images: values.images,
+        files: values.files,
+        address: values.address,
+        type: "",
+        latitude: "",
+        longitude: "",
+        event_running: "",
+        notes: values.notes,
+      };
+      const result: APIResponse<any> = await InventoryService.addEvent(payload);
+      if (result.success) {
+        setTimeout(() => {
+          setProductDialog(false);
+        }, 200);
+      }
+      setIsLoading(false);
+      toast?.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Adding event",
+        life: 3000,
+      });
+      getListEvent();
+    },
+  });
 
   const onChangeStatus = (e: any) => {
     setSelectedStatus(e.target.value);
@@ -90,6 +165,12 @@ const TableDemo = () => {
     }
   };
 
+  const { data: eventStatus } = useGetEventStatus({
+    options: {
+      enabled: true,
+    },
+  });
+
   useEffect(() => {
     getListEvent();
   }, [page]);
@@ -107,11 +188,33 @@ const TableDemo = () => {
             placeholder="Keyword Search"
           />
         </span>
+        <Button
+          label="New"
+          icon="pi pi-plus"
+          severity="success"
+          className=" mr-2"
+          onClick={() => setProductDialog(true)}
+        />
       </div>
     );
   };
 
+  const hideDialog = () => {
+    setProductDialog(false);
+    setIsModify(false);
+  };
 
+  const productDialogFooter = (
+    <>
+      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Save"
+        icon="pi pi-check"
+        text
+        onClick={() => formik.handleSubmit()}
+      />
+    </>
+  );
 
   const header1 = renderHeader1();
 
@@ -233,6 +336,189 @@ const TableDemo = () => {
               body={inventoryWarehouse}
             /> */}
           </DataTable>
+          <Dialog
+            visible={productDialog}
+            style={{ width: "450px" }}
+            header={isModify ? "Modify Event" : "Add Event"}
+            modal
+            className="p-fluid"
+            footer={productDialogFooter}
+            onHide={hideDialog}
+          >
+            <div className="field">
+              <label htmlFor="name">Name</label>
+              <InputText
+                id="name"
+                value={formik.values.name}
+                onChange={(e) => formik.setFieldValue("name", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.name ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="name"> Event Code</label>
+              <InputText
+                id="name"
+                value={formik.values.event_code}
+                onChange={(e) =>
+                  formik.setFieldValue("event_code", e.target.value)
+                }
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.event_code
+                    ? "border-red-600"
+                    : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="name">Description</label>
+              <InputText
+                id="name"
+                value={formik.values.description}
+                onChange={(e) =>
+                  formik.setFieldValue("description", e.target.value)
+                }
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.description
+                    ? "border-red-600"
+                    : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="name"> Event Start</label>
+              <InputText
+                id="name"
+                value={`${formik.values.event_start?.year}-${formik.values.event_start?.month}-${formik.values.event_start?.day}`}
+                onFocus={() => {
+                  setShowEnd(false);
+                  setShowStart(true);
+                }}
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.event_start
+                    ? "border-red-600"
+                    : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+              {showStart && (
+                <div className="absolute">
+                  <div className="relative mt-2" style={{ width: 320 }}>
+                    <Calendar
+                      locale={"en"}
+                      value={formik.values.event_start}
+                      minimumDate={utils("en").getToday()}
+                      onChange={(date) => {
+                        setShowStart(false);
+                        formik.setFieldValue("event_start", date);
+                        formik.setFieldValue("event_end", undefined);
+                      }}
+                      onDisabledDayError={(value) => console.log(value)}
+                      colorPrimary="#AB5CFA" // added this
+                      calendarClassName="custom-calendar" // and this
+                      calendarTodayClassName="custom-today-day" // also this
+                      shouldHighlightWeekends
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="field">
+              <label htmlFor="name"> Event End</label>
+              <InputText
+                id="name"
+                value={
+                  formik.values.event_end
+                    ? `${formik.values.event_end?.year}-${formik.values.event_end?.month}-${formik.values.event_end?.day}`
+                    : ""
+                }
+                onFocus={() => {
+                  setShowEnd(true);
+                  setShowStart(false);
+                }}
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.event_end ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+              {showEnd && (
+                <div className="absolute">
+                  <div className="relative mt-2" style={{ width: 320 }}>
+                    <Calendar
+                      locale={"en"}
+                      value={formik.values.event_end}
+                      minimumDate={formik.values.event_start as Day}
+                      onChange={(date) => {
+                        setShowEnd(false);
+                        formik.setFieldValue("event_end", date);
+                      }}
+                      onDisabledDayError={(value) => console.log(value)}
+                      colorPrimary="#AB5CFA" // added this
+                      calendarClassName="custom-calendar" // and this
+                      calendarTodayClassName="custom-today-day" // also this
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="field">
+              <label htmlFor="name">PIC</label>
+              <InputText
+                id="name"
+                value={formik.values.PIC as string}
+                onChange={(e) => formik.setFieldValue("PIC", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.PIC ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="name">Address</label>
+              <InputText
+                id="name"
+                value={formik.values.address}
+                onChange={(e) =>
+                  formik.setFieldValue("address", e.target.value)
+                }
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.address ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="name">Status</label>
+              <Dropdown
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                value={selectedStatus}
+                options={eventStatus?.data?.map?.((el: any) => {
+                  return {
+                    label: el.name,
+                    value: el.id,
+                  };
+                })}
+                optionLabel="label"
+                placeholder="Select status"
+                className="flex-1"
+                // style={{ width: "100%" }}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="notes">Note</label>
+              <InputText
+                id="notes"
+                value={formik.values.notes}
+                onChange={(e) => formik.setFieldValue("notes", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.notes ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+          </Dialog>
         </div>
       </div>
     </div>
