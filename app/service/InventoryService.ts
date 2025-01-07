@@ -267,4 +267,8 @@ export const InventoryService = {
     const response = await ax.delete(`/v1/gudang/${id}`);
     return response.data;
   },
+  putScan: async (payload: any) => {
+    const response = await ax.put(`/v1/fix-list-item/scan`, payload);
+    return response.data;
+  },
 };

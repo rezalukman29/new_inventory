@@ -41,6 +41,8 @@ import { Dialog } from "primereact/dialog";
 import "./event.css";
 import Loading from "@/app/components/atoms/loading";
 import { useQRCode } from "next-qrcode";
+import { WEB_URL } from "@/app/util/config";
+import moment from "moment";
 
 type Props = {};
 
@@ -484,7 +486,12 @@ const Page = (props: Props) => {
             satuan: dt.satuan,
             kategori: dt.kategori,
             stok: dt.qty,
+            scan_in: dt.scan_in,
+            scan_out: dt.scan_out,
+            scan_in_date: dt.scan_in_date.Time,
+            scan_out_date: dt.scan_out_date.Time,
             id: dt.id,
+            barang_id: dt.barang_id,
             subArea: dt.sub_list_name,
             gudang: dt.gudang[0]?.nama,
             gudangStok: dt.gudang[0]?.stock,
@@ -880,6 +887,67 @@ const Page = (props: Props) => {
               </div>
             </div>
           </div>
+
+          {item.scan_in === 0 || item.scan_in === 1 ? (
+            <div className="flex-row flex text-center" style={{marginBottom: 16}}>
+              <div className="flex-1">
+                <p style={{ marginBottom: 0 }}>Scan In</p>
+                <Icon
+                  icon={
+                    item?.scan_in === 1
+                      ? "mingcute:check-fill"
+                      : "ic:baseline-close"
+                  }
+                  color={item?.scan_in === 1 ? "green" : "red"}
+                  style={{ fontSize: 24 }}
+                />
+                <p style={{ marginTop: 8 }}> Scan In Date</p>
+                <p style={{ marginTop: -8, color: "grey" }}>
+                  {item?.scan_in === 1
+                    ? moment(item.scan_in_date as any)
+                        .add(
+                          Number(
+                            item.scan_in_date
+                              .split("+")
+                              .reverse()[0]
+                              .split(":")[0]
+                          ),
+                          "hours"
+                        )
+                        .format("LLL")
+                    : "-"}
+                </p>
+              </div>
+              <div className="flex-1">
+                <p style={{ marginBottom: 0 }}>Scan Out</p>
+                <Icon
+                  icon={
+                    item?.scan_out === 1
+                      ? "mingcute:check-fill"
+                      : "ic:baseline-close"
+                  }
+                  color={item?.scan_out === 1 ? "green" : "red"}
+                  style={{ fontSize: 24, bottom: 18 }}
+                />
+                <p style={{ marginTop: 8 }}> Scan Out Date</p>
+                <p style={{ marginTop: -8, color: "grey" }}>
+                  {item?.scan_out === 1
+                    ? moment(item.scan_out_date as any)
+                        .add(
+                          Number(
+                            item.scan_out_date
+                              .split("+")
+                              .reverse()[0]
+                              .split(":")[0]
+                          ),
+                          "hours"
+                        )
+                        .format("LLL")
+                    : "-"}
+                </p>
+              </div>
+            </div>
+          ) : null}
 
           <div className="flex align-items-center justify-content-between">
             <span className="text-2xl font-semibold"></span>
@@ -1442,7 +1510,7 @@ const Page = (props: Props) => {
           >
             <div style={{ justifyContent: "center", textAlign: "center" }}>
               <Canvas
-                text={barang?.id?.toString()}
+                text={`${WEB_URL}/pages/scan/${eventId}-${barang.barang_id}`}
                 options={{
                   errorCorrectionLevel: "M",
                   margin: 3,

@@ -1,0 +1,1 @@
+export const WEB_URL = "https://staging-emi-inventory-v2.vercel.app"
