@@ -318,7 +318,7 @@ const Page = (props: Props) => {
 
   const isShowScan =
     eventStatus?.data?.find(
-      (el) => el.is_show_scan_result === eventDetail?.status
+      (el) => el.id === eventDetail?.status
     )?.is_show_scan_result === 1
       ? true
       : false;
