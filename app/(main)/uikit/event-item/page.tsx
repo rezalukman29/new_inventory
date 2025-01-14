@@ -316,6 +316,13 @@ const Page = (props: Props) => {
     setLoadingGet(false);
   };
 
+  const isShowScan =
+    eventStatus?.data?.find(
+      (el) => el.is_show_scan_result === eventDetail?.status
+    )?.is_show_scan_result === 1
+      ? true
+      : false;
+
   useEffect(() => {
     // getListProduct()
     let event: any = searchParams.get("event");
@@ -887,66 +894,72 @@ const Page = (props: Props) => {
               </div>
             </div>
           </div>
-
-          {item.scan_in === 0 || item.scan_in === 1 ? (
-            <div className="flex-row flex text-center" style={{marginBottom: 16}}>
-              <div className="flex-1">
-                <p style={{ marginBottom: 0 }}>Scan In</p>
-                <Icon
-                  icon={
-                    item?.scan_in === 1
-                      ? "mingcute:check-fill"
-                      : "ic:baseline-close"
-                  }
-                  color={item?.scan_in === 1 ? "green" : "red"}
-                  style={{ fontSize: 24 }}
-                />
-                <p style={{ marginTop: 8 }}> Scan In Date</p>
-                <p style={{ marginTop: -8, color: "grey" }}>
-                  {item?.scan_in === 1
-                    ? moment(item.scan_in_date as any)
-                        .add(
-                          Number(
-                            item.scan_in_date
-                              .split("+")
-                              .reverse()[0]
-                              .split(":")[0]
-                          ),
-                          "hours"
-                        )
-                        .format("LLL")
-                    : "-"}
-                </p>
-              </div>
-              <div className="flex-1">
-                <p style={{ marginBottom: 0 }}>Scan Out</p>
-                <Icon
-                  icon={
-                    item?.scan_out === 1
-                      ? "mingcute:check-fill"
-                      : "ic:baseline-close"
-                  }
-                  color={item?.scan_out === 1 ? "green" : "red"}
-                  style={{ fontSize: 24, bottom: 18 }}
-                />
-                <p style={{ marginTop: 8 }}> Scan Out Date</p>
-                <p style={{ marginTop: -8, color: "grey" }}>
-                  {item?.scan_out === 1
-                    ? moment(item.scan_out_date as any)
-                        .add(
-                          Number(
-                            item.scan_out_date
-                              .split("+")
-                              .reverse()[0]
-                              .split(":")[0]
-                          ),
-                          "hours"
-                        )
-                        .format("LLL")
-                    : "-"}
-                </p>
-              </div>
-            </div>
+          {isShowScan ? (
+            <>
+              {item.scan_in === 0 || item.scan_in === 1 ? (
+                <div
+                  className="flex-row flex text-center"
+                  style={{ marginBottom: 16 }}
+                >
+                  <div className="flex-1">
+                    <p style={{ marginBottom: 0 }}>Scan In</p>
+                    <Icon
+                      icon={
+                        item?.scan_in === 1
+                          ? "mingcute:check-fill"
+                          : "ic:baseline-close"
+                      }
+                      color={item?.scan_in === 1 ? "green" : "red"}
+                      style={{ fontSize: 24 }}
+                    />
+                    <p style={{ marginTop: 8 }}> Scan In Date</p>
+                    <p style={{ marginTop: -8, color: "grey" }}>
+                      {item?.scan_in === 1
+                        ? moment(item.scan_in_date as any)
+                            .add(
+                              Number(
+                                item.scan_in_date
+                                  .split("+")
+                                  .reverse()[0]
+                                  .split(":")[0]
+                              ),
+                              "hours"
+                            )
+                            .format("LLL")
+                        : "-"}
+                    </p>
+                  </div>
+                  <div className="flex-1">
+                    <p style={{ marginBottom: 0 }}>Scan Out</p>
+                    <Icon
+                      icon={
+                        item?.scan_out === 1
+                          ? "mingcute:check-fill"
+                          : "ic:baseline-close"
+                      }
+                      color={item?.scan_out === 1 ? "green" : "red"}
+                      style={{ fontSize: 24, bottom: 18 }}
+                    />
+                    <p style={{ marginTop: 8 }}> Scan Out Date</p>
+                    <p style={{ marginTop: -8, color: "grey" }}>
+                      {item?.scan_out === 1
+                        ? moment(item.scan_out_date as any)
+                            .add(
+                              Number(
+                                item.scan_out_date
+                                  .split("+")
+                                  .reverse()[0]
+                                  .split(":")[0]
+                              ),
+                              "hours"
+                            )
+                            .format("LLL")
+                        : "-"}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+            </>
           ) : null}
 
           <div className="flex align-items-center justify-content-between">

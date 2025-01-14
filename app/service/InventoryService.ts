@@ -271,4 +271,12 @@ export const InventoryService = {
     const response = await ax.put(`/v1/fix-list-item/scan`, payload);
     return response.data;
   },
+  getEventStatus: async (): Promise<APIResponse<Array<any>>> => {
+    const response = await ax.get(`/v1/event-status/get-all`);
+    return response.data;
+  },
+  putEventStatus: async (payload: any) => {
+    const response = await ax.put(`/v1/event-status/update-scan`, payload);
+    return response.data;
+  },
 };

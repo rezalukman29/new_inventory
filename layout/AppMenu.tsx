@@ -45,6 +45,11 @@ const AppMenu = () => {
           icon: "pi pi-file-import",
           to: "/uikit/sub_area",
         },
+        {
+          label: "Event Status",
+          icon: "pi pi-flag",
+          to: "/uikit/event_status",
+        },
       ],
     },
    
