@@ -35,6 +35,8 @@ import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { Toast } from "primereact/toast";
 import { Dialog } from "primereact/dialog";
 import { Icon } from "@iconify/react";
+import { ConfirmDialog } from "primereact/confirmdialog";
+import { OverlayPanel } from "primereact/overlaypanel";
 
 interface ISelect {
   label: string;
@@ -43,9 +45,12 @@ interface ISelect {
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
+  const op = useRef<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModify, setIsModify] = useState<boolean>(false);
   const [listBarang, setListBarang] = useState<any[]>([]);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
+  const [itemDetal, setItemDetail] = useState<boolean>(false);
 
   const [listSatuan, setListSatuan] = useState<ISelect[]>([]);
   const [listCategory, setListCategory] = useState<ISelect[]>([]);
@@ -235,6 +240,7 @@ const TableDemo = () => {
 
   const onDeleteItem = async (id: string) => {
     try {
+      setDeleteConfirmation(false);
       setIsLoading(true);
       await InventoryService.deleteBarang(id);
       toast?.current?.show({
@@ -682,24 +688,32 @@ const TableDemo = () => {
 
   const inventoryImage = (item: any) => {
     return (
-      <img
-        src={
-          isValidUrl(item.photo)
-            ? item.photo?.replace(
-                "http://66.42.48.163:9000/booqable/",
-                "https://storage-booqable.emi-project.my.id/booqable/"
-              )
-            : item.photo
-            ? `https://democreation.site/home/public/${item.photo}`
-            : noImage
-        }
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 8,
-          cursor: "pointer",
+      <div
+        onClick={(e) => {
+          setBarang(item);
+          setItemDetail(true);
+          op?.current?.toggle(e);
         }}
-      />
+      >
+        <img
+          src={
+            isValidUrl(item.photo)
+              ? item.photo?.replace(
+                  "http://66.42.48.163:9000/booqable/",
+                  "https://storage-booqable.emi-project.my.id/booqable/"
+                )
+              : item.photo
+              ? `https://democreation.site/home/public/${item.photo}`
+              : noImage
+          }
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 8,
+            cursor: "pointer",
+          }}
+        />
+      </div>
     );
   };
 
@@ -876,6 +890,45 @@ const TableDemo = () => {
       <div className="col-12">
         <div className="card">
           <h5>Inventory</h5>
+          <ConfirmDialog
+            visible={deleteConfirmation}
+            onHide={() => {
+              setDeleteConfirmation(false);
+              setBarang(null);
+            }}
+            message={`Are you sure you want to delete ${barang?.nama}?`}
+            header="Delete Confirmation"
+            icon="pi pi-exclamation-triangle"
+            accept={() => onDeleteItem(barang.id)}
+            reject={() => {
+              setDeleteConfirmation(false);
+              setBarang(null);
+            }}
+          />
+          <OverlayPanel ref={op}>
+            <img
+              src={
+                isValidUrl(barang?.photo)
+                  ? barang?.photo?.replace(
+                      "http://66.42.48.163:9000/booqable/",
+                      "https://storage-booqable.emi-project.my.id/booqable/"
+                    )
+                  : barang?.photo
+                  ? `https://democreation.site/home/public/${barang?.photo}`
+                  : noImage
+              }
+              style={{
+                width: 500,
+                height: "100%",
+                borderRadius: 8,
+                cursor: "pointer",
+                objectFit: "cover",
+              }}
+            />
+            <p style={{ fontSize: 16, marginTop: 16, fontWeight: "bold" }}>
+              {barang?.nama}
+            </p>
+          </OverlayPanel>
           <DataTable
             value={listBarang}
             paginator
@@ -917,7 +970,7 @@ const TableDemo = () => {
             />
             <Column
               field="satuan.name"
-              header="Satuan"
+              header="Image"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
               body={inventoryImage}
@@ -936,12 +989,12 @@ const TableDemo = () => {
               style={{ minWidth: "4rem" }}
               body={inventoryWarehouse}
             />
-                      <Column
+            <Column
               field="address"
               header="Action"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ width: 100 }}
               bodyStyle={{ textAlign: "center" }}
               body={(data) => (
                 <div
@@ -961,11 +1014,13 @@ const TableDemo = () => {
                     className="pi pi-file-edit"
                     style={{ fontSize: 18, cursor: "pointer" }}
                   ></div>
-
                   <div
                     className="pi pi-trash"
-                    onClick={() => onDeleteItem(data.id)}
-                    style={{ fontSize: 18, marginLeft: 8, cursor: "pointer" }}
+                    onClick={() => {
+                      setBarang(data);
+                      setDeleteConfirmation(true);
+                    }}
+                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
                   ></div>
                 </div>
               )}
@@ -1175,7 +1230,9 @@ const TableDemo = () => {
                 <InputText
                   id="panjang"
                   value={formik.values.panjang}
-                  onChange={(e) => formik.setFieldValue("panjang", e.target.value)}
+                  onChange={(e) =>
+                    formik.setFieldValue("panjang", e.target.value)
+                  }
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.panjang ? "border-red-600" : "border-gray-300"
@@ -1188,7 +1245,9 @@ const TableDemo = () => {
                 <InputText
                   id="lebar"
                   value={formik.values.lebar}
-                  onChange={(e) => formik.setFieldValue("lebar", e.target.value)}
+                  onChange={(e) =>
+                    formik.setFieldValue("lebar", e.target.value)
+                  }
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.lebar ? "border-red-600" : "border-gray-300"
@@ -1202,7 +1261,9 @@ const TableDemo = () => {
                 <InputText
                   id="panjang"
                   value={formik.values.tinggi}
-                  onChange={(e) => formik.setFieldValue("tinggi", e.target.value)}
+                  onChange={(e) =>
+                    formik.setFieldValue("tinggi", e.target.value)
+                  }
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.tinggi ? "border-red-600" : "border-gray-300"
@@ -1215,7 +1276,9 @@ const TableDemo = () => {
                 <InputText
                   id="berat"
                   value={formik.values.berat}
-                  onChange={(e) => formik.setFieldValue("berat", e.target.value)}
+                  onChange={(e) =>
+                    formik.setFieldValue("berat", e.target.value)
+                  }
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.berat ? "border-red-600" : "border-gray-300"
@@ -1229,7 +1292,9 @@ const TableDemo = () => {
                 <InputText
                   id="lantai"
                   value={formik.values.lantai}
-                  onChange={(e) => formik.setFieldValue("lantai", e.target.value)}
+                  onChange={(e) =>
+                    formik.setFieldValue("lantai", e.target.value)
+                  }
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.lantai ? "border-red-600" : "border-gray-300"
@@ -1242,7 +1307,9 @@ const TableDemo = () => {
                 <InputText
                   id="lorong"
                   value={formik.values.lorong}
-                  onChange={(e) => formik.setFieldValue("lorong", e.target.value)}
+                  onChange={(e) =>
+                    formik.setFieldValue("lorong", e.target.value)
+                  }
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.lorong ? "border-red-600" : "border-gray-300"

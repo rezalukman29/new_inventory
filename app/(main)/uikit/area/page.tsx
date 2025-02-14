@@ -33,6 +33,7 @@ import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
 import moment from "moment";
 import { Toast } from "primereact/toast";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 interface ISelect {
   label: string;
@@ -53,6 +54,8 @@ const TableDemo = () => {
   const [total, setTotal] = useState<number>(10);
   const [gudang, setGudang] = useState<any | null>(null);
   const [gudangs, setGudangs] = React.useState<any>([]);
+  const [selected, setSelecetd] = useState<any | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
 
   const getListArea = async () => {
     try {
@@ -67,6 +70,7 @@ const TableDemo = () => {
 
   const onDeleteEvent = async (id: string) => {
     try {
+      setDeleteConfirmation(false);
       setIsLoading(true);
       await InventoryService.deleteArea(id);
       toast?.current?.show({
@@ -111,6 +115,21 @@ const TableDemo = () => {
       <div className="col-12">
         <div className="card">
           <h5>Area</h5>
+          <ConfirmDialog
+            visible={deleteConfirmation}
+            onHide={() => {
+              setDeleteConfirmation(false);
+              setSelecetd(null);
+            }}
+            message={`Are you sure you want to delete area ${selected?.name}?`}
+            header="Delete Confirmation"
+            icon="pi pi-exclamation-triangle"
+            accept={() => onDeleteEvent(selected.id)}
+            reject={() => {
+              setDeleteConfirmation(false);
+              setSelecetd(null);
+            }}
+          />
           <DataTable
             value={listArea}
             paginator
@@ -156,10 +175,10 @@ const TableDemo = () => {
             <Column
               field="address"
               header="Action"
-              headerStyle={{justifyItems: 'center'}}
-              bodyStyle={{textAlign: 'center'}}
+              headerStyle={{ justifyItems: "center" }}
+              bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ width: 100 }}
               body={(data) => (
                 <div
                   style={{
@@ -176,8 +195,11 @@ const TableDemo = () => {
 
                   <div
                     className="pi pi-trash"
-                    onClick={() => onDeleteEvent(data.id)}
-                    style={{ fontSize: 18, marginLeft: 8, cursor: "pointer" }}
+                    onClick={() => {
+                      setSelecetd(data);
+                      setDeleteConfirmation(true);
+                    }}
+                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
                   ></div>
                 </div>
               )}

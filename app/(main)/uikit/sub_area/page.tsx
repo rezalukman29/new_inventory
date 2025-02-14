@@ -33,6 +33,7 @@ import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
 import moment from "moment";
 import { Toast } from "primereact/toast";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 interface ISelect {
   label: string;
@@ -55,6 +56,8 @@ const TableDemo = () => {
   const [gudangs, setGudangs] = React.useState<any>([]);
   const [listArea, setListArea] = useState<any[]>([]);
   const [listSubArea, setListSubArea] = useState<any[]>([]);
+  const [selected, setSelecetd] = useState<any | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
 
   const onChangeStatus = (e: any) => {
     setSelectedStatus(e.target.value);
@@ -83,6 +86,7 @@ const TableDemo = () => {
 
   const onDeleteEvent = async (id: string) => {
     try {
+      setDeleteConfirmation(false);
       setIsLoading(true);
       await InventoryService.deleteSubArea(id);
       toast?.current?.show({
@@ -128,6 +132,21 @@ const TableDemo = () => {
       <div className="col-12">
         <div className="card">
           <h5>Sub Area</h5>
+          <ConfirmDialog
+            visible={deleteConfirmation}
+            onHide={() => {
+              setDeleteConfirmation(false);
+              setSelecetd(null);
+            }}
+            message={`Are you sure you want to delete sub area ${selected?.sub_area_name}?`}
+            header="Delete Confirmation"
+            icon="pi pi-exclamation-triangle"
+            accept={() => onDeleteEvent(selected.id)}
+            reject={() => {
+              setDeleteConfirmation(false);
+              setSelecetd(null);
+            }}
+          />
           <DataTable
             value={listSubArea}
             paginator
@@ -160,9 +179,10 @@ const TableDemo = () => {
               header="Area"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
-              body={data => {
-                const area = listArea?.find((el) => el.id === data.area_id)?.name ?? "";
-                return (<p>{area}</p>)
+              body={(data) => {
+                const area =
+                  listArea?.find((el) => el.id === data.area_id)?.name ?? "";
+                return <p>{area}</p>;
               }}
             />
             <Column
@@ -177,10 +197,10 @@ const TableDemo = () => {
             <Column
               field="address"
               header="Action"
-              headerStyle={{justifyItems: 'center'}}
-              bodyStyle={{textAlign: 'center'}}
+              headerStyle={{ justifyItems: "center" }}
+              bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ width: 100 }}
               body={(data) => (
                 <div
                   style={{
@@ -197,8 +217,11 @@ const TableDemo = () => {
 
                   <div
                     className="pi pi-trash"
-                    onClick={() => onDeleteEvent(data.id)}
-                    style={{ fontSize: 18, marginLeft: 8, cursor: "pointer" }}
+                    onClick={() => {
+                      setSelecetd(data);
+                      setDeleteConfirmation(true);
+                    }}
+                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
                   ></div>
                 </div>
               )}

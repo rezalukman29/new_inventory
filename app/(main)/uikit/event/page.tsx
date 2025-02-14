@@ -40,6 +40,7 @@ import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { Dialog } from "primereact/dialog";
 import { Calendar } from "@hassanmojab/react-modern-calendar-datepicker";
 import "./DatePicker.css";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 interface ISelect {
   label: string;
@@ -61,6 +62,8 @@ const TableDemo = () => {
   const [productDialog, setProductDialog] = useState(false);
   const [showStart, setShowStart] = useState<boolean>(false);
   const [showEnd, setShowEnd] = useState<boolean>(false);
+  const [event, setEvent] = useState<any | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
 
   const formik = useFormik<PayloadAddEventI>({
     initialValues: {
@@ -150,6 +153,7 @@ const TableDemo = () => {
 
   const onDeleteEvent = async (id: string) => {
     try {
+      setDeleteConfirmation(false);
       setIsLoading(true);
       await InventoryService.deleteEvent({ id });
       toast?.current?.show({
@@ -224,6 +228,21 @@ const TableDemo = () => {
       <div className="col-12">
         <div className="card">
           <h5>Event</h5>
+          <ConfirmDialog
+            visible={deleteConfirmation}
+            onHide={() => {
+              setDeleteConfirmation(false);
+              setEvent(null);
+            }}
+            message={`Are you sure you want to delete event ${event?.name}?`}
+            header="Delete Confirmation"
+            icon="pi pi-exclamation-triangle"
+            accept={() => onDeleteEvent(event.id)}
+            reject={() => {
+              setDeleteConfirmation(false);
+              setEvent(null);
+            }}
+          />
           <DataTable
             value={listEvent}
             paginator
@@ -291,7 +310,7 @@ const TableDemo = () => {
               field="address"
               header="Action"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ width: 100 }}
               body={(data) => (
                 <div
                   style={{
@@ -308,8 +327,11 @@ const TableDemo = () => {
 
                   <div
                     className="pi pi-trash"
-                    onClick={() => onDeleteEvent(data.id)}
-                    style={{ fontSize: 18, marginLeft: 8, cursor: "pointer" }}
+                    onClick={() => {
+                      setEvent(data);
+                      setDeleteConfirmation(true);
+                    }}
+                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
                   ></div>
                 </div>
               )}

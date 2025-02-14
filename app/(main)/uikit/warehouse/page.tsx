@@ -37,6 +37,7 @@ import { Dialog } from "primereact/dialog";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 interface ISelect {
   label: string;
@@ -58,6 +59,8 @@ const TableDemo = () => {
   const [gudang, setGudang] = useState<any | null>(null);
   const [gudangs, setGudangs] = React.useState<any>([]);
   const [productDialog, setProductDialog] = useState(false);
+  const [selected, setSelecetd] = useState<any | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
 
   const formik = useFormik<any>({
     initialValues: {
@@ -134,6 +137,7 @@ const TableDemo = () => {
 
   const onDeleteEvent = async (id: string) => {
     try {
+      setDeleteConfirmation(false);
       setIsLoading(true);
       await InventoryService.deleteGudang(id);
       toast?.current?.show({
@@ -202,6 +206,21 @@ const TableDemo = () => {
       <div className="col-12">
         <div className="card">
           <h5>Warehouse</h5>
+          <ConfirmDialog
+            visible={deleteConfirmation}
+            onHide={() => {
+              setDeleteConfirmation(false);
+              setSelecetd(null);
+            }}
+            message={`Are you sure you want to delete warehouse ${selected?.nama}?`}
+            header="Delete Confirmation"
+            icon="pi pi-exclamation-triangle"
+            accept={() => onDeleteEvent(selected.id)}
+            reject={() => {
+              setDeleteConfirmation(false);
+              setSelecetd(null);
+            }}
+          />
           <DataTable
             value={gudangs}
             paginator
@@ -256,7 +275,7 @@ const TableDemo = () => {
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ width: 100 }}
               body={(data) => (
                 <div
                   style={{
@@ -278,8 +297,11 @@ const TableDemo = () => {
 
                   <div
                     className="pi pi-trash"
-                    onClick={() => onDeleteEvent(data.id)}
-                    style={{ fontSize: 18, marginLeft: 8, cursor: "pointer" }}
+                    onClick={() => {
+                      setSelecetd(data);
+                      setDeleteConfirmation(true);
+                    }}
+                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
                   ></div>
                 </div>
               )}
