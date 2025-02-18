@@ -50,6 +50,11 @@ const AppMenu = () => {
           icon: "pi pi-flag",
           to: "/uikit/event_status",
         },
+        {
+          label: "Log",
+          icon: "pi pi-book",
+          to: "/uikit/log",
+        },
       ],
     },
    

@@ -1,44 +1,23 @@
 "use client";
-import { CustomerService } from "../../../../demo/service/CustomerService";
-import { ProductService } from "../../../../demo/service/ProductService";
-import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { Button } from "primereact/button";
-import { Calendar } from "primereact/calendar";
 import {
   Column,
-  ColumnFilterApplyTemplateOptions,
-  ColumnFilterClearTemplateOptions,
-  ColumnFilterElementTemplateOptions,
 } from "primereact/column";
 import {
   DataTable,
-  DataTableExpandedRows,
-  DataTableFilterMeta,
 } from "primereact/datatable";
-import { Dropdown } from "primereact/dropdown";
-import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
-import { MultiSelect } from "primereact/multiselect";
-import { ProgressBar } from "primereact/progressbar";
-import { Rating } from "primereact/rating";
-import { Slider } from "primereact/slider";
-import { ToggleButton } from "primereact/togglebutton";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import { classNames } from "primereact/utils";
 import React, { useEffect, useRef, useState } from "react";
-import type { Demo } from "@/types";
 import { InventoryService } from "@/app/service/InventoryService";
-import { isValidUrl, noImage } from "@/app/util/function";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
-import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
 import moment from "moment";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { APIResponse } from "@/app/interfaces/BaseApiResponse";
+import { Dialog } from "primereact/dialog";
 
-interface ISelect {
-  label: string;
-  value: string;
-}
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
@@ -55,7 +34,65 @@ const TableDemo = () => {
   const [gudang, setGudang] = useState<any | null>(null);
   const [gudangs, setGudangs] = React.useState<any>([]);
   const [selected, setSelecetd] = useState<any | null>(null);
+  const [productDialog, setProductDialog] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
+
+  const formik = useFormik<any>({
+    initialValues: {
+      name: isModify ? selected.name : "",
+      description: isModify ? selected.description : "",
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("Required"),
+    }),
+    validateOnChange: false,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      setIsLoading(true);
+      const payload: any = {
+        name: values.name,
+        description: values.description,
+      };
+      if (isModify) {
+        const result: APIResponse<any> = await InventoryService.editArea({
+          ...payload,
+          id: selected.id,
+        });
+        if (result.success) {
+          setTimeout(() => {
+            setProductDialog(false);
+          }, 200);
+          toast?.current?.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Modify Area",
+            life: 3000,
+          });
+        }
+      } else {
+        const result: APIResponse<any> = await InventoryService.addArea(
+          payload
+        );
+        if (result.success) {
+          setTimeout(() => {
+            setProductDialog(false);
+          }, 200);
+          toast?.current?.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Adding Area",
+            life: 3000,
+          });
+        }
+      }
+      setIsModify(false);
+      setIsLoading(false);
+      formik.resetForm();
+      getListArea();
+    },
+  });
+
+
 
   const getListArea = async () => {
     try {
@@ -90,7 +127,7 @@ const TableDemo = () => {
     getListArea();
   }, []);
 
-  const onGlobalFilterChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {};
+  const onGlobalFilterChange1 = () => {};
 
   const renderHeader1 = () => {
     return (
@@ -103,11 +140,35 @@ const TableDemo = () => {
             placeholder="Keyword Search"
           />
         </span>
+        <Button
+          label="New"
+          icon="pi pi-plus"
+          severity="success"
+          className=" mr-2"
+          onClick={() => setProductDialog(true)}
+        />
       </div>
     );
   };
 
   const header1 = renderHeader1();
+
+  const hideDialog = () => {
+    setProductDialog(false);
+    setIsModify(false);
+  };
+
+  const productDialogFooter = (
+    <>
+      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Save"
+        icon="pi pi-check"
+        text
+        onClick={() => formik.handleSubmit()}
+      />
+    </>
+  );
 
   return (
     <div className="grid">
@@ -190,6 +251,11 @@ const TableDemo = () => {
                 >
                   <div
                     className="pi pi-file-edit"
+                    onClick={() => {
+                      setIsModify(true);
+                      setSelecetd(data);
+                      setProductDialog(true);
+                    }}
                     style={{ fontSize: 18, cursor: "pointer" }}
                   ></div>
 
@@ -226,6 +292,40 @@ const TableDemo = () => {
               body={inventoryWarehouse}
             /> */}
           </DataTable>
+          <Dialog
+            visible={productDialog}
+            style={{ width: "450px" }}
+            header={isModify ? "Modify Area" : "Add Area"}
+            modal
+            className="p-fluid"
+            footer={productDialogFooter}
+            onHide={hideDialog}
+          >
+            <div className="field">
+              <label htmlFor="name">Name</label>
+              <InputText
+                id="name"
+                value={formik.values.name}
+                onChange={(e) => formik.setFieldValue("name", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.name ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="name">Description</label>
+              <InputText
+                id="name"
+                value={formik.values.description}
+                onChange={(e) => formik.setFieldValue("description", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.description ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+          </Dialog>
         </div>
       </div>
     </div>

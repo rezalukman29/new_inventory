@@ -25,7 +25,7 @@ import { Slider } from "primereact/slider";
 import { ToggleButton } from "primereact/togglebutton";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { classNames } from "primereact/utils";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { Demo } from "@/types";
 import { InventoryService } from "@/app/service/InventoryService";
 import { isValidUrl, noImage } from "@/app/util/function";
@@ -34,6 +34,10 @@ import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
 import moment from "moment";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { APIResponse } from "@/app/interfaces/BaseApiResponse";
+import { Dialog } from "primereact/dialog";
 
 interface ISelect {
   label: string;
@@ -58,6 +62,63 @@ const TableDemo = () => {
   const [listSubArea, setListSubArea] = useState<any[]>([]);
   const [selected, setSelecetd] = useState<any | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
+  const [productDialog, setProductDialog] = useState(false);
+
+  const formik = useFormik<any>({
+    initialValues: {
+      area_id: isModify ? selected.area_id?.toString() : "",
+      sub_area_name: isModify ? selected.sub_area_name : "",
+    },
+    validationSchema: Yup.object({
+      sub_area_name: Yup.string().required("Required"),
+    }),
+    validateOnChange: false,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      setIsLoading(true);
+      const payload: any = {
+        area_id: Number(values.area_id),
+        sub_area_name: values.sub_area_name,
+      };
+      if (isModify) {
+        const result: APIResponse<any> = await InventoryService.editSubArea({
+          ...payload,
+          id: selected.id,
+        });
+        if (result.success) {
+          setTimeout(() => {
+            setProductDialog(false);
+          }, 200);
+          toast?.current?.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Modify Sub Area",
+            life: 3000,
+          });
+        }
+      } else {
+        const result: APIResponse<any> = await InventoryService.addSubArea(
+          payload
+        );
+        if (result.success) {
+          setTimeout(() => {
+            setProductDialog(false);
+          }, 200);
+          toast?.current?.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Adding Sub Area",
+            life: 3000,
+          });
+        }
+      }
+      setIsModify(false);
+      setIsLoading(false);
+      getListSubArea();
+      formik.resetForm();
+      getListArea();
+    },
+  });
 
   const onChangeStatus = (e: any) => {
     setSelectedStatus(e.target.value);
@@ -115,6 +176,13 @@ const TableDemo = () => {
             placeholder="Keyword Search"
           />
         </span>
+        <Button
+          label="New"
+          icon="pi pi-plus"
+          severity="success"
+          className=" mr-2"
+          onClick={() => setProductDialog(true)}
+        />
       </div>
     );
   };
@@ -125,6 +193,32 @@ const TableDemo = () => {
     getListArea();
     getListSubArea();
   }, []);
+
+  const hideDialog = () => {
+    setProductDialog(false);
+    setIsModify(false);
+  };
+
+  const productDialogFooter = (
+    <>
+      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Save"
+        icon="pi pi-check"
+        text
+        onClick={() => formik.handleSubmit()}
+      />
+    </>
+  );
+
+  const areaOption = useMemo(() => {
+    return listArea?.map((el) => {
+      return {
+        value: el.id.toString(),
+        label: el.name,
+      };
+    });
+  }, [listArea]);
 
   return (
     <div className="grid">
@@ -212,6 +306,11 @@ const TableDemo = () => {
                 >
                   <div
                     className="pi pi-file-edit"
+                    onClick={() => {
+                      setIsModify(true);
+                      setSelecetd(data);
+                      setProductDialog(true);
+                    }}
                     style={{ fontSize: 18, cursor: "pointer" }}
                   ></div>
 
@@ -248,6 +347,49 @@ const TableDemo = () => {
               body={inventoryWarehouse}
             /> */}
           </DataTable>
+          <Dialog
+            visible={productDialog}
+            style={{ width: "450px" }}
+            header={isModify ? "Modify Sub Area" : "Add Sub Area"}
+            modal
+            className="p-fluid"
+            footer={productDialogFooter}
+            onHide={hideDialog}
+          >
+            <div className="field">
+              <label htmlFor="name">Area</label>
+              <Dropdown
+                onChange={(e) =>
+                  formik.setFieldValue("area_id", e.target.value)
+                }
+                value={formik.values.area_id}
+                options={[
+                  ...[{ value: "", label: "Select area" }],
+                  ...areaOption,
+                ]}
+                optionLabel="label"
+                placeholder="Select warehouse"
+                className="mr-4 flex-1"
+                // style={{ width: "100%" }}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="name">Sub Area Name</label>
+              <InputText
+                id="name"
+                value={formik.values.sub_area_name}
+                onChange={(e) =>
+                  formik.setFieldValue("sub_area_name", e.target.value)
+                }
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.sub_area_name
+                    ? "border-red-600"
+                    : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+          </Dialog>
         </div>
       </div>
     </div>

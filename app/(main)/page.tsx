@@ -90,7 +90,6 @@ const Dashboard = () => {
           setProductDialog(false);
         }, 200);
       }
-      console.log("result :", result);
       setIsLoading(false);
       toast?.current?.show({
         severity: "success",
