@@ -51,6 +51,11 @@ const AppMenu = () => {
           to: "/uikit/event_status",
         },
         {
+          label: "Category",
+          icon: "pi pi-sitemap",
+          to: "/uikit/category",
+        },
+        {
           label: "Log",
           icon: "pi pi-book",
           to: "/uikit/log",

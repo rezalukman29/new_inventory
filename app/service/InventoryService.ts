@@ -154,6 +154,18 @@ export const InventoryService = {
     const response = await ax.get(`/v1/kategori-barang-all`);
     return response.data;
   },
+  addItemcategory: async (data: any): Promise<APIResponse<any>> => {
+    const response = await ax.post(`/v1/kategori-barang`, data);
+    return response.data;
+  },
+  editItemCategory: async (data: any): Promise<APIResponse<any>> => {
+    const response = await ax.put(`/v1/kategori-barang`, data);
+    return response.data;
+  },
+  deleteItemCategory: async (id: any): Promise<APIResponse<any>> => {
+    const response = await ax.delete(`/v1/kategori-barang/${id}`);
+    return response.data;
+  },
   addBarang: async (data: any): Promise<APIResponse<any>> => {
     const response = await ax.post(`/v1/barang`, data);
     return response.data;
