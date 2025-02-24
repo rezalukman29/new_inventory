@@ -1,11 +1,7 @@
 "use client";
 import { Button } from "primereact/button";
-import {
-  Column,
-} from "primereact/column";
-import {
-  DataTable,
-} from "primereact/datatable";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
 import { InputText } from "primereact/inputtext";
 import React, { useEffect, useRef, useState } from "react";
 import { InventoryService } from "@/app/service/InventoryService";
@@ -55,6 +51,7 @@ const TableDemo = () => {
     validateOnChange: false,
     enableReinitialize: true,
     onSubmit: async (values) => {
+      setProductDialog(false);
       setIsLoading(true);
       const payload: any = {
         nama: values.nama,
@@ -67,9 +64,6 @@ const TableDemo = () => {
           id: gudang.id,
         });
         if (result.success) {
-          setTimeout(() => {
-            setProductDialog(false);
-          }, 200);
           toast?.current?.show({
             severity: "success",
             summary: "Success",
@@ -82,9 +76,6 @@ const TableDemo = () => {
           payload
         );
         if (result.success) {
-          setTimeout(() => {
-            setProductDialog(false);
-          }, 200);
           toast?.current?.show({
             severity: "success",
             summary: "Success",

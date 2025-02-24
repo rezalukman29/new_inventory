@@ -1,37 +1,17 @@
 "use client";
-import { CustomerService } from "../../../../demo/service/CustomerService";
-import { ProductService } from "../../../../demo/service/ProductService";
-import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { Button } from "primereact/button";
-import { Calendar } from "primereact/calendar";
 import {
   Column,
-  ColumnFilterApplyTemplateOptions,
-  ColumnFilterClearTemplateOptions,
-  ColumnFilterElementTemplateOptions,
 } from "primereact/column";
 import {
   DataTable,
-  DataTableExpandedRows,
-  DataTableFilterMeta,
 } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
-import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
-import { MultiSelect } from "primereact/multiselect";
-import { ProgressBar } from "primereact/progressbar";
-import { Rating } from "primereact/rating";
-import { Slider } from "primereact/slider";
-import { ToggleButton } from "primereact/togglebutton";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import { classNames } from "primereact/utils";
 import React, { useEffect, useRef, useState } from "react";
-import type { Demo } from "@/types";
 import { InventoryService } from "@/app/service/InventoryService";
 import { isValidUrl, noImage } from "@/app/util/function";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
-import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
-import moment from "moment";
 import { Toast } from "primereact/toast";
 import { Dialog } from "primereact/dialog";
 import { useFormik } from "formik";
@@ -108,6 +88,7 @@ const TableDemo = () => {
         stok_minimum: Number(values.stok_minimum),
         code: values.kode,
       };
+      setProductDialog(false);
       if (isModify) {
         try {
           delete payload.kode;
@@ -116,9 +97,6 @@ const TableDemo = () => {
             id: barang.barang_gudang_id,
           });
           if (result.success) {
-            setTimeout(() => {
-              setProductDialog(false);
-            }, 200);
             toast?.current?.show({
               severity: "success",
               summary: "Success",
@@ -151,9 +129,6 @@ const TableDemo = () => {
           const result: APIResponse<any> =
             await InventoryService.addBarangGudang(payload);
           if (result.success) {
-            setTimeout(() => {
-              setProductDialog(false);
-            }, 200);
             toast?.current?.show({
               severity: "success",
               summary: "Success",
