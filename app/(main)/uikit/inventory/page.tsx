@@ -963,6 +963,20 @@ const TableDemo = () => {
               style={{ minWidth: "4rem" }}
             />
             <Column
+              field="stok_barang"
+              header="Stok All"
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem" }}
+              body={(data: any) => (
+                <p>{data.barang_gudang?.reduce(
+                  (accumulator: any, object: any) => {
+                    return accumulator + Number(object.stok);
+                  },
+                  0,
+                )}</p>
+              )}
+            />
+            <Column
               field="satuan.name"
               header="Satuan"
               filterPlaceholder="Search by name"
