@@ -1,11 +1,7 @@
 "use client";
 import { Button } from "primereact/button";
-import {
-  Column,
-} from "primereact/column";
-import {
-  DataTable,
-} from "primereact/datatable";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import React, { useEffect, useRef, useState } from "react";
@@ -62,6 +58,8 @@ const TableDemo = () => {
       stok_minimum: isModify ? barang.stok_minimum.toString() : "",
       lantai: isModify ? barang.lantai : "",
       lorong: isModify ? barang.lorong : "",
+      flag_1: isModify ? barang.flag_1 : "",
+      flag_2: isModify ? barang.flag_2 : "",
     },
     validationSchema: Yup.object({
       stok: Yup.string().required("Required"),
@@ -141,7 +139,7 @@ const TableDemo = () => {
             setIsLoading(false);
             setInventory(null);
             getInventoryList();
-            setSearchInventory('')
+            setSearchInventory("");
           }
         } catch (error: any) {
           setIsLoading(false);
@@ -399,6 +397,30 @@ const TableDemo = () => {
               bodyStyle={{ textAlign: "center" }}
             />
             <Column
+              field="stock_used"
+              header="Stok Used"
+              headerStyle={{ justifyItems: "center" }}
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem" }}
+              bodyStyle={{ textAlign: "center" }}
+            />
+            <Column
+              field="flag_1"
+              header="Flag 1"
+              headerStyle={{ justifyItems: "center" }}
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem" }}
+              bodyStyle={{ textAlign: "center" }}
+            />
+            <Column
+              field="flag_2"
+              header="Flag 2"
+              headerStyle={{ justifyItems: "center" }}
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem" }}
+              bodyStyle={{ textAlign: "center" }}
+            />
+            <Column
               field="stok_minimum"
               header="Image"
               headerStyle={{ justifyItems: "center" }}
@@ -637,6 +659,37 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.lorong ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+            </div>
+            <div className="flex flex-row items-center">
+              <div className="field">
+                <label htmlFor="name">Flag 1</label>
+                <InputText
+                  id="name"
+                  value={formik.values.flag_1}
+                  onChange={(e) =>
+                    formik.setFieldValue("flag_1", e.target.value)
+                  }
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.flag_1 ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field">
+                <label htmlFor="name">Flag 2</label>
+                <InputText
+                  id="name"
+                  value={formik.values.flag_2}
+                  onChange={(e) =>
+                    formik.setFieldValue("flag_2", e.target.value)
+                  }
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.flag_2 ? "border-red-600" : "border-gray-300"
                   } rounded-lg bg-transparent`}
                 />
               </div>
