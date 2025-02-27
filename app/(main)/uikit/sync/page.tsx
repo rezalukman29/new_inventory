@@ -6,13 +6,7 @@ import { InputText } from "primereact/inputtext";
 import React, { useEffect, useRef, useState } from "react";
 import { InventoryService } from "@/app/service/InventoryService";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
-import moment from "moment";
 import { Toast } from "primereact/toast";
-import { ConfirmDialog } from "primereact/confirmdialog";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { APIResponse } from "@/app/interfaces/BaseApiResponse";
-import { Dialog } from "primereact/dialog";
 
 const TableDemo = () => {
   const toast = useRef<any>(null);

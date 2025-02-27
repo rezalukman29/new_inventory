@@ -291,4 +291,14 @@ export const InventoryService = {
     const response = await ax.put(`/v1/event-status/update-scan`, payload);
     return response.data;
   },
+  putSyncInventory: async (id: string) => {
+    const response = await ax.put(`/v1/barang/update-sync`, {
+      barang_id: id
+    });
+    return response.data;
+  },
+  getSyncInventory: async (): Promise<APIResponse<Array<any>>> => {
+    const response = await ax.get(`/v1/barang/get-sync`);
+    return response.data;
+  },
 };
