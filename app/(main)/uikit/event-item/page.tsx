@@ -317,9 +317,8 @@ const Page = (props: Props) => {
   };
 
   const isShowScan =
-    eventStatus?.data?.find(
-      (el) => el.id === eventDetail?.status
-    )?.is_show_scan_result === 1
+    eventStatus?.data?.find((el) => el.id === eventDetail?.status)
+      ?.is_show_scan_result === 1
       ? true
       : false;
 
@@ -842,6 +841,7 @@ const Page = (props: Props) => {
               }}
             />
             <div className="text mt-2 font-bold">{item.nama_barang}</div>
+            <div className="text mt-1">Qty: {item.stok}</div>
             <div className="flex flex-row items-center mt-1">
               <Icon icon="vaadin:area-select" color="#000" className="mr-2" />
               <Text
@@ -965,16 +965,18 @@ const Page = (props: Props) => {
           <div className="flex align-items-center justify-content-between">
             <span className="text-2xl font-semibold"></span>
             <div className="flex-row">
-              <Button
-                icon="pi pi-qrcode"
-                severity="secondary"
-                onClick={() => {
-                  setBarang(item);
-                  setTimeout(() => {
-                    setQrDialog(true);
-                  }, 500);
-                }}
-              />
+              {!isCart && (
+                <Button
+                  icon="pi pi-qrcode"
+                  severity="secondary"
+                  onClick={() => {
+                    setBarang(item);
+                    setTimeout(() => {
+                      setQrDialog(true);
+                    }, 500);
+                  }}
+                />
+              )}
               <Button
                 icon="pi pi-trash"
                 style={{ marginLeft: 8 }}
@@ -1439,7 +1441,7 @@ const Page = (props: Props) => {
               </div>
               <div style={{ width: 16 }} />
               <div className="field flex-1">
-                <label htmlFor="name">Rack</label>
+                <label htmlFor="name">Status</label>
                 <Dropdown
                   onChange={onChangeStatus}
                   value={selectedStatus}
@@ -1485,7 +1487,7 @@ const Page = (props: Props) => {
           <Dialog
             visible={cartDialog}
             style={{ width: width * 0.7 }}
-            header={"Addded Inventory"}
+            header={"Cart"}
             modal
             className="p-fluid"
             footer={cartFooter}
