@@ -36,6 +36,11 @@ const AppMenu = () => {
           to: "/uikit/warehouse_inventory",
         },
         {
+          label: "Sync Inventory",
+          icon: "pi pi-sync",
+          to: "/uikit/sync",
+        },
+        {
           label: "Area",
           icon: "pi pi-map-marker",
           to: "/uikit/area",

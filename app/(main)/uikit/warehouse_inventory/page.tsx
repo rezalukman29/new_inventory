@@ -298,8 +298,12 @@ const TableDemo = () => {
     return (
       <img
         src={
-          isValidUrl(item.photo)
-            ? item.photo
+          isValidUrl(item.photo) &&
+          item.photo.includes("http://66.42.48.163:9000")
+            ? item?.photo?.replace(
+                "http://66.42.48.163:9000/booqable/",
+                "https://storage-booqable.emi-project.my.id/booqable/"
+              )
             : item.photo
             ? `https://democreation.site/home/public/${item.photo}`
             : noImage
@@ -539,8 +543,12 @@ const TableDemo = () => {
                   >
                     <img
                       src={
-                        isValidUrl(item.photo)
-                          ? item.photo
+                        isValidUrl(item.photo) &&
+                        item.photo.includes("http://66.42.48.163:9000")
+                          ? item?.photo?.replace(
+                              "http://66.42.48.163:9000/booqable/",
+                              "https://storage-booqable.emi-project.my.id/booqable/"
+                            )
                           : item.photo
                           ? `https://democreation.site/home/public/${item.photo}`
                           : noImage

@@ -63,6 +63,7 @@ const TableDemo = () => {
   const [selected, setSelecetd] = useState<any | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [productDialog, setProductDialog] = useState(false);
+  const [searchValue, setSearchValue] = useState<string>("");
 
   const formik = useFormik<any>({
     initialValues: {
@@ -171,8 +172,8 @@ const TableDemo = () => {
         <span className="p-input-icon-left">
           <i className="pi pi-search" />
           <InputText
-            value={""}
-            onChange={onGlobalFilterChange1}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Keyword Search"
           />
         </span>
@@ -242,7 +243,11 @@ const TableDemo = () => {
             }}
           />
           <DataTable
-            value={listSubArea}
+            value={listSubArea.filter(
+              (el) =>
+                el.sub_area_name &&
+                el.sub_area_name.match(new RegExp(searchValue, "i"))
+            )}
             paginator
             className="p-datatable-gridlines"
             onPage={(e) => {
