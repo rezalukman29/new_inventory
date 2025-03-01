@@ -109,7 +109,7 @@ const Dashboard = () => {
     do {
       const response = await fetch(`/api/event?page=${page}`);
       const res = await response.json();
-      if (res.data) {
+      if (res.data?.length) {
         res.data?.forEach((dt: any) => {
           temp.push({
             label: dt.name,
