@@ -176,6 +176,11 @@ const TableDemo = () => {
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
+      setPage(1);
+      setFirst(0);
+      setListBarang([]);
+      setTotal(0);
+      setTotalPages(0);
     }
   };
 

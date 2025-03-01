@@ -37,6 +37,7 @@ import { Dialog } from "primereact/dialog";
 import { Icon } from "@iconify/react";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { OverlayPanel } from "primereact/overlaypanel";
+import Loading from "@/app/components/atoms/loading";
 
 interface ISelect {
   label: string;
@@ -199,6 +200,11 @@ const TableDemo = () => {
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
+      setPage(1);
+      setFirst(0);
+      setListBarang([]);
+      setTotal(0);
+      setTotalPages(0);
     }
   };
 
@@ -929,117 +935,128 @@ const TableDemo = () => {
               {barang?.nama}
             </p>
           </OverlayPanel>
-          <DataTable
-            value={listBarang}
-            paginator
-            className="p-datatable-gridlines"
-            onPage={(e) => {
-              setFirst(e.first);
-              setPage(Number(e.page) + 1);
-            }}
-            rows={listBarang.length}
-            dataKey="id"
-            totalRecords={total}
-            lazy
-            first={first}
-            alwaysShowPaginator
-            loading={isLoading}
-            responsiveLayout="scroll"
-            emptyMessage="No customers found."
-            header={header1}
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-            currentPageReportTemplate="{first} to {last} of {totalRecords} inventory"
-          >
-            <Column
-              field="nama"
-              header="Name"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "12rem" }}
-            />
-            <Column
-              field="stok_barang"
-              header="Stok"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
-            />
-            <Column
-              field="stok_barang"
-              header="Stok All"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
-              body={(data: any) => (
-                <p>{data.barang_gudang?.reduce(
-                  (accumulator: any, object: any) => {
-                    return accumulator + Number(object.stok);
-                  },
-                  0,
-                )}</p>
-              )}
-            />
-            <Column
-              field="satuan.name"
-              header="Satuan"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
-            />
-            <Column
-              field="satuan.name"
-              header="Image"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
-              body={inventoryImage}
-            />
-            <Column
-              field="satuan.name"
-              header="Category"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
-              body={inventoryCategory}
-            />
-            <Column
-              field="satuan.name"
-              header="Category"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
-              body={inventoryWarehouse}
-            />
-            <Column
-              field="address"
-              header="Action"
-              headerStyle={{ justifyItems: "center" }}
-              filterPlaceholder="Search by name"
-              style={{ width: 100 }}
-              bodyStyle={{ textAlign: "center" }}
-              body={(data) => (
-                <div
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flex: 1,
-                  }}
-                >
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <DataTable
+              value={listBarang}
+              paginator
+              className="p-datatable-gridlines"
+              onPage={(e) => {
+                setFirst(e.first);
+                setPage(Number(e.page) + 1);
+              }}
+              rows={listBarang.length}
+              dataKey="id"
+              totalRecords={total}
+              lazy
+              first={first}
+              alwaysShowPaginator
+              loading={isLoading}
+              responsiveLayout="scroll"
+              emptyMessage="No customers found."
+              header={header1}
+              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+              currentPageReportTemplate="{first} to {last} of {totalRecords} inventory"
+            >
+              <Column
+                field="nama"
+                header="Name"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "12rem" }}
+              />
+              <Column
+                field="stok_barang"
+                header="Stok"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "4rem" }}
+              />
+              <Column
+                field="stok_barang"
+                header="Stok All"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "4rem" }}
+                body={(data: any) => {
+                  return (
+                    <p>
+                      {data.barang_gudang?.reduce(
+                        (accumulator: any, object: any) => {
+                          return accumulator + Number(object.stok);
+                        },
+                        0
+                      )}
+                    </p>
+                  );
+                }}
+              />
+              <Column
+                field="satuan.name"
+                header="Satuan"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "4rem" }}
+              />
+              <Column
+                field="satuan.name"
+                header="Image"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "4rem" }}
+                body={inventoryImage}
+              />
+              <Column
+                field="satuan.name"
+                header="Category"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "4rem" }}
+                body={inventoryCategory}
+              />
+              <Column
+                field="satuan.name"
+                header="Category"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "4rem" }}
+                body={inventoryWarehouse}
+              />
+              <Column
+                field="address"
+                header="Action"
+                headerStyle={{ justifyItems: "center" }}
+                filterPlaceholder="Search by name"
+                style={{ width: 100 }}
+                bodyStyle={{ textAlign: "center" }}
+                body={(data) => (
                   <div
-                    onClick={() => {
-                      setIsModify(true);
-                      setBarang(data);
-                      setProductDialog(true);
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flex: 1,
                     }}
-                    className="pi pi-file-edit"
-                    style={{ fontSize: 18, cursor: "pointer" }}
-                  ></div>
-                  <div
-                    className="pi pi-trash"
-                    onClick={() => {
-                      setBarang(data);
-                      setDeleteConfirmation(true);
-                    }}
-                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
-                  ></div>
-                </div>
-              )}
-            />
-            {/* <Column header="Stok" filterField="country.name" style={{ minWidth: '12rem' }} body={countryBodyTemplate} filterPlaceholder="Search by country" filterClear={filterClearTemplate} filterApply={filterApplyTemplate} />
+                  >
+                    <div
+                      onClick={() => {
+                        setIsModify(true);
+                        setBarang(data);
+                        setProductDialog(true);
+                      }}
+                      className="pi pi-file-edit"
+                      style={{ fontSize: 18, cursor: "pointer" }}
+                    ></div>
+                    <div
+                      className="pi pi-trash"
+                      onClick={() => {
+                        setBarang(data);
+                        setDeleteConfirmation(true);
+                      }}
+                      style={{
+                        fontSize: 18,
+                        marginLeft: 20,
+                        cursor: "pointer",
+                      }}
+                    ></div>
+                  </div>
+                )}
+              />
+              {/* <Column header="Stok" filterField="country.name" style={{ minWidth: '12rem' }} body={countryBodyTemplate} filterPlaceholder="Search by country" filterClear={filterClearTemplate} filterApply={filterApplyTemplate} />
                         <Column
                             header="Agent"
                             filterField="representative"
@@ -1055,7 +1072,8 @@ const TableDemo = () => {
                         <Column field="status" header="Status" filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '12rem' }} body={statusBodyTemplate} filterElement={statusFilterTemplate} />
                         <Column field="activity" header="Activity" showFilterMatchModes={false} style={{ minWidth: '12rem' }} body={activityBodyTemplate} filter filterElement={activityFilterTemplate} />
                         <Column field="verified" header="Verified" dataType="boolean" bodyClassName="text-center" style={{ minWidth: '8rem' }} body={verifiedBodyTemplate} filter filterElement={verifiedFilterTemplate} /> */}
-          </DataTable>
+            </DataTable>
+          )}
 
           <Dialog
             visible={productDialog}

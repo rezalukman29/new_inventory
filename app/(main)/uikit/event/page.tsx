@@ -132,6 +132,9 @@ const TableDemo = () => {
       setIsLoading(false);
       setPage(1);
       setFirst(0);
+      setListEvent([]);
+      setTotal(0);
+      setTotalPages(0);
     }
   };
 
