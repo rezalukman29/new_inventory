@@ -271,7 +271,7 @@ const TableDemo = () => {
             className="w-full md:w-14rem mr-4"
           />
           <Button
-            label="Submit"
+            label="Search"
             onClick={() => {
               if (page === 1) {
                 getInventoryList();

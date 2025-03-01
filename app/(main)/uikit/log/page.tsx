@@ -232,7 +232,7 @@ const TableDemo = () => {
             loading={isLoading}
             responsiveLayout="scroll"
             emptyMessage="No customers found."
-            header={header1}
+            // header={header1}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="{first} to {last} of {totalRecords} events"
           >

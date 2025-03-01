@@ -28,7 +28,7 @@ const TableDemo = () => {
   const [height] = useDeviceSize();
   const [page, setPage] = useState<number>(1);
   const [first, setFirst] = useState<number>(0);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageSize, setPageSize] = useState<number>(99);
   const [totalPages, setTotalPages] = useState<number>(10);
   const [total, setTotal] = useState<number>(10);
   const [gudang, setGudang] = useState<any | null>(null);
@@ -36,6 +36,7 @@ const TableDemo = () => {
   const [productDialog, setProductDialog] = useState(false);
   const [selected, setSelecetd] = useState<any | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>("");
 
   const formik = useFormik<any>({
     initialValues: {
@@ -135,8 +136,8 @@ const TableDemo = () => {
         <span className="p-input-icon-left">
           <i className="pi pi-search" />
           <InputText
-            value={""}
-            onChange={onGlobalFilterChange1}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Keyword Search"
           />
         </span>
@@ -192,7 +193,11 @@ const TableDemo = () => {
             }}
           />
           <DataTable
-            value={gudangs}
+            value={gudangs.filter(
+              (el: any) =>
+                el.nama &&
+                el.nama.match(new RegExp(searchValue, "i"))
+            )}
             paginator
             className="p-datatable-gridlines"
             onPage={(e) => {

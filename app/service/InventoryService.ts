@@ -2,7 +2,7 @@
 import {
   APIResponse,
   BaseResponsePagination,
-} from '../interfaces/BaseApiResponse';
+} from "../interfaces/BaseApiResponse";
 import {
   BarangGudangI,
   InventoryFilterPropsI,
@@ -10,18 +10,18 @@ import {
   InventoryImage,
   PayloadAddEventI,
   PayloadUploadImageI,
-} from '../interfaces/InventoryInterface';
+} from "../interfaces/InventoryInterface";
 
-import ax from './axios';
+import ax from "./axios";
 
-const URL = 'barang';
-const URL_WAREHOUSE = 'barang-with-gudang';
-const URL_BARANG_GUDANG = 'barang-gudang';
-const URL_BARANG_FILTER = 'barang-filter?';
-const URL_CATEGORY = 'kategori-barang';
-const URL_HISTORY_ITEM = 'barang-gudang-history';
-const URL_BARANG_IMAGE = 'barang-image';
-const URL_AREA = 'area';
+const URL = "barang";
+const URL_WAREHOUSE = "barang-with-gudang";
+const URL_BARANG_GUDANG = "barang-gudang";
+const URL_BARANG_FILTER = "barang-filter?";
+const URL_CATEGORY = "kategori-barang";
+const URL_HISTORY_ITEM = "barang-gudang-history";
+const URL_BARANG_IMAGE = "barang-image";
+const URL_AREA = "area";
 
 export const InventoryService = {
   getById: async (barangId: string) => {
@@ -33,38 +33,39 @@ export const InventoryService = {
     return response.data.data;
   },
   getDetailBarangGudang: async (
-    barangGudangId: number | null,
+    barangGudangId: number | null
   ): Promise<APIResponse<any>> => {
     const response = await ax.get(`/v1/${URL_BARANG_GUDANG}/${barangGudangId}`);
     return response.data;
   },
   getEvent: async (filter: any) => {
     const response = await ax.get(`/v1/event-filter`, {
-    params: {
-      page: filter.page,
-      limit: filter.limit,
-    }
+      params: {
+        page: filter.page,
+        limit: filter.limit,
+        ...(filter.search && { search: filter.search }),
+      },
     });
     return response.data.data;
   },
   getScanEventBarang: async (
     barangGudangId: number | null,
-    fixListItemId: number,
+    fixListItemId: number
   ): Promise<APIResponse<any>> => {
     const response = await ax.get(
-      `scanInAPI?barang_gudang_id=${barangGudangId}&fix_list_item_id=${fixListItemId}`,
+      `scanInAPI?barang_gudang_id=${barangGudangId}&fix_list_item_id=${fixListItemId}`
     );
     return response.data;
   },
   getInventory: async (
-    filter: InventoryFilterPropsI,
+    filter: InventoryFilterPropsI
   ): Promise<BaseResponsePagination<any>> => {
     const response = await ax.get(
       `/v1/${URL_BARANG_FILTER}${
-        filter.category ? `kategori=${filter.category}&` : ''
+        filter.category ? `kategori=${filter.category}&` : ""
       }page=${filter.page}&limit=${filter.limit}&order=${filter.order}${
-        filter.search ? `&search=${filter.search}` : ''
-      }`,
+        filter.search ? `&search=${filter.search}` : ""
+      }`
     );
     return response.data;
   },
@@ -73,19 +74,19 @@ export const InventoryService = {
     return response.data.data;
   },
   getHistoryItem: async (
-    barangGudangId: number | null,
+    barangGudangId: number | null
   ): Promise<APIResponse<Array<InventoryHistoryI>>> => {
     const response = await ax.get(`${URL_HISTORY_ITEM}/${barangGudangId}`);
     return response.data;
   },
   getInventoryImages: async (
-    barangId: number,
+    barangId: number
   ): Promise<APIResponse<Array<InventoryImage>>> => {
     const response = await ax.get(`${URL_BARANG_IMAGE}/${barangId}`);
     return response.data;
   },
   uploadInventoryImage: async (
-    data: PayloadUploadImageI,
+    data: PayloadUploadImageI
   ): Promise<APIResponse<any>> => {
     const response = await ax.post(`${URL_BARANG_IMAGE}`, {
       barang_id: data.id,
@@ -102,12 +103,12 @@ export const InventoryService = {
     gudangId: number | string,
     page: number,
     search: string,
-    limit: number,
+    limit: number
   ): Promise<BaseResponsePagination<BarangGudangI[]>> => {
     const response = await ax.get(
-      `v1/barang-gudang/detail?${gudangId === 'All' || gudangId === null ? "" : `gudang_id=${gudangId}&`}page=${page}&limit=${limit}${
-        search ? `&search=${search}` : ''
-      }`,
+      `v1/barang-gudang/detail?${
+        gudangId === "All" || gudangId === null ? "" : `gudang_id=${gudangId}&`
+      }page=${page}&limit=${limit}${search ? `&search=${search}` : ""}`
     );
     return response.data.data;
   },
@@ -118,10 +119,10 @@ export const InventoryService = {
   }): Promise<BaseResponsePagination<any>> => {
     const response = await ax.get(
       `${URL_BARANG_FILTER}${
-        !!params.category ? `kategori=${params.category}&` : ''
+        !!params.category ? `kategori=${params.category}&` : ""
       }page=${params.page}&limit=${params.limit}&order=${params.order}${
-        !!params.search ? `&search=${params.search}` : ''
-      }`,
+        !!params.search ? `&search=${params.search}` : ""
+      }`
     );
     return response.data.data;
   },
@@ -133,13 +134,8 @@ export const InventoryService = {
     const response = await ax.put(`/v1/event/update`, data);
     return response.data;
   },
-  deleteEvent: async ({
-    id,
-  }: {
-    id: string;
-  }): Promise<any> => {
-    const response = await ax.delete(`/v1/event/${id}`
-    );
+  deleteEvent: async ({ id }: { id: string }): Promise<any> => {
+    const response = await ax.delete(`/v1/event/${id}`);
     return response.data;
   },
   getInventoryList: async (page: number): Promise<APIResponse<Array<any>>> => {
@@ -231,31 +227,37 @@ export const InventoryService = {
     return response.data;
   },
   loginFetch: async (body: any): Promise<APIResponse<any>> => {
-    const result = await fetch('https://emi-backend-staging.emi-project.my.id/v1/login', {
-      method: 'POST',
-      body: JSON.stringify({
-        email: body.email,
-        password: body.password,
-      }),
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-    });
+    const result = await fetch(
+      "https://emi-backend-staging.emi-project.my.id/v1/login",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email: body.email,
+          password: body.password,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      }
+    );
     const data = await result.json();
     return data;
   },
   postRegister: async (body: any): Promise<APIResponse<any>> => {
-    const result = await fetch('https://emi-backend-staging.emi-project.my.id/v1/register', {
-      method: 'POST',
-      body: JSON.stringify({
-        fullname: body.name,
-        email: body.email,
-        password: body.password,
-      }),
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-    });
+    const result = await fetch(
+      "https://emi-backend-staging.emi-project.my.id/v1/register",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          fullname: body.name,
+          email: body.email,
+          password: body.password,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      }
+    );
     const data = await result.json();
     return data;
   },
@@ -293,7 +295,7 @@ export const InventoryService = {
   },
   putSyncInventory: async (id: string) => {
     const response = await ax.put(`/v1/barang/update-sync`, {
-      barang_id: id
+      barang_id: id,
     });
     return response.data;
   },

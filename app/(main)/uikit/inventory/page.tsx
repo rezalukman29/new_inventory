@@ -328,7 +328,7 @@ const TableDemo = () => {
             />
           </span>
           <Button
-            label="Submit"
+            label="Search"
             onClick={() => {
               if (page === 1) {
                 getInventoryList();

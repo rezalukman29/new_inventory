@@ -1,33 +1,15 @@
 "use client";
-import { CustomerService } from "../../../../demo/service/CustomerService";
-import { ProductService } from "../../../../demo/service/ProductService";
-import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { Button } from "primereact/button";
 import {
   Column,
-  ColumnFilterApplyTemplateOptions,
-  ColumnFilterClearTemplateOptions,
-  ColumnFilterElementTemplateOptions,
 } from "primereact/column";
 import {
   DataTable,
-  DataTableExpandedRows,
-  DataTableFilterMeta,
 } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
-import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
-import { MultiSelect } from "primereact/multiselect";
-import { ProgressBar } from "primereact/progressbar";
-import { Rating } from "primereact/rating";
-import { Slider } from "primereact/slider";
-import { ToggleButton } from "primereact/togglebutton";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import { classNames } from "primereact/utils";
 import React, { useEffect, useRef, useState } from "react";
-import type { Demo } from "@/types";
 import { InventoryService } from "@/app/service/InventoryService";
-import { isValidUrl, noImage } from "@/app/util/function";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
 import moment from "moment";
@@ -64,6 +46,7 @@ const TableDemo = () => {
   const [showEnd, setShowEnd] = useState<boolean>(false);
   const [event, setEvent] = useState<any | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState("");
 
   const formik = useFormik<PayloadAddEventI>({
     initialValues: {
@@ -139,6 +122,7 @@ const TableDemo = () => {
       const response = await InventoryService.getEvent({
         page,
         limit: size ?? pageSize,
+        search: searchValue,
       });
       setListEvent(response.data);
       setTotal(response.total_records);
@@ -184,14 +168,26 @@ const TableDemo = () => {
   const renderHeader1 = () => {
     return (
       <div className="flex justify-content-between">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
-          <InputText
-            value={""}
-            onChange={onGlobalFilterChange1}
-            placeholder="Keyword Search"
+        <div className="flex">
+          <span className="p-input-icon-left mr-4">
+            <i className="pi pi-search" />
+            <InputText
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Keyword Search"
+            />
+          </span>
+          <Button
+            label="Search"
+            onClick={() => {
+              if (page === 1) {
+                getListEvent();
+              } else {
+                setPage(1);
+              }
+            }}
           />
-        </span>
+        </div>
         <Button
           label="New"
           icon="pi pi-plus"

@@ -1,37 +1,15 @@
 "use client";
-import { CustomerService } from "../../../../demo/service/CustomerService";
-import { ProductService } from "../../../../demo/service/ProductService";
-import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { Button } from "primereact/button";
-import { Calendar } from "primereact/calendar";
 import {
   Column,
-  ColumnFilterApplyTemplateOptions,
-  ColumnFilterClearTemplateOptions,
-  ColumnFilterElementTemplateOptions,
 } from "primereact/column";
 import {
   DataTable,
-  DataTableExpandedRows,
-  DataTableFilterMeta,
 } from "primereact/datatable";
-import { Dropdown } from "primereact/dropdown";
-import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
-import { MultiSelect } from "primereact/multiselect";
-import { ProgressBar } from "primereact/progressbar";
-import { Rating } from "primereact/rating";
-import { Slider } from "primereact/slider";
-import { ToggleButton } from "primereact/togglebutton";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import { classNames } from "primereact/utils";
 import React, { useEffect, useRef, useState } from "react";
-import type { Demo } from "@/types";
 import { InventoryService } from "@/app/service/InventoryService";
-import { isValidUrl, noImage } from "@/app/util/function";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
-import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
-import moment from "moment";
 import { Toast } from "primereact/toast";
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -61,6 +39,7 @@ const TableDemo = () => {
   const [listArea, setListArea] = useState<any[]>([]);
   const [statusList, setStatusList] = useState<any[]>([]);
   const [productDialog, setProductDialog] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   const formik = useFormik<any>({
     initialValues: {
@@ -142,8 +121,8 @@ const TableDemo = () => {
         <span className="p-input-icon-left">
           <i className="pi pi-search" />
           <InputText
-            value={""}
-            onChange={onGlobalFilterChange1}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Keyword Search"
           />
         </span>
@@ -181,7 +160,11 @@ const TableDemo = () => {
         <div className="card">
           <h5>Event Status</h5>
           <DataTable
-            value={statusList}
+             value={statusList.filter(
+              (el: any) =>
+                el.name &&
+                el.name.match(new RegExp(searchValue, "i"))
+            )}
             paginator
             className="p-datatable-gridlines"
             onPage={(e) => {
