@@ -946,7 +946,7 @@ const TableDemo = () => {
                 setFirst(e.first);
                 setPage(Number(e.page) + 1);
               }}
-              rows={listBarang.length}
+              rows={10}
               dataKey="id"
               totalRecords={total}
               lazy
