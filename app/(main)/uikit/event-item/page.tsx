@@ -175,6 +175,7 @@ const Page = (props: Props) => {
 
   const onChangeArea = (e: any) => {
     setSelectedArea(e.target.value);
+    setSubArea(null)
   };
   const onChangeStatus = (e: any) => {
     setSelectedStatus(e.target.value);
@@ -624,7 +625,7 @@ const Page = (props: Props) => {
       ...[
         {
           list_id: Number(selectedArea),
-          sub_list_id: Number(subArea),
+          sub_list_id: !!subArea ? Number(subArea) : null,
           event_id: Number(eventId),
           barang_gudang_id: selectedBarangGudang.barang_gudang_id,
           qty: parseInt(qty),
@@ -723,7 +724,7 @@ const Page = (props: Props) => {
           const eventListResponse: any = await formPostEventList({
             list_id: item.list_id,
             event_id: item.event_id,
-            sub_list_id: item.sub_list_id,
+            ...(item.sub_list_id && {sub_list_id: item.sub_list_id}),
           });
           const eventListId = eventListResponse.id;
           const payload: any = {
