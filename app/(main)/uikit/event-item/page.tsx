@@ -490,6 +490,7 @@ const Page = (props: Props) => {
     () =>
       eventItemData
         ?.map((dt) => {
+     
           return {
             nama_barang: dt.nama_barang,
             code: dt.code,
@@ -504,8 +505,8 @@ const Page = (props: Props) => {
             id: dt.id,
             barang_id: dt.barang_id,
             subArea: dt.sub_list_name,
-            gudang: dt.gudang[0]?.nama,
-            gudangStok: dt.gudang[0]?.stock,
+            gudang: dt.gudang?.length ?  dt.gudang[0]?.nama : "",
+            gudangStok: dt.gudang?.length ? dt.gudang[0]?.stock : "",
             area: areas?.data.find((item: any) => item.id === dt.list_id)?.name,
             additionalCode: dt.AdditionalCode,
             notes: dt.notes,
@@ -787,8 +788,8 @@ const Page = (props: Props) => {
         kategori: dt.kategori,
         stok: dt.qty,
         id: dt.id,
-        gudang: dt.gudang[0]?.nama,
-        gudangStok: dt.gudang[0]?.stock,
+        gudang: dt.gudang?.length ?  dt.gudang[0]?.nama : "",
+        gudangStok: dt.gudang?.length ? dt.gudang[0]?.stock : "",
         area:
           areas?.data.find((item: any) => item.id === dt.list_id)?.name ?? "",
         subArea: dt.sub_list_name,
