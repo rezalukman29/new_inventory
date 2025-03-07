@@ -522,6 +522,7 @@ const Page = (props: Props) => {
             (x: any) =>
               e.nama_barang === x.nama_barang &&
               e.area === x.area &&
+              e.subArea === x.subArea &&
               e.notes === x.notes &&
               e.additionalCode === x.additionalCode
           );
@@ -1383,7 +1384,7 @@ const Page = (props: Props) => {
               </div>
               <div style={{ width: 16 }} />
               <div className="field flex-1">
-                <label htmlFor="name">Rack</label>
+                <label htmlFor="name">Additional Code</label>
                 <Dropdown
                   onChange={(e) => setSelectedAdditionalCode(e.target.value)}
                   value={selectedAdditionalCode}

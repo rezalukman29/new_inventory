@@ -39,7 +39,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
   };
 
   useEffect(() => {
-    // checkAuth();
+    checkAuth();
   }, []);
 
   const onSignOut = () => {
