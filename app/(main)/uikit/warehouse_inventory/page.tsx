@@ -586,7 +586,7 @@ const TableDemo = () => {
                   onChange={(e) => {
                     if (
                       (Number(e.target.value) > 0 &&
-                        Number(e.target.value) <= inventory?.stok_barang &&
+                        // Number(e.target.value) <= inventory?.stok_barang &&
                         !e.target.value.includes(".")) ||
                       (e.target.value === "" && !e.target.value.includes("."))
                     ) {

@@ -36,6 +36,11 @@ const AppMenu = () => {
           to: "/uikit/warehouse_inventory",
         },
         {
+          label: "Event Inventory",
+          icon: "pi pi-database",
+          to: "/uikit/event-item-list",
+        },
+        {
           label: "Sync Inventory",
           icon: "pi pi-sync",
           to: "/uikit/sync",
@@ -47,7 +52,7 @@ const AppMenu = () => {
         },
         {
           label: "Sub Area",
-          icon: "pi pi-file-import",
+          icon: "pi pi-comment",
           to: "/uikit/sub_area",
         },
         {

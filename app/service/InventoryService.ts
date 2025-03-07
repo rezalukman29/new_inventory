@@ -300,7 +300,17 @@ export const InventoryService = {
     return response.data;
   },
   getSyncInventory: async (): Promise<APIResponse<Array<any>>> => {
-    const response = await ax.get(`/v1/barang/get-sync`);
+    const response = await  ax.get(`/v1/barang/get-sync`);
     return response.data;
+  },
+  getEventInventory: async (filter: any) => {
+    const response = await ax.get(`/v2/fix-list-item`, {
+      params: {
+        page: filter.page,
+        limit: filter.limit,
+        ...(filter.search && { search: filter.search }),
+      },
+    });
+    return response.data.data;
   },
 };
