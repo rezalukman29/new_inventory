@@ -38,6 +38,9 @@ import { Icon } from "@iconify/react";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { OverlayPanel } from "primereact/overlaypanel";
 import Loading from "@/app/components/atoms/loading";
+import { getLogActivity } from "@/app/hooks/api/useGetLogActivity";
+import useGetEmiUser from "@/app/hooks/api/useGetEmiUser";
+import moment from "moment";
 
 interface ISelect {
   label: string;
@@ -47,6 +50,7 @@ interface ISelect {
 const TableDemo = () => {
   const toast = useRef<any>(null);
   const op = useRef<any>(null);
+  const opMenu = useRef<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModify, setIsModify] = useState<boolean>(false);
   const [listBarang, setListBarang] = useState<any[]>([]);
@@ -55,7 +59,7 @@ const TableDemo = () => {
 
   const [listSatuan, setListSatuan] = useState<ISelect[]>([]);
   const [listCategory, setListCategory] = useState<ISelect[]>([]);
-
+  const [logs, setLogs] = useState<any[]>([]);
   const [barang, setBarang] = useState<any | null>(null);
   const [page, setPage] = useState<number>(1);
   const [first, setFirst] = useState<number>(0);
@@ -67,6 +71,11 @@ const TableDemo = () => {
   const [imagePreview, setImagePreview] = useState<any>("");
   const [base64, setBase64] = useState<string>();
   const [productDialog, setProductDialog] = useState(false);
+  const [showLog, setShowLog] = useState(false);
+
+  const [pageLog, setPageLog] = useState<number>(1);
+  const [totalLog, setTotalLog] = useState<number>(10);
+  const [firstLog, setFirstLog] = useState<number>(0);
 
   const onPageChange = (page: number) => setPage(page);
 
@@ -890,6 +899,146 @@ const TableDemo = () => {
     }
   };
 
+  const getLogs = async () => {
+    try {
+      opMenu.current.hide();
+      const response = await getLogActivity({
+        page: pageLog,
+        limit: 10,
+        module: "v1/barang",
+        barang_id: barang.id,
+      });
+      setLogs(response.data.data);
+      setTotalLog(response.data.total_records);
+      setShowLog(true);
+    } catch (error) {}
+  };
+
+  const { data: users } = useGetEmiUser({
+    options: {
+      enabled: true,
+    },
+  });
+
+  const getModule = (path: string) => {
+    const module = categorize(path);
+    switch (module) {
+      case "/v1/fix-event-list":
+        return "event item";
+      case "/v1/event":
+        return "event";
+      case "/v1/barang":
+        return "inventory item";
+      case "/v1/gudang":
+        return "gudang";
+      case "/v1/barang-gudang":
+        return "warehouse item";
+      case "/v1/area":
+        return "area";
+      case "/v1/sub-area":
+        return "sub area";
+      default:
+        return "";
+    }
+  };
+
+  function categorize(url: string) {
+    if (url.includes("fix-event-list")) {
+      return "/v1/fix-event-list";
+    }
+    if (url.includes("event")) {
+      return "/v1/event";
+    }
+    if (url.includes("barang-gudang")) {
+      return "/v1/barang-gudang";
+    }
+    if (url.includes("gudang")) {
+      return "/v1/gudang";
+    }
+    if (url.includes("barang")) {
+      return "/v1/barang";
+    }
+    if (url.includes("sub-area")) {
+      return "/v1/sub-area";
+    }
+    if (url.includes("sub-area")) {
+      return "/v1/sub-area";
+    }
+    if (url.includes("area")) {
+      return "/v1/area";
+    }
+    return url;
+  }
+
+  function isJSON(str: string) {
+    try {
+      return JSON.parse(str) && !!str;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  const getName = (path: string, payload: string) => {
+    const module = categorize(path);
+    const isJson = isJSON(payload);
+    switch (module) {
+      case "/v1/login":
+        return isJson ? `"Email: ${JSON.parse(payload)?.email}"` : "";
+      case "/v1/fix-event-list":
+        return isJson
+          ? `"Area id: ${JSON.parse(payload)?.list_id}, Event id: ${
+              JSON.parse(payload)?.event_id
+            }, Sub area id: ${JSON.parse(payload)?.sub_list_id}"`
+          : "";
+      case "/v1/event":
+        return isJson
+          ? `"${JSON.parse(payload)?.name}"`
+          : path?.split("/")?.length === 4
+          ? `"Event id: ${path?.split("/")[3]}"`
+          : "";
+      case "/v1/barang":
+        return isJson
+          ? `"${
+              JSON.parse(payload)?.nama ??
+              JSON.parse(payload)?.name ??
+              `Barang Id: ${JSON.parse(payload)?.id}`
+            }"`
+          : path?.split("/")?.length === 4
+          ? `"Barang id: ${path?.split("/")[3]}"`
+          : "";
+      case "/v1/barang-gudang":
+        return isJson
+          ? `"Barang id: ${JSON.parse(payload)?.barang_id}, Stok: ${
+              JSON.parse(payload)?.stok
+            }, Warehouse id: ${JSON.parse(payload)?.gudang_id}"`
+          : "";
+      case "/v1/area":
+        return isJson
+          ? `"${JSON.parse(payload)?.nama ?? JSON.parse(payload)?.name}"`
+          : path?.split("/")?.length === 4
+          ? `"Area id: ${path?.split("/")[3]}"`
+          : "";
+      case "/v1/sub-area":
+        return isJson
+          ? `"${JSON.parse(payload)?.sub_area_name}"`
+          : path?.split("/")?.length === 4
+          ? `"Sub area id: ${path?.split("/")[3]}"`
+          : "";
+      case "/v1/gudang":
+        return isJson
+          ? `"${JSON.parse(payload)?.nama ?? JSON.parse(payload)?.name}"`
+          : path?.split("/")?.length === 4
+          ? `"Sub area id: ${path?.split("/")[3]}"`
+          : "";
+      default:
+        return "";
+    }
+  };
+
+  useEffect(() => {
+    getLogs();
+  }, [pageLog]);
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -1021,7 +1170,7 @@ const TableDemo = () => {
                 header="Action"
                 headerStyle={{ justifyItems: "center" }}
                 filterPlaceholder="Search by name"
-                style={{ width: 100 }}
+                style={{ width: 120 }}
                 bodyStyle={{ textAlign: "center" }}
                 body={(data) => (
                   <div
@@ -1049,7 +1198,33 @@ const TableDemo = () => {
                       }}
                       style={{
                         fontSize: 18,
-                        marginLeft: 20,
+                        marginLeft: 12,
+                        cursor: "pointer",
+                      }}
+                    ></div>
+                    <OverlayPanel ref={opMenu}>
+                      <div
+                        style={{
+                          paddingLeft: 12,
+                          paddingRight: 12,
+                          cursor: "pointer",
+                        }}
+                        onClick={getLogs}
+                      >
+                        <p className="text-lg">Log</p>
+                      </div>
+                    </OverlayPanel>
+                    <div
+                      className="pi pi-ellipsis-v"
+                      onClick={(e) => {
+                        opMenu.current.toggle(e);
+                        setBarang(data);
+                        setFirstLog(0);
+                        setPageLog(1);
+                      }}
+                      style={{
+                        fontSize: 18,
+                        marginLeft: 12,
                         cursor: "pointer",
                       }}
                     ></div>
@@ -1363,11 +1538,102 @@ const TableDemo = () => {
               />
             </div>
           </Dialog>
-          {/* <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          /> */}
+          <Dialog
+            header={`Log: ${barang?.nama}`}
+            visible={showLog}
+            style={{ width: "70%" }}
+            onHide={() => {
+              if (!showLog) return;
+              setShowLog(false);
+            }}
+          >
+            <p className="m-0">
+              <DataTable
+                value={logs}
+                paginator
+                className="p-datatable-gridlines"
+                onPage={(e) => {
+                  setFirstLog(e.first);
+                  setPageLog(Number(e.page) + 1);
+                }}
+                rows={logs.length}
+                dataKey="id"
+                totalRecords={totalLog}
+                lazy
+                first={firstLog}
+                alwaysShowPaginator
+                loading={isLoading}
+                responsiveLayout="scroll"
+                emptyMessage="No logs found."
+                // header={header1}
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} to {last} of {totalRecords} logs"
+              >
+                <Column
+                  field="name"
+                  header="User"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem" }}
+                  body={(el: any) => (
+                    <p>
+                      {users?.data?.find((item) => item.id === el.user_id)
+                        ?.fullname ?? ""}
+                    </p>
+                  )}
+                />
+                <Column
+                  field="description"
+                  header="Module"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem" }}
+                  body={(el: any) => (
+                    <p>{`${
+                      el.endpoint === "/v1/login"
+                        ? "Login"
+                        : el.method === "POST"
+                        ? "Create"
+                        : el.method === "PUT"
+                        ? "Update"
+                        : "Delete"
+                    } ${getModule(el.endpoint)} ${getName(
+                      el.endpoint,
+                      el.payload
+                    )}`}</p>
+                  )}
+                />
+                <Column
+                  field="created_at"
+                  header="Action Time"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "3rem" }}
+                  body={(data: any) => (
+                    <p>{moment(data.created_at as any).format("LLL")}</p>
+                  )}
+                />
+                {/* <Column
+              field="event_end"
+              header="Satuan"
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "3rem" }}
+              body={inventoryImage}
+            /> */}
+                {/* <Column
+              field="satuan.name"
+              header="Category"
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem" }}
+              body={inventoryCategory}
+            />
+            <Column
+              field="satuan.name"
+              header="Category"
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem" }}
+              body={inventoryWarehouse}
+            /> */}
+              </DataTable>
+            </p>
+          </Dialog>
         </div>
       </div>
 
