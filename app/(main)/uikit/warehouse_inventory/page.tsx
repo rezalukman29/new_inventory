@@ -100,10 +100,11 @@ const TableDemo = () => {
       if (isModify) {
         try {
           delete payload.kode;
-          const result: APIResponse<any> = await InventoryService.editBarangGudang({
-            ...payload,
-            id: barang.barang_gudang_id,
-          });
+          const result: APIResponse<any> =
+            await InventoryService.editBarangGudang({
+              ...payload,
+              id: barang.barang_gudang_id,
+            });
           if (result.success) {
             toast?.current?.show({
               severity: "success",
@@ -563,6 +564,26 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
               bodyStyle={{ textAlign: "center" }}
+            />
+            <Column
+              field="stock_used"
+              header="Minimum Status"
+              headerStyle={{ justifyItems: "center" }}
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem" }}
+              bodyStyle={{ textAlign: "center" }}
+              body={(data) => {
+                const isLow = data.stok_gudang < data.stok_minimum;
+                const isNotSet = data.stok_minimum === 0 || !data.stok_minimum;
+                const isSafe = data.stok_gudang >= data.stok_minimum;
+                return (
+                  <Button
+                    label={isLow ? "Low" : isNotSet ? "Not Set" : "Safe"}
+                    outlined
+                    severity={isLow ? "danger" : isNotSet ? "secondary" : "success"}
+                  />
+                );
+              }}
             />
             <Column
               field="flag_1"

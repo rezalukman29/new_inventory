@@ -1160,7 +1160,7 @@ const TableDemo = () => {
               />
               <Column
                 field="satuan.name"
-                header="Category"
+                header="Warehouse"
                 filterPlaceholder="Search by name"
                 style={{ minWidth: "4rem" }}
                 body={inventoryWarehouse}
