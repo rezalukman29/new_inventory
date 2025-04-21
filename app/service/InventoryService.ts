@@ -44,7 +44,7 @@ export const InventoryService = {
         page: filter.page,
         limit: filter.limit,
         sort: filter.sort,
-        sortBy: filter.sortBy,
+        sort_by: filter.sortBy,
         ...(filter.search && { search: filter.search }),
       },
     });
