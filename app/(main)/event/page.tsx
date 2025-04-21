@@ -1,11 +1,7 @@
 "use client";
 import { Button } from "primereact/button";
-import {
-  Column,
-} from "primereact/column";
-import {
-  DataTable,
-} from "primereact/datatable";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import React, { useEffect, useRef, useState } from "react";
@@ -23,6 +19,7 @@ import { Dialog } from "primereact/dialog";
 import { Calendar } from "@hassanmojab/react-modern-calendar-datepicker";
 import "./DatePicker.css";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import { SortType } from "@/app/interfaces/interfaces";
 
 interface ISelect {
   label: string;
@@ -47,6 +44,8 @@ const TableDemo = () => {
   const [event, setEvent] = useState<any | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState("");
+  const [sort, setSort] = useState<SortType>("ASC");
+  const [sortBy, setSortBy] = useState<string>("name");
 
   const formik = useFormik<PayloadAddEventI>({
     initialValues: {
@@ -123,6 +122,8 @@ const TableDemo = () => {
         page,
         limit: size ?? pageSize,
         search: searchValue,
+        sort,
+        sortBy,
       });
       setListEvent(response.data);
       setTotal(response.total_records);
@@ -164,7 +165,7 @@ const TableDemo = () => {
 
   useEffect(() => {
     getListEvent();
-  }, [page]);
+  }, [page, sort, sortBy]);
 
   const onGlobalFilterChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {};
 
@@ -221,6 +222,11 @@ const TableDemo = () => {
 
   const header1 = renderHeader1();
 
+  const onSort = (field: string) => {
+    setSortBy(field);
+    setSort(sort === "ASC" ? "DESC" : "ASC");
+  };
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -262,12 +268,17 @@ const TableDemo = () => {
             header={header1}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="{first} to {last} of {totalRecords} events"
+            onSort={(e) => onSort(e.sortField)}
+            sortField={sortBy}
+            sortOrder={sort === 'ASC' ? 1 : -1}
           >
             <Column
               field="name"
               header="Name"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
+              sortable
+              sortField="name"
             />
             <Column
               field="description"
@@ -283,6 +294,8 @@ const TableDemo = () => {
               body={(data: any) => (
                 <p>{moment(data.event_start as any).format("LLL")}</p>
               )}
+              sortable
+              sortField="event_start"
             />
             <Column
               field="event_end"
@@ -292,18 +305,24 @@ const TableDemo = () => {
               body={(data: any) => (
                 <p>{moment(data.event_end as any).format("LLL")}</p>
               )}
+              sortable
+              sortField="event_end"
             />
             <Column
               field="event_code"
               header="Code"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
+              sortable
+              sortField="event_code"
             />
             <Column
               field="address"
               header="Location"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
+              sortable
+              sortField="address"
             />
             <Column
               field="address"

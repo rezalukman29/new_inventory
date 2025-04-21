@@ -43,6 +43,8 @@ export const InventoryService = {
       params: {
         page: filter.page,
         limit: filter.limit,
+        sort: filter.sort,
+        sortBy: filter.sortBy,
         ...(filter.search && { search: filter.search }),
       },
     });

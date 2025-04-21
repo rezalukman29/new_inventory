@@ -122,6 +122,7 @@ const LoginPage = () => {
                 Password
               </label>
               <Password
+              feedback={false}
                 inputId="password1"
                 value={formik.values.password}
                 onChange={(e) =>
