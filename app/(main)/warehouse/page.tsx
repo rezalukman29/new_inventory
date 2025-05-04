@@ -37,6 +37,7 @@ const TableDemo = () => {
   const [selected, setSelecetd] = useState<any | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
+  let [over, setOver] = React.useState("");
 
   const formik = useFormik<any>({
     initialValues: {
@@ -262,21 +263,25 @@ const TableDemo = () => {
                 >
                   <div
                     className="pi pi-file-edit"
+                    onMouseOver={() => setOver(data.id + "edit")}
+                    onMouseOut={() => setOver("")}
                     onClick={() => {
                       setIsModify(true);
                       setGudang(data);
                       setProductDialog(true);
                     }}
-                    style={{ fontSize: 18, cursor: "pointer" }}
+                    style={{ fontSize: 18, cursor: "pointer" , color: over === data.id + "edit" ? "blue" : undefined}}
                   ></div>
 
                   <div
                     className="pi pi-trash"
+                    onMouseOver={() => setOver(data.id + "delete")}
+                    onMouseOut={() => setOver("")}
                     onClick={() => {
                       setSelecetd(data);
                       setDeleteConfirmation(true);
                     }}
-                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
+                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer",color: over === data.id + "delete" ? "blue" : undefined }}
                   ></div>
                 </div>
               )}

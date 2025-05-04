@@ -14,12 +14,12 @@ const AppMenu = () => {
     {
       label: "Home",
       items: [
-        { label: "Dashboard", icon: "pi pi-list", to: "/" },
-        {
-          label: "Event",
-          icon: "pi pi-calendar",
-          to: "/event",
-        },
+        { label: "Event", icon: "pi pi-calendar", to: "/" },
+        // {
+        //   label: "Event",
+        //   icon: "pi pi-calendar",
+        //   to: "/event",
+        // },
         {
           label: "Inventory",
           icon: "pi pi-fw pi-id-card",
@@ -69,11 +69,6 @@ const AppMenu = () => {
           label: "Log",
           icon: "pi pi-book",
           to: "/log",
-        },
-        {
-          label: "Warehouse Inventory",
-          icon: "pi pi-file-import",
-          to: "/table",
         },
       ],
     },

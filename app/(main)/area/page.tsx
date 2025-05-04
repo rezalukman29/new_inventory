@@ -1,11 +1,7 @@
 "use client";
 import { Button } from "primereact/button";
-import {
-  Column,
-} from "primereact/column";
-import {
-  DataTable,
-} from "primereact/datatable";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
 import { InputText } from "primereact/inputtext";
 import React, { useEffect, useRef, useState } from "react";
 import { InventoryService } from "@/app/service/InventoryService";
@@ -17,7 +13,6 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { Dialog } from "primereact/dialog";
-
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
@@ -92,8 +87,6 @@ const TableDemo = () => {
       getListArea();
     },
   });
-
-
 
   const getListArea = async () => {
     try {
@@ -171,6 +164,8 @@ const TableDemo = () => {
     </>
   );
 
+  let [over, setOver] = React.useState("");
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -193,10 +188,8 @@ const TableDemo = () => {
             }}
           />
           <DataTable
-            value={listArea .filter(
-              (el) =>
-                el.name &&
-                el.name.match(new RegExp(searchValue, "i"))
+            value={listArea.filter(
+              (el) => el.name && el.name.match(new RegExp(searchValue, "i"))
             )}
             paginator
             className="p-datatable-gridlines"
@@ -261,7 +254,13 @@ const TableDemo = () => {
                       setSelecetd(data);
                       setProductDialog(true);
                     }}
-                    style={{ fontSize: 18, cursor: "pointer" }}
+                    onMouseOver={() => setOver(data.id + "edit")}
+                    onMouseOut={() => setOver("")}
+                    style={{
+                      fontSize: 18,
+                      cursor: "pointer",
+                      color: over === data.id + "edit" ? "blue" : undefined,
+                    }}
                   ></div>
 
                   <div
@@ -270,7 +269,14 @@ const TableDemo = () => {
                       setSelecetd(data);
                       setDeleteConfirmation(true);
                     }}
-                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
+                    onMouseOver={() => setOver(data.id + "delete")}
+                    onMouseOut={() => setOver("")}
+                    style={{
+                      fontSize: 18,
+                      marginLeft: 20,
+                      cursor: "pointer",
+                      color: over === data.id + "delete" ? "blue" : undefined,
+                    }}
                   ></div>
                 </div>
               )}
@@ -323,10 +329,14 @@ const TableDemo = () => {
               <InputText
                 id="name"
                 value={formik.values.description}
-                onChange={(e) => formik.setFieldValue("description", e.target.value)}
+                onChange={(e) =>
+                  formik.setFieldValue("description", e.target.value)
+                }
                 autoFocus
                 className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.description ? "border-red-600" : "border-gray-300"
+                  formik.errors.description
+                    ? "border-red-600"
+                    : "border-gray-300"
                 } rounded-lg bg-transparent`}
               />
             </div>

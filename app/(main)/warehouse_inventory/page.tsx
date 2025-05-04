@@ -499,6 +499,8 @@ const TableDemo = () => {
     getLogs();
   }, [pageLog]);
 
+  let [over, setOver] = React.useState("");
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -580,7 +582,9 @@ const TableDemo = () => {
                   <Button
                     label={isLow ? "Low" : isNotSet ? "Not Set" : "Safe"}
                     outlined
-                    severity={isLow ? "danger" : isNotSet ? "secondary" : "success"}
+                    severity={
+                      isLow ? "danger" : isNotSet ? "secondary" : "success"
+                    }
                   />
                 );
               }}
@@ -616,7 +620,8 @@ const TableDemo = () => {
               headerStyle={{ justifyItems: "center" }}
               style={{ width: 120 }}
               bodyStyle={{ textAlign: "center" }}
-              body={(data) => (
+              body={(data) => {
+                return (
                 <div
                   style={{
                     flexDirection: "row",
@@ -632,14 +637,27 @@ const TableDemo = () => {
                       setProductDialog(true);
                       setInventory({ id: data.barang_id });
                     }}
+                    onMouseOver={() => setOver(data.barang_gudang_id + "edit")}
+                    onMouseOut={() => setOver("")}
                     className="pi pi-file-edit"
-                    style={{ fontSize: 18, cursor: "pointer" }}
+                    style={{
+                      fontSize: 18,
+                      cursor: "pointer",
+                      color: over === data.barang_gudang_id + "edit" ? "blue" : undefined,
+                    }}
                   ></div>
 
                   <div
                     className="pi pi-trash"
                     onClick={() => onDeleteItem(data.barang_gudang_id)}
-                    style={{ fontSize: 18, marginLeft: 8, cursor: "pointer" }}
+                    onMouseOver={() => setOver(data.barang_gudang_id + "delete")}
+                    onMouseOut={() => setOver("")}
+                    style={{
+                      fontSize: 18,
+                      marginLeft: 8,
+                      cursor: "pointer",
+                      color: over === data.barang_gudang_id + "delete" ? "blue" : undefined,
+                    }}
                   ></div>
                   <OverlayPanel ref={opMenu}>
                     <div
@@ -661,14 +679,17 @@ const TableDemo = () => {
                       setFirstLog(0);
                       setPageLog(1);
                     }}
+                    onMouseOver={() => setOver(data.barang_gudang_id + "more")}
+                    onMouseOut={() => setOver("")}
                     style={{
                       fontSize: 18,
                       marginLeft: 12,
                       cursor: "pointer",
+                      color: over === data.barang_gudang_id + "more" ? "blue" : undefined,
                     }}
                   ></div>
                 </div>
-              )}
+              )}}
             />
             {/* <Column
               field="event_end"

@@ -1,11 +1,7 @@
 "use client";
 import { Button } from "primereact/button";
-import {
-  Column,
-} from "primereact/column";
-import {
-  DataTable,
-} from "primereact/datatable";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
 import { InputText } from "primereact/inputtext";
 import React, { useEffect, useRef, useState } from "react";
 import { InventoryService } from "@/app/service/InventoryService";
@@ -121,8 +117,8 @@ const TableDemo = () => {
         <span className="p-input-icon-left">
           <i className="pi pi-search" />
           <InputText
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Keyword Search"
           />
         </span>
@@ -153,6 +149,8 @@ const TableDemo = () => {
     </>
   );
 
+  let [over, setOver] = React.useState("");
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -160,10 +158,9 @@ const TableDemo = () => {
         <div className="card">
           <h5>Event Status</h5>
           <DataTable
-             value={statusList.filter(
+            value={statusList.filter(
               (el: any) =>
-                el.name &&
-                el.name.match(new RegExp(searchValue, "i"))
+                el.name && el.name.match(new RegExp(searchValue, "i"))
             )}
             paginator
             className="p-datatable-gridlines"
@@ -221,8 +218,14 @@ const TableDemo = () => {
                       setStatus(data);
                       setProductDialog(true);
                     }}
+                    onMouseOver={() => setOver(data.id + "edit")}
+                    onMouseOut={() => setOver("")}
                     className="pi pi-file-edit"
-                    style={{ fontSize: 18, cursor: "pointer" }}
+                    style={{
+                      fontSize: 18,
+                      cursor: "pointer",
+                      color: over === data.id + "edit" ? "blue" : undefined,
+                    }}
                   ></div>
                 </div>
               )}

@@ -97,7 +97,6 @@ const TableDemo = () => {
     },
     validationSchema: Yup.object({
       nama: Yup.string().required("Required"),
-      detail: Yup.string().required("Required"),
       code: Yup.string().required("Required"),
       kategori_id: Yup.string().required("Required"),
       satuan_id: Yup.string().required("Required"),
@@ -1039,6 +1038,19 @@ const TableDemo = () => {
     getLogs();
   }, [pageLog]);
 
+  let [over, setOver] = React.useState("");
+
+  const Label = (label: string) => {
+    return (
+      <div style={{ flexDirection: "row" }}>
+        <label htmlFor="name">{label}</label>
+        <label htmlFor="name" style={{ color: "red" }}>
+          *
+        </label>
+      </div>
+    );
+  };
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -1172,64 +1184,80 @@ const TableDemo = () => {
                 filterPlaceholder="Search by name"
                 style={{ width: 120 }}
                 bodyStyle={{ textAlign: "center" }}
-                body={(data) => (
-                  <div
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      flex: 1,
-                    }}
-                  >
+                body={(data) => {
+                  return (
                     <div
-                      onClick={() => {
-                        setIsModify(true);
-                        setBarang(data);
-                        setProductDialog(true);
-                      }}
-                      className="pi pi-file-edit"
-                      style={{ fontSize: 18, cursor: "pointer" }}
-                    ></div>
-                    <div
-                      className="pi pi-trash"
-                      onClick={() => {
-                        setBarang(data);
-                        setDeleteConfirmation(true);
-                      }}
                       style={{
-                        fontSize: 18,
-                        marginLeft: 12,
-                        cursor: "pointer",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flex: 1,
                       }}
-                    ></div>
-                    <OverlayPanel ref={opMenu}>
+                    >
                       <div
-                        style={{
-                          paddingLeft: 12,
-                          paddingRight: 12,
-                          cursor: "pointer",
+                        onClick={() => {
+                          setIsModify(true);
+                          setBarang(data);
+                          setProductDialog(true);
                         }}
-                        onClick={getLogs}
-                      >
-                        <p className="text-lg">Log</p>
-                      </div>
-                    </OverlayPanel>
-                    <div
-                      className="pi pi-ellipsis-v"
-                      onClick={(e) => {
-                        opMenu.current.toggle(e);
-                        setBarang(data);
-                        setFirstLog(0);
-                        setPageLog(1);
-                      }}
-                      style={{
-                        fontSize: 18,
-                        marginLeft: 12,
-                        cursor: "pointer",
-                      }}
-                    ></div>
-                  </div>
-                )}
+                        onMouseOver={() => setOver(data.id + "edit")}
+                        onMouseOut={() => setOver("")}
+                        className="pi pi-file-edit"
+                        style={{
+                          fontSize: 18,
+                          cursor: "pointer",
+                          color: over === data.id + "edit" ? "blue" : undefined,
+                        }}
+                      ></div>
+                      <div
+                        className="pi pi-trash hover:bg-red"
+                        onClick={() => {
+                          setBarang(data);
+                          setDeleteConfirmation(true);
+                        }}
+                        onMouseOver={() => setOver(data.id + "delete")}
+                        onMouseOut={() => setOver("")}
+                        style={{
+                          fontSize: 18,
+                          marginLeft: 12,
+                          cursor: "pointer",
+                          color:
+                            over === data.id + "delete" ? "blue" : undefined,
+                        }}
+                      ></div>
+                      <OverlayPanel ref={opMenu}>
+                        <div
+                          style={{
+                            paddingLeft: 12,
+                            paddingRight: 12,
+                            cursor: "pointer",
+                          }}
+                          onClick={getLogs}
+                        >
+                          <p className="text-lg">Log</p>
+                        </div>
+                      </OverlayPanel>
+                      <div
+                        className="pi pi-ellipsis-v"
+                        onMouseOver={() => setOver(data.id + "more")}
+                        onMouseOut={() => setOver("")}
+                        onClick={(e) => {
+                          opMenu.current.toggle(e);
+                          setBarang(data);
+                          setFirstLog(0);
+                          setPageLog(1);
+                        }}
+                        style={{
+                          fontSize: 18,
+                          marginLeft: 12,
+                          cursor: "pointer",
+                          color: over === data.id + "more" ? "blue" : undefined,
+                          // ...buttonstyle
+                        }}
+                      ></div>
+                    </div>
+                  );
+                }}
               />
               {/* <Column header="Stok" filterField="country.name" style={{ minWidth: '12rem' }} body={countryBodyTemplate} filterPlaceholder="Search by country" filterClear={filterClearTemplate} filterApply={filterApplyTemplate} />
                         <Column
@@ -1252,7 +1280,7 @@ const TableDemo = () => {
 
           <Dialog
             visible={productDialog}
-            style={{ width: "450px" }}
+            style={{ width: "800px" }}
             header={isModify ? "Modify Inventory" : "Add Inventory"}
             modal
             className="p-fluid"
@@ -1260,11 +1288,14 @@ const TableDemo = () => {
             onHide={hideDialog}
           >
             <div className="field">
-              <label htmlFor="name">Name</label>
+              {Label("Name")}
               <InputText
                 id="name"
                 value={formik.values.nama}
-                onChange={(e) => formik.setFieldValue("nama", e.target.value)}
+                onChange={(e) => {
+                  formik.setFieldValue("nama", e.target.value);
+                  formik.setFieldError("nama", undefined)
+                }}
                 autoFocus
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.nama ? "border-red-600" : "border-gray-300"
@@ -1356,12 +1387,15 @@ const TableDemo = () => {
               </div>
             </div>
             <div className="flex flex-row items-center">
-              <div className="field">
-                <label htmlFor="code">Item Code</label>
+              <div className="field" style={{ flex: 1 }}>
+                {Label("Item Code")}
                 <InputText
                   id="code"
                   value={formik.values.code}
-                  onChange={(e) => formik.setFieldValue("code", e.target.value)}
+                  onChange={(e) => {
+                    formik.setFieldValue("code", e.target.value);
+                    formik.setFieldError("code", undefined);
+                  }}
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.code ? "border-red-600" : "border-gray-300"
@@ -1369,12 +1403,15 @@ const TableDemo = () => {
                 />
               </div>
               <div style={{ width: 16 }} />
-              <div className="field">
-                <label htmlFor="stok">Stock</label>
+              <div className="field" style={{ flex: 1 }}>
+                {Label("Stock")}
                 <InputText
                   id="stok"
                   value={formik.values.stok}
-                  onChange={(e) => formik.setFieldValue("stok", e.target.value)}
+                  onChange={(e) => {
+                    formik.setFieldValue("stok", e.target.value);
+                    formik.setFieldError("stok", undefined);
+                  }}
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.stok ? "border-red-600" : "border-gray-300"
@@ -1396,11 +1433,12 @@ const TableDemo = () => {
             </div>
             <div className="flex flex-row items-center">
               <div className="field flex-1">
-                <label htmlFor="name">Unit</label>
+                {Label("Unit")}
                 <Dropdown
-                  onChange={(e) =>
-                    formik.setFieldValue("satuan_id", e.target.value)
-                  }
+                  onChange={(e) => {
+                    formik.setFieldValue("satuan_id", e.target.value);
+                    formik.setFieldError("satuan_id", undefined);
+                  }}
                   value={formik.values.satuan_id}
                   options={[
                     // ...[{ value: "", label: "Choose unit" }],
@@ -1409,16 +1447,20 @@ const TableDemo = () => {
                   optionLabel="label"
                   placeholder="Select unit"
                   className="flex-1"
+                  style={{
+                    ...(formik.errors.satuan_id && { borderColor: "red" }),
+                  }}
                   // style={{ width: "100%"}}
                 />
               </div>
               <div style={{ width: 16 }} />
               <div className="field flex-1">
-                <label htmlFor="name">Category</label>
+                {Label("Category")}
                 <Dropdown
-                  onChange={(e) =>
-                    formik.setFieldValue("kategori_id", e.target.value)
-                  }
+                  onChange={(e) => {
+                    formik.setFieldValue("kategori_id", e.target.value);
+                    formik.setFieldError("kategori_id", undefined);
+                  }}
                   value={formik.values.kategori_id}
                   options={[
                     // ...[{ value: "", label: "Choose category" }],
@@ -1427,12 +1469,14 @@ const TableDemo = () => {
                   optionLabel="label"
                   placeholder="Select category"
                   className="flex-1"
-                  style={{ width: "100%" }}
+                  style={{
+                    ...(formik.errors.kategori_id && { borderColor: "red" }),
+                  }}
                 />
               </div>
             </div>
             <div className="flex flex-row items-center">
-              <div className="field">
+              <div className="field" style={{ flex: 1 }}>
                 <label htmlFor="panjang">Panjang</label>
                 <InputText
                   id="panjang"
@@ -1447,7 +1491,7 @@ const TableDemo = () => {
                 />
               </div>
               <div style={{ width: 16 }} />
-              <div className="field">
+              <div className="field" style={{ flex: 1 }}>
                 <label htmlFor="lebar">Lebar</label>
                 <InputText
                   id="lebar"
@@ -1463,7 +1507,7 @@ const TableDemo = () => {
               </div>
             </div>
             <div className="flex flex-row items-center">
-              <div className="field">
+              <div className="field" style={{ flex: 1 }}>
                 <label htmlFor="panjang">Tinggi</label>
                 <InputText
                   id="panjang"
@@ -1478,7 +1522,7 @@ const TableDemo = () => {
                 />
               </div>
               <div style={{ width: 16 }} />
-              <div className="field">
+              <div className="field" style={{ flex: 1 }}>
                 <label htmlFor="berat">Berat</label>
                 <InputText
                   id="berat"
@@ -1494,7 +1538,7 @@ const TableDemo = () => {
               </div>
             </div>
             <div className="flex flex-row items-center">
-              <div className="field">
+              <div className="field" style={{ flex: 1 }}>
                 <label htmlFor="lantai">Lantai</label>
                 <InputText
                   id="lantai"
@@ -1509,7 +1553,7 @@ const TableDemo = () => {
                 />
               </div>
               <div style={{ width: 16 }} />
-              <div className="field">
+              <div className="field" style={{ flex: 1 }}>
                 <label htmlFor="lorong">Lorong</label>
                 <InputText
                   id="lorong"

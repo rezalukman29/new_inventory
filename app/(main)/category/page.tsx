@@ -171,6 +171,8 @@ const TableDemo = () => {
     </>
   );
 
+  let [over, setOver] = React.useState("");
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -261,7 +263,9 @@ const TableDemo = () => {
                       setSelecetd(data);
                       setProductDialog(true);
                     }}
-                    style={{ fontSize: 18, cursor: "pointer" }}
+                    onMouseOver={() => setOver(data.id + "edit")}
+                    onMouseOut={() => setOver("")}
+                    style={{ fontSize: 18, cursor: "pointer",   color: over === data.id + "edit" ? "blue" : undefined, }}
                   ></div>
 
                   <div
@@ -270,7 +274,9 @@ const TableDemo = () => {
                       setSelecetd(data);
                       setDeleteConfirmation(true);
                     }}
-                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
+                    onMouseOver={() => setOver(data.id + "delete")}
+                    onMouseOut={() => setOver("")}
+                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer", color: over === data.id + "delete" ? "blue" : undefined, }}
                   ></div>
                 </div>
               )}
