@@ -65,7 +65,7 @@ export const InventoryService = {
     const response = await ax.get(
       `/v1/${URL_BARANG_FILTER}${
         filter.category ? `kategori=${filter.category}&` : ""
-      }page=${filter.page}&limit=${filter.limit}&order=${filter.order}${
+      }page=${filter.page}&limit=${filter.limit}&sort=${filter.sort}&sort_by=${filter.sortBy}${
         filter.search ? `&search=${filter.search}` : ""
       }`
     );

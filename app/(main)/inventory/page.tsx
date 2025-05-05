@@ -41,6 +41,7 @@ import Loading from "@/app/components/atoms/loading";
 import { getLogActivity } from "@/app/hooks/api/useGetLogActivity";
 import useGetEmiUser from "@/app/hooks/api/useGetEmiUser";
 import moment from "moment";
+import { SortType } from "@/app/interfaces/interfaces";
 
 interface ISelect {
   label: string;
@@ -76,6 +77,8 @@ const TableDemo = () => {
   const [pageLog, setPageLog] = useState<number>(1);
   const [totalLog, setTotalLog] = useState<number>(10);
   const [firstLog, setFirstLog] = useState<number>(0);
+  const [sort, setSort] = useState<SortType>("ASC");
+  const [sortBy, setSortBy] = useState<string>("name");
 
   const onPageChange = (page: number) => setPage(page);
 
@@ -201,6 +204,8 @@ const TableDemo = () => {
         page,
         limit: size ?? pageSize,
         search: searchValue,
+        sort,
+        sortBy,
       });
       setListBarang(response.data.data);
       setTotal(response.data.total_records);
@@ -272,7 +277,7 @@ const TableDemo = () => {
 
   useEffect(() => {
     getInventoryList();
-  }, [page]);
+  }, [page, sort, sortBy]);
 
   useEffect(() => {
     getInventoryList();
@@ -1051,6 +1056,11 @@ const TableDemo = () => {
     );
   };
 
+  const onSort = (field: string) => {
+    setSortBy(field);
+    setSort(sort === "ASC" ? "DESC" : "ASC");
+  };
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -1119,18 +1129,25 @@ const TableDemo = () => {
               header={header1}
               paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
               currentPageReportTemplate="{first} to {last} of {totalRecords} inventory"
+              onSort={(e) => onSort(e.sortField)}
+              sortField={sortBy}
+              sortOrder={sort === 'ASC' ? 1 : -1}
             >
               <Column
                 field="nama"
                 header="Name"
                 filterPlaceholder="Search by name"
                 style={{ minWidth: "12rem" }}
+                sortable
+                sortField="name"
               />
               <Column
                 field="stok_barang"
                 header="Stok"
                 filterPlaceholder="Search by name"
                 style={{ minWidth: "4rem" }}
+                sortable
+                sortField="stock"
               />
               <Column
                 field="stok_barang"
@@ -1149,12 +1166,16 @@ const TableDemo = () => {
                     </p>
                   );
                 }}
+                sortable
+                sortField="stok_all"
               />
               <Column
                 field="satuan.name"
                 header="Satuan"
                 filterPlaceholder="Search by name"
                 style={{ minWidth: "4rem" }}
+                sortable
+                sortField="satuan"
               />
               <Column
                 field="satuan.name"
@@ -1169,6 +1190,8 @@ const TableDemo = () => {
                 filterPlaceholder="Search by name"
                 style={{ minWidth: "4rem" }}
                 body={inventoryCategory}
+                sortable
+                sortField="category"
               />
               <Column
                 field="satuan.name"
@@ -1176,6 +1199,8 @@ const TableDemo = () => {
                 filterPlaceholder="Search by name"
                 style={{ minWidth: "4rem" }}
                 body={inventoryWarehouse}
+                sortable
+                sortField="warehouse"
               />
               <Column
                 field="address"

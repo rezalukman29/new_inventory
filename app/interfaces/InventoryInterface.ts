@@ -104,6 +104,8 @@ export interface InventoryFilterPropsI {
   limit: number;
   order: string;
   search?: string;
+  sort?: string;
+  sortBy?: string;
 }
 
 export interface PayloadAddEventI {
