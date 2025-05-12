@@ -1123,6 +1123,7 @@ const TableDemo = () => {
               lazy
               first={first}
               alwaysShowPaginator
+              tableStyle={{ width: 1800 }}
               loading={isLoading}
               responsiveLayout="scroll"
               emptyMessage="No customers found."
@@ -1219,6 +1220,7 @@ const TableDemo = () => {
                         flex: 1,
                       }}
                     >
+                      
                       <div
                         onClick={() => {
                           setIsModify(true);
@@ -1433,6 +1435,7 @@ const TableDemo = () => {
                 <InputText
                   id="stok"
                   value={formik.values.stok}
+                  type="number"
                   onChange={(e) => {
                     formik.setFieldValue("stok", e.target.value);
                     formik.setFieldError("stok", undefined);
@@ -1506,6 +1509,7 @@ const TableDemo = () => {
                 <InputText
                   id="panjang"
                   value={formik.values.panjang}
+                  type="number"
                   onChange={(e) =>
                     formik.setFieldValue("panjang", e.target.value)
                   }
@@ -1521,6 +1525,7 @@ const TableDemo = () => {
                 <InputText
                   id="lebar"
                   value={formik.values.lebar}
+                  type="number"
                   onChange={(e) =>
                     formik.setFieldValue("lebar", e.target.value)
                   }
@@ -1537,6 +1542,7 @@ const TableDemo = () => {
                 <InputText
                   id="panjang"
                   value={formik.values.tinggi}
+                  type="number"
                   onChange={(e) =>
                     formik.setFieldValue("tinggi", e.target.value)
                   }

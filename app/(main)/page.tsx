@@ -212,11 +212,18 @@ const TableDemo = () => {
 
   const productDialogFooter = (
     <>
-      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Cancel"
+        severity="danger"
+        icon="pi pi-times"
+        style={{ width: 120 }}
+        onClick={hideDialog}
+      />
       <Button
         label="Save"
         icon="pi pi-check"
-        text
+        severity="success"
+        style={{ width: 120 }}
         onClick={() => formik.handleSubmit()}
       />
     </>
@@ -274,7 +281,7 @@ const TableDemo = () => {
             onSort={(e) => onSort(e.sortField)}
             sortField={sortBy}
             sortOrder={sort === "ASC" ? 1 : -1}
-            selectionMode={'single'}
+            selectionMode={"single"}
             onRowClick={(e) => router.push(`/event-item?event=${e.data.id}`)}
           >
             <Column
@@ -333,7 +340,7 @@ const TableDemo = () => {
               field="address"
               header="Action"
               filterPlaceholder="Search by name"
-              style={{ width: 100 }}
+              style={{ width: 130 }}
               body={(data) => (
                 <div
                   style={{
@@ -344,8 +351,13 @@ const TableDemo = () => {
                   }}
                 >
                   <div
-                    className="pi pi-file-edit"
+                  onClick={(e) => router.push(`/event-item?event=${data.id}`)}
+                    className="pi pi-folder"
                     style={{ fontSize: 18, cursor: "pointer" }}
+                  ></div>
+                  <div
+                    className="pi pi-file-edit"
+                    style={{ fontSize: 18, marginLeft: 20,cursor: "pointer" }}
                   ></div>
 
                   <div
@@ -383,173 +395,187 @@ const TableDemo = () => {
           </DataTable>
           <Dialog
             visible={productDialog}
-            style={{ width: "450px" }}
+            style={{ width: "800px" }}
             header={isModify ? "Modify Event" : "Add Event"}
             modal
             className="p-fluid"
             footer={productDialogFooter}
             onHide={hideDialog}
           >
-            <div className="field">
-              <label htmlFor="name">Name</label>
-              <InputText
-                id="name"
-                value={formik.values.name}
-                onChange={(e) => formik.setFieldValue("name", e.target.value)}
-                autoFocus
-                className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.name ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
+            <div className="flex flex-row items-center">
+              <div className="field flex-1">
+                <label htmlFor="name">Name</label>
+                <InputText
+                  id="name"
+                  value={formik.values.name}
+                  onChange={(e) => formik.setFieldValue("name", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.name ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field flex-1">
+                <label htmlFor="name"> Event Code</label>
+                <InputText
+                  id="name"
+                  value={formik.values.event_code}
+                  onChange={(e) =>
+                    formik.setFieldValue("event_code", e.target.value)
+                  }
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.event_code
+                      ? "border-red-600"
+                      : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
             </div>
-            <div className="field">
-              <label htmlFor="name"> Event Code</label>
-              <InputText
-                id="name"
-                value={formik.values.event_code}
-                onChange={(e) =>
-                  formik.setFieldValue("event_code", e.target.value)
-                }
-                autoFocus
-                className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.event_code
-                    ? "border-red-600"
-                    : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
+            <div className="flex flex-row items-center">
+              <div className="field flex-1">
+                <label htmlFor="name">Description</label>
+                <InputText
+                  id="name"
+                  value={formik.values.description}
+                  onChange={(e) =>
+                    formik.setFieldValue("description", e.target.value)
+                  }
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.description
+                      ? "border-red-600"
+                      : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field flex-1">
+                <label htmlFor="name">PIC</label>
+                <InputText
+                  id="name"
+                  value={formik.values.PIC as string}
+                  onChange={(e) => formik.setFieldValue("PIC", e.target.value)}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.PIC ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
             </div>
-            <div className="field">
-              <label htmlFor="name">Description</label>
-              <InputText
-                id="name"
-                value={formik.values.description}
-                onChange={(e) =>
-                  formik.setFieldValue("description", e.target.value)
-                }
-                autoFocus
-                className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.description
-                    ? "border-red-600"
-                    : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="name"> Event Start</label>
-              <InputText
-                id="name"
-                value={`${formik.values.event_start?.year}-${formik.values.event_start?.month}-${formik.values.event_start?.day}`}
-                onFocus={() => {
-                  setShowEnd(false);
-                  setShowStart(true);
-                }}
-                className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.event_start
-                    ? "border-red-600"
-                    : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
-              {showStart && (
-                <div className="absolute">
-                  <div className="relative mt-2" style={{ width: 320 }}>
-                    <Calendar
-                      locale={"en"}
-                      value={formik.values.event_start}
-                      minimumDate={utils("en").getToday()}
-                      onChange={(date) => {
-                        setShowStart(false);
-                        formik.setFieldValue("event_start", date);
-                        formik.setFieldValue("event_end", undefined);
-                      }}
-                      onDisabledDayError={(value) => console.log(value)}
-                      colorPrimary="#AB5CFA" // added this
-                      calendarClassName="custom-calendar" // and this
-                      calendarTodayClassName="custom-today-day" // also this
-                      shouldHighlightWeekends
-                    />
+            <div className="flex flex-row items-center">
+              <div className="field flex-1">
+                <label htmlFor="name"> Event Start</label>
+                <InputText
+                  id="name"
+                  value={`${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`}
+                  onFocus={() => {
+                    setShowEnd(false);
+                    setShowStart(true);
+                  }}
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.event_start
+                      ? "border-red-600"
+                      : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+                {showStart && (
+                  <div className="absolute">
+                    <div className="relative mt-2" style={{ width: 320 }}>
+                      <Calendar
+                        locale={"en"}
+                        value={formik.values.event_start}
+                        minimumDate={utils("en").getToday()}
+                        onChange={(date) => {
+                          setShowStart(false);
+                          formik.setFieldValue("event_start", date);
+                          formik.setFieldValue("event_end", undefined);
+                        }}
+                        onDisabledDayError={(value) => console.log(value)}
+                        colorPrimary="#AB5CFA" // added this
+                        calendarClassName="custom-calendar" // and this
+                        calendarTodayClassName="custom-today-day" // also this
+                        shouldHighlightWeekends
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-            <div className="field">
-              <label htmlFor="name"> Event End</label>
-              <InputText
-                id="name"
-                value={
-                  formik.values.event_end
-                    ? `${formik.values.event_end?.year}-${formik.values.event_end?.month}-${formik.values.event_end?.day}`
-                    : ""
-                }
-                onFocus={() => {
-                  setShowEnd(true);
-                  setShowStart(false);
-                }}
-                className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.event_end ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
-              {showEnd && (
-                <div className="absolute">
-                  <div className="relative mt-2" style={{ width: 320 }}>
-                    <Calendar
-                      locale={"en"}
-                      value={formik.values.event_end}
-                      minimumDate={formik.values.event_start as Day}
-                      onChange={(date) => {
-                        setShowEnd(false);
-                        formik.setFieldValue("event_end", date);
-                      }}
-                      onDisabledDayError={(value) => console.log(value)}
-                      colorPrimary="#AB5CFA" // added this
-                      calendarClassName="custom-calendar" // and this
-                      calendarTodayClassName="custom-today-day" // also this
-                    />
+                )}
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field flex-1">
+                <label htmlFor="name"> Event End</label>
+                <InputText
+                  id="name"
+                  value={
+                    formik.values.event_end
+                      ? `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
+                      : ""
+                  }
+                  onFocus={() => {
+                    setShowEnd(true);
+                    setShowStart(false);
+                  }}
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.event_end
+                      ? "border-red-600"
+                      : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+                {showEnd && (
+                  <div className="absolute">
+                    <div className="relative mt-2" style={{ width: 320 }}>
+                      <Calendar
+                        locale={"en"}
+                        value={formik.values.event_end}
+                        minimumDate={formik.values.event_start as Day}
+                        onChange={(date) => {
+                          setShowEnd(false);
+                          formik.setFieldValue("event_end", date);
+                        }}
+                        onDisabledDayError={(value) => console.log(value)}
+                        colorPrimary="#AB5CFA" // added this
+                        calendarClassName="custom-calendar" // and this
+                        calendarTodayClassName="custom-today-day" // also this
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-            <div className="field">
-              <label htmlFor="name">PIC</label>
-              <InputText
-                id="name"
-                value={formik.values.PIC as string}
-                onChange={(e) => formik.setFieldValue("PIC", e.target.value)}
-                autoFocus
-                className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.PIC ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="name">Address</label>
-              <InputText
-                id="name"
-                value={formik.values.address}
-                onChange={(e) =>
-                  formik.setFieldValue("address", e.target.value)
-                }
-                autoFocus
-                className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.address ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="name">Status</label>
-              <Dropdown
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                value={selectedStatus}
-                options={eventStatus?.data?.map?.((el: any) => {
-                  return {
-                    label: el.name,
-                    value: el.id,
-                  };
-                })}
-                optionLabel="label"
-                placeholder="Select status"
-                className="flex-1"
-                // style={{ width: "100%" }}
-              />
+            <div className="flex flex-row items-center">
+              <div className="field flex-1">
+                <label htmlFor="name">Address</label>
+                <InputText
+                  id="name"
+                  value={formik.values.address}
+                  onChange={(e) =>
+                    formik.setFieldValue("address", e.target.value)
+                  }
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.address ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field flex-1">
+                <label htmlFor="name">Status</label>
+                <Dropdown
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  value={selectedStatus}
+                  options={eventStatus?.data?.map?.((el: any) => {
+                    return {
+                      label: el.name,
+                      value: el.id,
+                    };
+                  })}
+                  optionLabel="label"
+                  placeholder="Select status"
+                  className="flex-1"
+                  // style={{ width: "100%" }}
+                />
+              </div>
             </div>
             <div className="field">
               <label htmlFor="notes">Note</label>

@@ -13,8 +13,11 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { Dialog } from "primereact/dialog";
+import { useRouter } from "next/navigation";
+import { SortType } from "@/app/interfaces/interfaces";
 
 const TableDemo = () => {
+  const router = useRouter();
   const toast = useRef<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModify, setIsModify] = useState<boolean>(false);
@@ -32,6 +35,8 @@ const TableDemo = () => {
   const [productDialog, setProductDialog] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
+  const [sort, setSort] = useState<SortType>("ASC");
+  const [sortBy, setSortBy] = useState<string>("name");
 
   const formik = useFormik<any>({
     initialValues: {
@@ -91,7 +96,8 @@ const TableDemo = () => {
   const getListArea = async () => {
     try {
       setIsLoading(true);
-      const response = await InventoryService.getArea();
+      const response = await InventoryService.getArea({sort,
+        sortBy,});
       setListArea(response.data);
       setIsLoading(false);
     } catch (error: any) {
@@ -119,7 +125,7 @@ const TableDemo = () => {
 
   useEffect(() => {
     getListArea();
-  }, []);
+  }, [sort, sortBy]);
 
   const onGlobalFilterChange1 = () => {};
 
@@ -154,17 +160,29 @@ const TableDemo = () => {
 
   const productDialogFooter = (
     <>
-      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Cancel"
+        severity="danger"
+        icon="pi pi-times"
+        onClick={hideDialog}
+      />
       <Button
         label="Save"
         icon="pi pi-check"
-        text
+        severity="success"
+        style={{ width: 120 }}
         onClick={() => formik.handleSubmit()}
       />
     </>
   );
 
   let [over, setOver] = React.useState("");
+
+
+  const onSort = (field: string) => {
+    setSortBy(field);
+    setSort(sort === "ASC" ? "DESC" : "ASC");
+  };
 
   return (
     <div className="grid">
@@ -209,22 +227,32 @@ const TableDemo = () => {
             header={header1}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="{first} to {last} of {totalRecords} events"
+            onSort={(e) => onSort(e.sortField)}
+            sortField={sortBy}
+            sortOrder={sort === "ASC" ? 1 : -1}
+            onRowClick={(e) => router.push(`/event-item?event=${e.data.id}`)}
           >
             <Column
               field="name"
               header="Name"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
+              sortable
+              sortField="name"
             />
             <Column
               field="description"
               header="Description"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
+              sortable
+              sortField="description"
             />
             <Column
               field="created_at"
               header="Created At"
+              sortable
+              sortField="created_at"
               filterPlaceholder="Search by name"
               style={{ minWidth: "3rem" }}
               body={(data: any) => (
@@ -237,7 +265,7 @@ const TableDemo = () => {
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
-              style={{ width: 100 }}
+              style={{ width: 130 }}
               body={(data) => (
                 <div
                   style={{
@@ -247,6 +275,11 @@ const TableDemo = () => {
                     flex: 1,
                   }}
                 >
+                  <div
+                    onClick={(e) => router.push(`/sub_area?id=${data.id}`)}
+                    className="pi pi-folder"
+                    style={{ fontSize: 18, cursor: "pointer" }}
+                  ></div>
                   <div
                     className="pi pi-file-edit"
                     onClick={() => {
@@ -258,6 +291,7 @@ const TableDemo = () => {
                     onMouseOut={() => setOver("")}
                     style={{
                       fontSize: 18,
+                      marginLeft: 20,
                       cursor: "pointer",
                       color: over === data.id + "edit" ? "blue" : undefined,
                     }}

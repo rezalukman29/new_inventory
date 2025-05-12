@@ -519,6 +519,7 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={total}
             lazy
+            tableStyle={{ width: 1800 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}

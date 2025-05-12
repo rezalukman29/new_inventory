@@ -38,6 +38,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { Dialog } from "primereact/dialog";
+import { useSearchParams } from "next/navigation";
+import { SortType } from "@/app/interfaces/interfaces";
 
 interface ISelect {
   label: string;
@@ -64,6 +66,10 @@ const TableDemo = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [productDialog, setProductDialog] = useState(false);
   const [searchValue, setSearchValue] = useState<string>("");
+  const searchParams = useSearchParams();
+  const areaId: any = searchParams.get("id");
+  const [sort, setSort] = useState<SortType>("ASC");
+  const [sortBy, setSortBy] = useState<string>("sub_area_name");
 
   const formik = useFormik<any>({
     initialValues: {
@@ -127,7 +133,10 @@ const TableDemo = () => {
   const getListArea = async () => {
     try {
       setIsLoading(true);
-      const response = await InventoryService.getArea();
+      const response = await InventoryService.getArea({
+        sort: "ASC",
+        sortBy: "name",
+      });
       setListArea(response.data);
       setIsLoading(false);
     } catch (error: any) {
@@ -138,8 +147,14 @@ const TableDemo = () => {
   const getListSubArea = async () => {
     try {
       setIsLoading(true);
-      const response = await InventoryService.getSubArea();
-      setListSubArea(response.data);
+      const response = await InventoryService.getSubArea({sort, sortBy});
+      if (areaId) {
+        setListSubArea(
+          response.data?.filter((el) => Number(el.area_id) === Number(areaId))
+        );
+      } else {
+        setListSubArea(response.data);
+      }
       setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);
@@ -192,8 +207,12 @@ const TableDemo = () => {
 
   useEffect(() => {
     getListArea();
-    getListSubArea();
+
   }, []);
+
+  useEffect(() => {
+    getListSubArea();
+  }, [sort, sortBy]);
 
   const hideDialog = () => {
     setProductDialog(false);
@@ -222,6 +241,11 @@ const TableDemo = () => {
   }, [listArea]);
 
   let [over, setOver] = React.useState("");
+
+  const onSort = (field: string) => {
+    setSortBy(field);
+    setSort(sort === "ASC" ? "DESC" : "ASC");
+  };
 
   return (
     <div className="grid">
@@ -268,12 +292,17 @@ const TableDemo = () => {
             header={header1}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="{first} to {last} of {totalRecords} events"
+            onSort={(e) => onSort(e.sortField)}
+            sortField={sortBy}
+            sortOrder={sort === "ASC" ? 1 : -1}
           >
             <Column
               field="sub_area_name"
               header="Sub Area"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem" }}
+              sortable
+              sortField="sub_area_name"
             />
             <Column
               field="lokasi"
@@ -285,6 +314,8 @@ const TableDemo = () => {
                   listArea?.find((el) => el.id === data.area_id)?.name ?? "";
                 return <p>{area}</p>;
               }}
+              sortable
+              sortField="area_name"
             />
             <Column
               field="created_at"
@@ -294,6 +325,8 @@ const TableDemo = () => {
               body={(data: any) => (
                 <p>{moment(data.created_at as any).format("LLL")}</p>
               )}
+              sortable
+              sortField="created_at"
             />
             <Column
               field="address"
@@ -320,7 +353,11 @@ const TableDemo = () => {
                     }}
                     onMouseOver={() => setOver(data.id + "edit")}
                     onMouseOut={() => setOver("")}
-                    style={{ fontSize: 18, cursor: "pointer", color: over === data.id + "edit" ? "blue" : undefined, }}
+                    style={{
+                      fontSize: 18,
+                      cursor: "pointer",
+                      color: over === data.id + "edit" ? "blue" : undefined,
+                    }}
                   ></div>
 
                   <div
@@ -331,7 +368,12 @@ const TableDemo = () => {
                     }}
                     onMouseOver={() => setOver(data.id + "delete")}
                     onMouseOut={() => setOver("")}
-                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer", color: over === data.id + "delete" ? "blue" : undefined, }}
+                    style={{
+                      fontSize: 18,
+                      marginLeft: 20,
+                      cursor: "pointer",
+                      color: over === data.id + "delete" ? "blue" : undefined,
+                    }}
                   ></div>
                 </div>
               )}

@@ -104,6 +104,7 @@ const AppMenuitem = (props: AppMenuItemProps) => {
             "active-route": isActiveRoute,
           })}
           tabIndex={0}
+          style={{left: -16}}
         >
           <i className={classNames("layout-menuitem-icon", item!.icon)}></i>
           <span className="layout-menuitem-text">{item!.label}</span>

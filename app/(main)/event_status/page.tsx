@@ -51,7 +51,6 @@ const TableDemo = () => {
     onSubmit: async (values) => {
       setIsLoading(true);
       const payload: any = {
-        id: values.id,
         name: values.name,
         is_show_scan_result: values.is_show_scan_result,
       };
@@ -72,7 +71,21 @@ const TableDemo = () => {
           });
         }
       } else {
-        return;
+        const result: APIResponse<any> = await InventoryService.addEventStatus({
+          ...payload,
+          is_show_scan_result: Number(payload.is_show_scan_result),
+        });
+        if (result.success) {
+          setTimeout(() => {
+            setProductDialog(false);
+          }, 200);
+          toast?.current?.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Adding Area",
+            life: 3000,
+          });
+        }
       }
       setIsModify(false);
       setIsLoading(false);
@@ -122,6 +135,13 @@ const TableDemo = () => {
             placeholder="Keyword Search"
           />
         </span>
+        <Button
+          label="New"
+          icon="pi pi-plus"
+          severity="success"
+          className=" mr-2"
+          onClick={() => setProductDialog(true)}
+        />
       </div>
     );
   };
@@ -139,11 +159,17 @@ const TableDemo = () => {
 
   const productDialogFooter = (
     <>
-      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Cancel"
+        severity="danger"
+        icon="pi pi-times"
+        onClick={hideDialog}
+      />
       <Button
         label="Save"
         icon="pi pi-check"
-        text
+        severity="success"
+        style={{ width: 120 }}
         onClick={() => formik.handleSubmit()}
       />
     </>
@@ -255,7 +281,7 @@ const TableDemo = () => {
           <Dialog
             visible={productDialog}
             style={{ width: "450px" }}
-            header={isModify ? "Modify Warehouse" : "Add Warehouse"}
+            header={isModify ? "Modify Event Status" : "Add Event Status"}
             modal
             className="p-fluid"
             footer={productDialogFooter}

@@ -186,7 +186,7 @@ const Page = (props: Props) => {
 
   const getListSubArea = async () => {
     try {
-      const response = await InventoryService.getSubArea();
+      const response = await InventoryService.getSubArea({sort: "ASC", sortBy: "sub_area_name"});
       setListSubArea(response.data);
     } catch (error: any) {}
   };
@@ -816,7 +816,7 @@ const Page = (props: Props) => {
   const dataviewGridItem = (item: any, isCart: boolean) => {
     return (
       <div className="col-12 lg:col-4">
-        <div className="card m-3 border-1 surface-border">
+        <div className="card m-2 border-1 surface-border p-5">
           <div className="flex flex-wrap gap-2 align-items-center justify-content-between mb-2">
             <div className="flex align-items-center">
               <i className="pi pi-tag mr-2" />

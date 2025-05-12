@@ -188,8 +188,13 @@ export const InventoryService = {
     const response = await ax.put(`/v1/barang-gudang`, data);
     return response.data;
   },
-  getArea: async (): Promise<APIResponse<Array<any>>> => {
-    const response = await ax.get(`/v1/area`);
+  getArea: async (filter: any): Promise<APIResponse<Array<any>>> => {
+    const response = await ax.get(`/v1/area`, {
+      params: {
+        sort: filter.sort,
+        sort_by: filter.sortBy,
+      }
+    });
     return response.data;
   },
   addArea: async (data: any): Promise<APIResponse<any>> => {
@@ -208,8 +213,13 @@ export const InventoryService = {
     const response = await ax.delete(`/v1/fix-list-item/${id}`);
     return response.data;
   },
-  getSubArea: async (): Promise<APIResponse<Array<any>>> => {
-    const response = await ax.get(`/v1/sub-area`);
+  getSubArea: async (filter: any): Promise<APIResponse<Array<any>>> => {
+    const response = await ax.get(`/v1/sub-area`, {
+      params: {
+        sort: filter.sort,
+        sort_by: filter.sortBy,
+      }
+    });
     return response.data;
   },
   addSubArea: async (data: any): Promise<APIResponse<any>> => {
@@ -314,5 +324,9 @@ export const InventoryService = {
       },
     });
     return response.data.data;
+  },
+  addEventStatus: async (payload: any) => {
+    const response = await ax.post(`/v1/event-status/create`, payload);
+    return response.data;
   },
 };
