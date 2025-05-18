@@ -1123,7 +1123,7 @@ const TableDemo = () => {
               lazy
               first={first}
               alwaysShowPaginator
-              tableStyle={{ width: 1800 }}
+              tableStyle={{ width: 1800, fontSize: 13 }}
               loading={isLoading}
               responsiveLayout="scroll"
               emptyMessage="No customers found."
@@ -1138,7 +1138,7 @@ const TableDemo = () => {
                 field="nama"
                 header="Name"
                 filterPlaceholder="Search by name"
-                style={{ minWidth: "12rem" }}
+                style={{ minWidth: "12rem" , paddingTop: 8, paddingBottom: 8 }}
                 sortable
                 sortField="name"
               />
@@ -1146,7 +1146,7 @@ const TableDemo = () => {
                 field="stok_barang"
                 header="Stok"
                 filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem" }}
+                style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
                 sortable
                 sortField="stock"
               />
@@ -1154,7 +1154,7 @@ const TableDemo = () => {
                 field="stok_barang"
                 header="Stok All"
                 filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem" }}
+                style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
                 body={(data: any) => {
                   return (
                     <p>
@@ -1174,7 +1174,7 @@ const TableDemo = () => {
                 field="satuan.name"
                 header="Satuan"
                 filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem" }}
+                style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
                 sortable
                 sortField="satuan"
               />
@@ -1182,14 +1182,14 @@ const TableDemo = () => {
                 field="satuan.name"
                 header="Image"
                 filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem" }}
+                style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
                 body={inventoryImage}
               />
               <Column
                 field="satuan.name"
                 header="Category"
                 filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem" }}
+                style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
                 body={inventoryCategory}
                 sortable
                 sortField="category"
@@ -1198,7 +1198,7 @@ const TableDemo = () => {
                 field="satuan.name"
                 header="Warehouse"
                 filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem" }}
+                style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
                 body={inventoryWarehouse}
                 sortable
                 sortField="warehouse"
@@ -1208,7 +1208,7 @@ const TableDemo = () => {
                 header="Action"
                 headerStyle={{ justifyItems: "center" }}
                 filterPlaceholder="Search by name"
-                style={{ width: 120 }}
+                style={{ width: 120 , paddingTop: 8, paddingBottom: 8 }}
                 bodyStyle={{ textAlign: "center" }}
                 body={(data) => {
                   return (

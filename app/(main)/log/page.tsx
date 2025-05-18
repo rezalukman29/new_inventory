@@ -223,6 +223,7 @@ const TableDemo = () => {
               setFirst(e.first);
               setPage(Number(e.page) + 1);
             }}
+            tableStyle={{ fontSize: 13 }}
             rows={logs.length}
             dataKey="id"
             totalRecords={total}
@@ -240,7 +241,7 @@ const TableDemo = () => {
               field="name"
               header="User"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               body={(el: any) => (
                 <p>
                   {users?.data?.find((item) => item.id === el.user_id)
@@ -252,7 +253,7 @@ const TableDemo = () => {
               field="description"
               header="Module"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               body={(el: any) => (
                 <p>{`${
                   el.endpoint === "/v1/login"
@@ -272,7 +273,7 @@ const TableDemo = () => {
               field="created_at"
               header="Action Time"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" }}
+              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>{moment(data.created_at as any).format("LLL")}</p>
               )}

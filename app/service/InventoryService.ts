@@ -110,7 +110,7 @@ export const InventoryService = {
     const response = await ax.get(
       `v1/barang-gudang/detail?${
         gudangId === "All" || gudangId === null ? "" : `gudang_id=${gudangId}&`
-      }page=${page}&limit=${limit}${search ? `&search=${search}` : ""}`
+      }page=${page}&limit=${20}${search ? `&search=${search}` : ""}`
     );
     return response.data.data;
   },

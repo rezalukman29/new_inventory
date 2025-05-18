@@ -284,6 +284,7 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={listSubArea.length}
             lazy
+            tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -300,7 +301,7 @@ const TableDemo = () => {
               field="sub_area_name"
               header="Sub Area"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               sortable
               sortField="sub_area_name"
             />
@@ -308,7 +309,7 @@ const TableDemo = () => {
               field="lokasi"
               header="Area"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
               body={(data) => {
                 const area =
                   listArea?.find((el) => el.id === data.area_id)?.name ?? "";
@@ -321,7 +322,7 @@ const TableDemo = () => {
               field="created_at"
               header="Created At"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" }}
+              style={{ minWidth: "3rem" , paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>{moment(data.created_at as any).format("LLL")}</p>
               )}
@@ -334,7 +335,7 @@ const TableDemo = () => {
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
-              style={{ width: 100 }}
+              style={{ width: 100, paddingTop: 8, paddingBottom: 8 }}
               body={(data) => (
                 <div
                   style={{

@@ -265,7 +265,7 @@ const TableDemo = () => {
               setFirst(e.first);
               setPage(Number(e.page) + 1);
             }}
-            tableStyle={{ width: 1800 }}
+            tableStyle={{ width: 1800, fontSize: 13 }}
             rows={pageSize}
             dataKey="id"
             totalRecords={total}
@@ -283,12 +283,13 @@ const TableDemo = () => {
             sortOrder={sort === "ASC" ? 1 : -1}
             selectionMode={"single"}
             onRowClick={(e) => router.push(`/event-item?event=${e.data.id}`)}
+     
           >
             <Column
               field="name"
               header="Name"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "6rem" }}
+              style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
               sortable
               sortField="name"
             />
@@ -296,13 +297,13 @@ const TableDemo = () => {
               field="description"
               header="Description"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "6rem" }}
+              style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="event_start"
               header="Start"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" }}
+              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>{moment(data.event_start as any).format("LLL")}</p>
               )}
@@ -313,7 +314,7 @@ const TableDemo = () => {
               field="event_end"
               header="Finish"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" }}
+              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>{moment(data.event_end as any).format("LLL")}</p>
               )}
@@ -324,7 +325,7 @@ const TableDemo = () => {
               field="event_code"
               header="Code"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               sortable
               sortField="event_code"
             />
@@ -332,7 +333,7 @@ const TableDemo = () => {
               field="address"
               header="Location"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               sortable
               sortField="address"
             />
@@ -340,7 +341,7 @@ const TableDemo = () => {
               field="address"
               header="Action"
               filterPlaceholder="Search by name"
-              style={{ width: 130 }}
+              style={{ width: 130 , paddingTop: 8, paddingBottom: 8 }}
               body={(data) => (
                 <div
                   style={{

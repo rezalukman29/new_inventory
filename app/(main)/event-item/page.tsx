@@ -43,6 +43,7 @@ import Loading from "@/app/components/atoms/loading";
 import { useQRCode } from "next-qrcode";
 import { WEB_URL } from "@/app/util/config";
 import moment from "moment";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 type Props = {};
 
@@ -82,6 +83,7 @@ const Page = (props: Props) => {
   const [barang, setBarang] = useState<any>([]);
   const [selectedBarangGudang, setSelectedBarangGudang] = useState<any>(null);
   const [loadingGet, setLoadingGet] = useState(false);
+  const [loadingSearchInventory, setLoadingSearchInventory] = useState(false);
   const [eventDetail, setEventDetail] = useState<any | null>(null);
   const [areaList, setAreaList] = useState<any | null>(null);
   const [selectedArea, setSelectedArea] = useState<any | null>("all");
@@ -175,7 +177,7 @@ const Page = (props: Props) => {
 
   const onChangeArea = (e: any) => {
     setSelectedArea(e.target.value);
-    setSubArea(null)
+    setSubArea(null);
   };
   const onChangeStatus = (e: any) => {
     setSelectedStatus(e.target.value);
@@ -186,7 +188,10 @@ const Page = (props: Props) => {
 
   const getListSubArea = async () => {
     try {
-      const response = await InventoryService.getSubArea({sort: "ASC", sortBy: "sub_area_name"});
+      const response = await InventoryService.getSubArea({
+        sort: "ASC",
+        sortBy: "sub_area_name",
+      });
       setListSubArea(response.data);
     } catch (error: any) {}
   };
@@ -490,7 +495,6 @@ const Page = (props: Props) => {
     () =>
       eventItemData
         ?.map((dt) => {
-     
           return {
             nama_barang: dt.nama_barang,
             code: dt.code,
@@ -505,7 +509,7 @@ const Page = (props: Props) => {
             id: dt.id,
             barang_id: dt.barang_id,
             subArea: dt.sub_list_name,
-            gudang: dt.gudang?.length ?  dt.gudang[0]?.nama : "",
+            gudang: dt.gudang?.length ? dt.gudang[0]?.nama : "",
             gudangStok: dt.gudang?.length ? dt.gudang[0]?.stock : "",
             area: areas?.data.find((item: any) => item.id === dt.list_id)?.name,
             additionalCode: dt.AdditionalCode,
@@ -572,7 +576,7 @@ const Page = (props: Props) => {
   }, [selectedGudang, barangGudangSearch]);
 
   const fetchData = async (isResetPage?: boolean) => {
-    setLoadingGet(true);
+    setLoadingSearchInventory(true);
     const response: BaseResponsePagination<BarangGudangI[]> =
       await InventoryService.getBarangGudang(
         selectedGudang,
@@ -581,7 +585,7 @@ const Page = (props: Props) => {
         Number(eventId)
       );
     if (response.data === null) {
-      setLoadingGet(false);
+      setLoadingSearchInventory(false);
       isResetPage && setBarangGudang([]);
       toast?.current?.show({
         severity: "error",
@@ -604,7 +608,7 @@ const Page = (props: Props) => {
         ? itemBaramgGudang
         : [...barangGudang, ...itemBaramgGudang]
     );
-    setLoadingGet(false);
+    setLoadingSearchInventory(false);
   };
 
   const onAddCart = () => {
@@ -726,7 +730,7 @@ const Page = (props: Props) => {
           const eventListResponse: any = await formPostEventList({
             list_id: item.list_id,
             event_id: item.event_id,
-            ...(item.sub_list_id && {sub_list_id: item.sub_list_id}),
+            ...(item.sub_list_id && { sub_list_id: item.sub_list_id }),
           });
           const eventListId = eventListResponse.id;
           const payload: any = {
@@ -789,7 +793,7 @@ const Page = (props: Props) => {
         kategori: dt.kategori,
         stok: dt.qty,
         id: dt.id,
-        gudang: dt.gudang?.length ?  dt.gudang[0]?.nama : "",
+        gudang: dt.gudang?.length ? dt.gudang[0]?.nama : "",
         gudangStok: dt.gudang?.length ? dt.gudang[0]?.stock : "",
         area:
           areas?.data.find((item: any) => item.id === dt.list_id)?.name ?? "",
@@ -1238,6 +1242,7 @@ const Page = (props: Props) => {
             footer={productDialogFooter}
             onHide={() => setProductDialog(false)}
           >
+            {loadingSearchInventory && <Loading />}
             <div className="field flex-1">
               <label htmlFor="name">Unit</label>
               <Dropdown
@@ -1267,9 +1272,10 @@ const Page = (props: Props) => {
                     value={barangGudangSearch}
                     onChange={(e) => setBarangGudangSearch(e.target.value)}
                     placeholder="Keyword Search"
-                    style={{ width: "100%" }}
+                    style={{ width: 420 }}
                   />
                 </span>
+
                 <div
                   style={{
                     flexDirection: "row",
@@ -1312,7 +1318,7 @@ const Page = (props: Props) => {
                         : "transparent",
                     borderStyle: "solid",
                   }}
-                  className="flex  p-3 rounded-lg mb-3 cursor-pointer items-center"
+                  className="flex  rounded-lg mb-3 cursor-pointer items-center"
                   onClick={() => {
                     setSelectedBarangGudang(item);
                     setQty("");
@@ -1329,9 +1335,10 @@ const Page = (props: Props) => {
                     alt={item.nama_barang}
                     style={{
                       width: "100%",
-                      height: 120,
-                      objectFit: "scale-down",
+                      height: 220,
+                      objectFit: "cover",
                       marginBottom: 8,
+                      borderRadius: 4,
                     }}
                   />
                   <div className="items-start">
@@ -1350,17 +1357,27 @@ const Page = (props: Props) => {
                   </div>
                 </div>
               ))}
-              <Button
+
+              {/* <Button
                 onClick={() => setBarangGudangPage(barangGudangPage + 1)}
                 style={{
                   backgroundColor: "#6366F1",
                   color: "#fff",
                   alignSelf: "center",
+                  textAlign: 'center'
                 }}
               >
                 Load More
-              </Button>
+              </Button> */}
             </div>
+            <Button
+                label={"Load More"}
+                severity="info"
+                className=" mr-2"
+                loading={loadingSearchInventory}
+                style={{ justifyContent: "center", height: 50, marginTop: 8 }}
+                onClick={() => setBarangGudangPage(barangGudangPage + 1)}
+              />
             <div className="flex flex-row items-center mt-4">
               <div className="field flex-1">
                 <label htmlFor="name">Quantity</label>

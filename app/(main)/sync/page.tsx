@@ -108,6 +108,7 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={listArea.length}
             lazy
+            tableStyle={{fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -121,19 +122,19 @@ const TableDemo = () => {
               field="nama_barang"
               header="Name"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="stok"
               header="Stok"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem", textAlign: "center" }}
+              style={{ minWidth: "4rem", textAlign: "center" , paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="created_at"
               header="Warehouse Stok"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" }}
+              style={{ minWidth: "3rem" , paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p style={{ textAlign: "center" }}>
                   {data.barang_gudang?.reduce(
@@ -149,7 +150,7 @@ const TableDemo = () => {
               field="created_at"
               header="Detail"
               filterPlaceholder="Search by name"
-              style={{ width: 600 }}
+              style={{ width: 600 , paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>
                   {data.barang_gudang
@@ -162,7 +163,7 @@ const TableDemo = () => {
               field="created_at"
               header="Detail"
               filterPlaceholder="Search by name"
-              style={{ width: 100 }}
+              style={{ width: 100 , paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
               body={(data: any) => (
                 <Button

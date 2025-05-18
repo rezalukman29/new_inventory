@@ -519,7 +519,7 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={total}
             lazy
-            tableStyle={{ width: 1800 }}
+            tableStyle={{ width: 1800, fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -534,13 +534,13 @@ const TableDemo = () => {
               header="Name"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="stok_gudang"
               header="Warehouse Stock"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
             />
@@ -549,7 +549,7 @@ const TableDemo = () => {
               header="Item Stock"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
             />
             <Column
@@ -557,7 +557,7 @@ const TableDemo = () => {
               header="Stok Min"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
             />
             <Column
@@ -565,7 +565,7 @@ const TableDemo = () => {
               header="Stok Used"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
             />
             <Column
@@ -573,7 +573,7 @@ const TableDemo = () => {
               header="Minimum Status"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
               body={(data) => {
                 const isLow = data.stok_gudang < data.stok_minimum;
@@ -595,7 +595,7 @@ const TableDemo = () => {
               header="Flag 1"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
             />
             <Column
@@ -603,7 +603,7 @@ const TableDemo = () => {
               header="Flag 2"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
             />
             <Column
@@ -611,7 +611,7 @@ const TableDemo = () => {
               header="Image"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               body={inventoryImage}
               bodyStyle={{ padding: 4, textAlign: "center" }}
             />
@@ -619,7 +619,7 @@ const TableDemo = () => {
               field="address"
               header="Action"
               headerStyle={{ justifyItems: "center" }}
-              style={{ width: 120 }}
+              style={{ width: 120, paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
               body={(data) => {
                 return (

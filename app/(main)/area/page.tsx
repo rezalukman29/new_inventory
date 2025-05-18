@@ -219,6 +219,7 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={listArea.length}
             lazy
+            tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -236,7 +237,7 @@ const TableDemo = () => {
               field="name"
               header="Name"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               sortable
               sortField="name"
             />
@@ -244,7 +245,7 @@ const TableDemo = () => {
               field="description"
               header="Description"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
               sortable
               sortField="description"
             />
@@ -254,7 +255,7 @@ const TableDemo = () => {
               sortable
               sortField="created_at"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" }}
+              style={{ minWidth: "3rem" , paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>{moment(data.created_at as any).format("LLL")}</p>
               )}
@@ -265,7 +266,7 @@ const TableDemo = () => {
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
-              style={{ width: 130 }}
+              style={{ width: 130 , paddingTop: 8, paddingBottom: 8 }}
               body={(data) => (
                 <div
                   style={{

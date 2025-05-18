@@ -209,6 +209,7 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={gudangs.length}
             lazy
+            tableStyle={{fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -222,25 +223,25 @@ const TableDemo = () => {
               field="nama"
               header="Name"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="lokasi"
               header="Location"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="pic"
               header="PIC"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="created_at"
               header="Created At"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" }}
+              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>{moment(data.created_at as any).format("LLL")}</p>
               )}
@@ -251,7 +252,7 @@ const TableDemo = () => {
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
-              style={{ width: 100 }}
+              style={{ width: 100, paddingTop: 8, paddingBottom: 8 }}
               body={(data) => (
                 <div
                   style={{

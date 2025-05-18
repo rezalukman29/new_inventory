@@ -244,6 +244,7 @@ const TableDemo = () => {
               setFirst(e.first);
               setPage(Number(e.page) + 1);
             }}
+            tableStyle={{fontSize: 13 }}
             rows={pageSize}
             dataKey="id"
             totalRecords={total}
@@ -261,19 +262,19 @@ const TableDemo = () => {
               field="event_name"
               header="Event"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="event_location"
               header="Location"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="event_status_id.Int64"
               header="Status"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" }}
+              style={{ minWidth: "3rem" , paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>{eventStatus?.data?.find(el => el.id === (data.event_status_id.Int64) + 1)?.name ?? ""}</p>
               )}
@@ -282,19 +283,19 @@ const TableDemo = () => {
               field="nama_barang"
               header="Item"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" }}
+              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="stok_barang.Int64"
               header="Stock Item"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="stok_di_keranjang.Int64"
               header="Stock in Cart"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
             />
             {/* <Column
               field="event_end"

@@ -196,6 +196,7 @@ const TableDemo = () => {
             }}
             rows={statusList.length}
             dataKey="id"
+            tableStyle={{ fontSize: 13 }}
             totalRecords={statusList.length}
             lazy
             first={first}
@@ -211,13 +212,13 @@ const TableDemo = () => {
               field="name"
               header="Status"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="Show Scan"
               header="Show Scan"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data) => {
                 return <p>{data.is_show_scan_result === 0 ? "No" : "Yes"}</p>;
               }}
@@ -228,7 +229,7 @@ const TableDemo = () => {
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data) => (
                 <div
                   style={{
