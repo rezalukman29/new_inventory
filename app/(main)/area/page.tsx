@@ -96,8 +96,7 @@ const TableDemo = () => {
   const getListArea = async () => {
     try {
       setIsLoading(true);
-      const response = await InventoryService.getArea({sort,
-        sortBy,});
+      const response = await InventoryService.getArea({ sort, sortBy });
       setListArea(response.data);
       setIsLoading(false);
     } catch (error: any) {
@@ -178,7 +177,6 @@ const TableDemo = () => {
 
   let [over, setOver] = React.useState("");
 
-
   const onSort = (field: string) => {
     setSortBy(field);
     setSort(sort === "ASC" ? "DESC" : "ASC");
@@ -245,9 +243,15 @@ const TableDemo = () => {
               field="description"
               header="Description"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               sortable
               sortField="description"
+            />
+            <Column
+              field="total_sub_area"
+              header="Sub Area"
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="created_at"
@@ -255,7 +259,7 @@ const TableDemo = () => {
               sortable
               sortField="created_at"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>{moment(data.created_at as any).format("LLL")}</p>
               )}
@@ -266,7 +270,7 @@ const TableDemo = () => {
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
-              style={{ width: 130 , paddingTop: 8, paddingBottom: 8 }}
+              style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
               body={(data) => (
                 <div
                   style={{

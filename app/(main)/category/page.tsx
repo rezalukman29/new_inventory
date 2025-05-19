@@ -1,11 +1,7 @@
 "use client";
 import { Button } from "primereact/button";
-import {
-  Column,
-} from "primereact/column";
-import {
-  DataTable,
-} from "primereact/datatable";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
 import { InputText } from "primereact/inputtext";
 import React, { useEffect, useRef, useState } from "react";
 import { InventoryService } from "@/app/service/InventoryService";
@@ -17,7 +13,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { Dialog } from "primereact/dialog";
-
+import { SortType } from "@/app/interfaces/interfaces";
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
@@ -37,6 +33,8 @@ const TableDemo = () => {
   const [productDialog, setProductDialog] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
+  const [sort, setSort] = useState<SortType>("ASC");
+  const [sort_by, setSort_by] = useState<string>("name");
 
   const formik = useFormik<any>({
     initialValues: {
@@ -55,10 +53,11 @@ const TableDemo = () => {
         description: values.description,
       };
       if (isModify) {
-        const result: APIResponse<any> = await InventoryService.editItemCategory({
-          ...payload,
-          id: selected.id,
-        });
+        const result: APIResponse<any> =
+          await InventoryService.editItemCategory({
+            ...payload,
+            id: selected.id,
+          });
         if (result.success) {
           setTimeout(() => {
             setProductDialog(false);
@@ -93,12 +92,13 @@ const TableDemo = () => {
     },
   });
 
-
-
   const getlistCategory = async () => {
     try {
       setIsLoading(true);
-      const response = await InventoryService.getItemCategory();
+      const response = await InventoryService.getItemCategory({
+        sort,
+        sort_by,
+      });
       setListCategory(response.data);
       setIsLoading(false);
     } catch (error: any) {
@@ -126,7 +126,7 @@ const TableDemo = () => {
 
   useEffect(() => {
     getlistCategory();
-  }, []);
+  }, [sort, sort_by]);
 
   const onGlobalFilterChange1 = () => {};
 
@@ -173,6 +173,11 @@ const TableDemo = () => {
 
   let [over, setOver] = React.useState("");
 
+  const onSort = (field: string) => {
+    setSort_by(field);
+    setSort(sort === "ASC" ? "DESC" : "ASC");
+  };
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -196,9 +201,7 @@ const TableDemo = () => {
           />
           <DataTable
             value={listCategory.filter(
-              (el) =>
-                el.name &&
-                el.name.match(new RegExp(searchValue, "i"))
+              (el) => el.name && el.name.match(new RegExp(searchValue, "i")) || el.description && el.description.match(new RegExp(searchValue, "i"))
             )}
             paginator
             className="p-datatable-gridlines"
@@ -210,7 +213,7 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={listCategory.length}
             lazy
-            tableStyle={{fontSize: 13 }}
+            tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -219,27 +222,36 @@ const TableDemo = () => {
             header={header1}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="{first} to {last} of {totalRecords} events"
+            onSort={(e) => onSort(e.sortField)}
+            sortField={sort_by}
+            sortOrder={sort === 'ASC' ? 1 : -1}
           >
             <Column
               field="name"
               header="Name"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              sortable
+              sortField="name"
             />
             <Column
               field="description"
               header="Description"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              sortable
+              sortField="description"
             />
             <Column
               field="created_at"
               header="Created At"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>{moment(data.created_at as any).format("LLL")}</p>
               )}
+              sortable
+              sortField="created_at"
             />
             <Column
               field="address"
@@ -247,7 +259,7 @@ const TableDemo = () => {
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
-              style={{ width: 100 , paddingTop: 8, paddingBottom: 8 }}
+              style={{ width: 100, paddingTop: 8, paddingBottom: 8 }}
               body={(data) => (
                 <div
                   style={{
@@ -266,7 +278,11 @@ const TableDemo = () => {
                     }}
                     onMouseOver={() => setOver(data.id + "edit")}
                     onMouseOut={() => setOver("")}
-                    style={{ fontSize: 18, cursor: "pointer",   color: over === data.id + "edit" ? "blue" : undefined, }}
+                    style={{
+                      fontSize: 18,
+                      cursor: "pointer",
+                      color: over === data.id + "edit" ? "blue" : undefined,
+                    }}
                   ></div>
 
                   <div
@@ -277,7 +293,12 @@ const TableDemo = () => {
                     }}
                     onMouseOver={() => setOver(data.id + "delete")}
                     onMouseOut={() => setOver("")}
-                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer", color: over === data.id + "delete" ? "blue" : undefined, }}
+                    style={{
+                      fontSize: 18,
+                      marginLeft: 20,
+                      cursor: "pointer",
+                      color: over === data.id + "delete" ? "blue" : undefined,
+                    }}
                   ></div>
                 </div>
               )}
@@ -330,10 +351,14 @@ const TableDemo = () => {
               <InputText
                 id="name"
                 value={formik.values.description}
-                onChange={(e) => formik.setFieldValue("description", e.target.value)}
+                onChange={(e) =>
+                  formik.setFieldValue("description", e.target.value)
+                }
                 autoFocus
                 className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.description ? "border-red-600" : "border-gray-300"
+                  formik.errors.description
+                    ? "border-red-600"
+                    : "border-gray-300"
                 } rounded-lg bg-transparent`}
               />
             </div>

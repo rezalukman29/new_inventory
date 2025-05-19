@@ -148,8 +148,13 @@ export const InventoryService = {
     const response = await ax.get(`/v1/satuan`);
     return response.data;
   },
-  getItemCategory: async () => {
-    const response = await ax.get(`/v1/kategori-barang-all`);
+  getItemCategory: async (filter: any) => {
+    const response = await ax.get(`/v1/kategori-barang-all`,  {
+      params: {
+        sort: filter.sort,
+        sort_by: filter.sort_by,
+      }
+    });
     return response.data;
   },
   addItemcategory: async (data: any): Promise<APIResponse<any>> => {
