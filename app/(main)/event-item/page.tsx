@@ -44,6 +44,7 @@ import { useQRCode } from "next-qrcode";
 import { WEB_URL } from "@/app/util/config";
 import moment from "moment";
 import { ProgressSpinner } from "primereact/progressspinner";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 type Props = {};
 
@@ -109,6 +110,9 @@ const Page = (props: Props) => {
   const [qrDialog, setQrDialog] = useState(false);
   const [productDialog, setProductDialog] = useState(false);
   const [imageDialog, setImageDialog] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
+  const [isCancelScan, setIsCancelScan] = useState<boolean>(false);
+  const [selected, setSelecetd] = useState<any | null>(null);
   const pdfHeader = `            ${eventDetail?.name} | ${
     STATUS_EVENT.find((el) => el.id === eventDetail?.status)?.status ?? ""
   }`;
@@ -369,6 +373,7 @@ const Page = (props: Props) => {
   };
   const handleDeleteFixItem = async (id: string) => {
     try {
+      setDeleteConfirmation(false);
       setLoadingGet(true);
       await InventoryService.deleteFixItem(id);
       toast?.current?.show({
@@ -481,7 +486,8 @@ const Page = (props: Props) => {
                 if (isCart) {
                   handleDeleteCart(item.id);
                 } else {
-                  handleDeleteFixItem(item.id);
+                  setDeleteConfirmation(true);
+                  setSelecetd(item);
                 }
               }}
             />
@@ -614,6 +620,7 @@ const Page = (props: Props) => {
   const onAddCart = () => {
     if (
       selectedArea === "all" ||
+      !subArea ||
       selectedAdditionalCode === "all" ||
       !selectedBarangGudang ||
       !qty ||
@@ -939,6 +946,18 @@ const Page = (props: Props) => {
                             .format("LLL")
                         : "-"}
                     </p>
+                    {item?.scan_in === 1 && (
+                      <Button
+                        severity={"danger"}
+                        label="Cancel"
+                        style={{ padding: 6, fontSize: 10, top: -8 }}
+                        onClick={() => {
+                          setSelecetd({ ...item, type: "IN" });
+                          setIsCancelScan(true);
+                          setDeleteConfirmation(true);
+                        }}
+                      />
+                    )}
                   </div>
                   <div className="flex-1">
                     <p style={{ marginBottom: 0 }}>Scan Out</p>
@@ -967,6 +986,18 @@ const Page = (props: Props) => {
                             .format("LLL")
                         : "-"}
                     </p>
+                    {item?.scan_in === 1 && (
+                      <Button
+                        severity={"danger"}
+                        label="Cancel"
+                        style={{ padding: 6, fontSize: 10, top: -8 }}
+                        onClick={() => {
+                          setSelecetd({ ...item, type: "OUT" });
+                          setIsCancelScan(true);
+                          setDeleteConfirmation(true);
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               ) : null}
@@ -995,7 +1026,8 @@ const Page = (props: Props) => {
                   if (isCart) {
                     handleDeleteCart(item.id);
                   } else {
-                    handleDeleteFixItem(item.id);
+                    setSelecetd(item);
+                    setDeleteConfirmation(item);
                   }
                 }}
               />
@@ -1036,7 +1068,7 @@ const Page = (props: Props) => {
         text
         onClick={() => setProductDialog(false)}
       />
-      <Button label="Save" icon="pi pi-check" text onClick={onAddCart} />
+      <Button label="Save" icon="pi pi-check" onClick={onAddCart} />
     </>
   );
 
@@ -1057,10 +1089,65 @@ const Page = (props: Props) => {
     </>
   );
 
+  const onScan = async (id: any, type: "IN" | "OUT") => {
+    try {
+      setDeleteConfirmation(false);
+      setLoadingGet(true);
+      await InventoryService.putScan({
+        id: id,
+        type,
+      });
+      toast?.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: barang.scan_in === 0 ? "Scan In" : "Scan Out",
+        life: 3000,
+      });
+      setSelecetd(null);
+      setIsCancelScan(false);
+      setLoadingGet(false);
+      refetchEventItem();
+    } catch (error: any) {
+      setLoadingGet(false);
+    }
+  };
+
   return (
     <div className="grid">
       <Toast ref={toast} />
-
+      <ConfirmDialog
+        visible={deleteConfirmation}
+        onHide={() => {
+          setDeleteConfirmation(false);
+          setSelecetd(null);
+          setIsCancelScan(false);
+        }}
+        message={
+          isCancelScan
+            ? selected?.type === "IN"
+              ? `Are you sure you want to cancel Scan In ${selected?.nama_barang}?`
+              : `Are you sure you want to cancel Scan Out ${selected?.nama_barang}?`
+            : `Are you sure you want to delete ${selected?.nama_barang}?`
+        }
+        header={
+          isCancelScan
+            ? selected?.type === "IN"
+              ? "Cancel Scan In Confirmation"
+              : "Cancel Scan Out Confirmation"
+            : "Delete Confirmation"
+        }
+        icon="pi pi-exclamation-triangle"
+        accept={() =>
+          isCancelScan
+            ? onScan(selected.id, selected.type as any)
+            : handleDeleteFixItem(selected.id)
+        }
+        reject={() => {
+          setDeleteConfirmation(false);
+          setSelecetd(null);
+          setIsCancelScan(false);
+        }}
+      />
       {(loadingGet || isFetching || isFetchingPrint) && <Loading />}
       <table id="table1" style={{ color: "#000", display: "none" }}>
         <tr>
@@ -1244,7 +1331,7 @@ const Page = (props: Props) => {
           >
             {loadingSearchInventory && <Loading />}
             <div className="field flex-1">
-              <label htmlFor="name">Unit</label>
+              <label htmlFor="name">Warehouse</label>
               <Dropdown
                 onChange={(e) => setSelectedGudang(e.target.value)}
                 value={selectedGudang}
@@ -1263,100 +1350,103 @@ const Page = (props: Props) => {
                 // style={{ width: "100%"}}
               />
             </div>
-            <div className="field flex-1">
-              <label htmlFor="name">Inventory</label>
-              <div className="flex flex-row">
-                <span className="p-input-icon-left mr-4">
-                  <i className="pi pi-search" />
-                  <InputText
-                    value={barangGudangSearch}
-                    onChange={(e) => setBarangGudangSearch(e.target.value)}
-                    placeholder="Keyword Search"
-                    style={{ width: 420 }}
-                  />
-                </span>
+            {selectedGudang && (
+              <div className="field flex-1">
+                <label htmlFor="name">Inventory</label>
+                <div className="flex flex-row">
+                  <span className="p-input-icon-left mr-4">
+                    <i className="pi pi-search" />
+                    <InputText
+                      value={barangGudangSearch}
+                      onChange={(e) => setBarangGudangSearch(e.target.value)}
+                      placeholder="Keyword Search"
+                      style={{ width: 420 }}
+                    />
+                  </span>
 
-                <div
-                  style={{
-                    flexDirection: "row",
-                    display: "flex",
-                    columnGap: 4,
-                    paddingBottom: 8,
-                    width: "100%",
-                  }}
-                >
-                  <Text
-                    fontWeight="bold"
-                    color="black"
-                    label={barangGudangTotalRecords.toString()}
-                  />
-                  <Text
-                    fontWeight="regular"
-                    color="black"
-                    label="records found"
-                  />
+                  <div
+                    style={{
+                      flexDirection: "row",
+                      display: "flex",
+                      columnGap: 4,
+                      paddingBottom: 8,
+                      width: "100%",
+                    }}
+                  >
+                    <Text
+                      fontWeight="bold"
+                      color="black"
+                      label={barangGudangTotalRecords.toString()}
+                    />
+                    <Text
+                      fontWeight="regular"
+                      color="black"
+                      label="records found"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
             <div
               className="holagrid"
               onScroll={handleScroll}
               style={{ maxHeight: height * 0.36 }}
             >
-              {barangGudang.map((item: any) => (
-                <div
-                  style={{
-                    // width: 300,
-                    flexDirection: "column",
-                    backgroundColor: "transparent",
-                    borderWidth: 2,
-                    borderRadius: 4,
-                    borderColor:
-                      selectedBarangGudang?.barang_gudang_id ===
-                      item.barang_gudang_id
-                        ? "#6366F1"
-                        : "transparent",
-                    borderStyle: "solid",
-                  }}
-                  className="flex  rounded-lg mb-3 cursor-pointer items-center"
-                  onClick={() => {
-                    setSelectedBarangGudang(item);
-                    setQty("");
-                  }}
-                >
-                  <img
-                    src={
-                      isValidUrl(item.photo)
-                        ? item.photo
-                        : item.photo
-                        ? `https://democreation.site/home/public/${item.photo}`
-                        : noImage
-                    }
-                    alt={item.nama_barang}
+              {selectedGudang &&
+                barangGudang.map((item: any) => (
+                  <div
                     style={{
-                      width: "100%",
-                      height: 220,
-                      objectFit: "cover",
-                      marginBottom: 8,
+                      // width: 300,
+                      flexDirection: "column",
+                      backgroundColor: "transparent",
+                      borderWidth: 2,
                       borderRadius: 4,
+                      borderColor:
+                        selectedBarangGudang?.barang_gudang_id ===
+                        item.barang_gudang_id
+                          ? "#6366F1"
+                          : "transparent",
+                      borderStyle: "solid",
                     }}
-                  />
-                  <div className="items-start">
-                    <Text
-                      fontWeight="semi-bold"
-                      color="black"
-                      label={item.nama_barang}
-                      textAlign="left"
+                    className="flex  rounded-lg mb-3 cursor-pointer items-center"
+                    onClick={() => {
+                      setSelectedBarangGudang(item);
+                      setQty("");
+                    }}
+                  >
+                    <img
+                      src={
+                        isValidUrl(item.photo)
+                          ? item.photo
+                          : item.photo
+                          ? `https://democreation.site/home/public/${item.photo}`
+                          : noImage
+                      }
+                      alt={item.nama_barang}
+                      style={{
+                        width: "100%",
+                        height: 220,
+                        objectFit: "cover",
+                        marginBottom: 8,
+                        borderRadius: 4,
+                      }}
                     />
-                    <Text
-                      fontWeight="regular"
-                      color="black"
-                      label={"Stok : " + item.stok_gudang}
-                      textAlign="left"
-                    />
+                    <div className="items-start">
+                      <Text
+                        fontWeight="semi-bold"
+                        color="black"
+                        label={item.nama_barang}
+                        textAlign="left"
+                      />
+                      <Text
+                        fontWeight="regular"
+                        color="black"
+                        label={"Stok : " + item.stok_gudang}
+                        textAlign="left"
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
               {/* <Button
                 onClick={() => setBarangGudangPage(barangGudangPage + 1)}
@@ -1370,7 +1460,8 @@ const Page = (props: Props) => {
                 Load More
               </Button> */}
             </div>
-            <Button
+            {selectedGudang && (
+              <Button
                 label={"Load More"}
                 severity="info"
                 className=" mr-2"
@@ -1378,6 +1469,7 @@ const Page = (props: Props) => {
                 style={{ justifyContent: "center", height: 50, marginTop: 8 }}
                 onClick={() => setBarangGudangPage(barangGudangPage + 1)}
               />
+            )}
             <div className="flex flex-row items-center mt-4">
               <div className="field flex-1">
                 <label htmlFor="name">Quantity</label>
