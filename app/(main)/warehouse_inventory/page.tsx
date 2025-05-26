@@ -198,7 +198,10 @@ const TableDemo = () => {
   const getItemCategory = async () => {
     try {
       setIsLoading(true);
-      const response = await InventoryService.getItemCategory();
+      const response = await InventoryService.getItemCategory({
+        sort: "ASC",
+        sort_by: "name",
+      });
       setListCategory(
         response.data.map((item: any) => {
           return {
