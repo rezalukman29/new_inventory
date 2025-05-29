@@ -1,7 +1,7 @@
 .holagrid {
   display: grid;
   /* grid-gap: 10px; */
-  grid-template-columns: repeat(auto-fit, 172px);
+  grid-template-columns: repeat(auto-fit, 190px);
   overflow-y: auto;
   justify-content: space-between;
 }

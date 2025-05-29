@@ -1322,7 +1322,7 @@ const Page = (props: Props) => {
 
           <Dialog
             visible={productDialog}
-            style={{ width: width * 0.45 }}
+            style={{ width: 900 }}
             header={"Add Inventory"}
             modal
             className="p-fluid"
