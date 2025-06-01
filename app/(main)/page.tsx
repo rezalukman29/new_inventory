@@ -21,6 +21,7 @@ import "./DatePicker.css";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { SortType } from "@/app/interfaces/interfaces";
 import { useRouter } from "next/navigation";
+import { localStorageService } from "../service/localStorage";
 
 interface ISelect {
   label: string;
@@ -61,7 +62,7 @@ const TableDemo = () => {
       address: "",
       files: "",
       is_complete: 0,
-      status: selectedStatus,
+      status: 1,
       notes: "",
       type: "",
       latitude: "",
@@ -87,7 +88,7 @@ const TableDemo = () => {
         PIC: values.PIC,
         event_code: values.event_code,
         is_complete: 0,
-        status: selectedStatus,
+        status: values.status,
         images: values.images,
         files: values.files,
         address: values.address,
@@ -282,8 +283,10 @@ const TableDemo = () => {
             sortField={sortBy}
             sortOrder={sort === "ASC" ? 1 : -1}
             selectionMode={"single"}
-            onRowClick={(e) => router.push(`/event-item?event=${e.data.id}`)}
-     
+            onRowClick={(e) => {
+              localStorageService.clearCart("cart");
+              router.push(`/event-item?event=${e.data.id}`);
+            }}
           >
             <Column
               field="name"
@@ -341,7 +344,7 @@ const TableDemo = () => {
               field="address"
               header="Action"
               filterPlaceholder="Search by name"
-              style={{ width: 130 , paddingTop: 8, paddingBottom: 8 }}
+              style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
               body={(data) => (
                 <div
                   style={{
@@ -352,13 +355,13 @@ const TableDemo = () => {
                   }}
                 >
                   <div
-                  onClick={(e) => router.push(`/event-item?event=${data.id}`)}
+                    onClick={(e) => router.push(`/event-item?event=${data.id}`)}
                     className="pi pi-folder"
                     style={{ fontSize: 18, cursor: "pointer" }}
                   ></div>
                   <div
                     className="pi pi-file-edit"
-                    style={{ fontSize: 18, marginLeft: 20,cursor: "pointer" }}
+                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
                   ></div>
 
                   <div
@@ -414,6 +417,7 @@ const TableDemo = () => {
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.name ? "border-red-600" : "border-gray-300"
                   } rounded-lg bg-transparent`}
+                  style={{ height: 44 }}
                 />
               </div>
               <div style={{ width: 16 }} />
@@ -431,6 +435,7 @@ const TableDemo = () => {
                       ? "border-red-600"
                       : "border-gray-300"
                   } rounded-lg bg-transparent`}
+                  style={{ height: 44 }}
                 />
               </div>
             </div>
@@ -449,6 +454,7 @@ const TableDemo = () => {
                       ? "border-red-600"
                       : "border-gray-300"
                   } rounded-lg bg-transparent`}
+                  style={{ height: 44 }}
                 />
               </div>
               <div style={{ width: 16 }} />
@@ -462,6 +468,7 @@ const TableDemo = () => {
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.PIC ? "border-red-600" : "border-gray-300"
                   } rounded-lg bg-transparent`}
+                  style={{ height: 44 }}
                 />
               </div>
             </div>
@@ -480,6 +487,7 @@ const TableDemo = () => {
                       ? "border-red-600"
                       : "border-gray-300"
                   } rounded-lg bg-transparent`}
+                  style={{ height: 44 }}
                 />
                 {showStart && (
                   <div className="absolute">
@@ -522,6 +530,7 @@ const TableDemo = () => {
                       ? "border-red-600"
                       : "border-gray-300"
                   } rounded-lg bg-transparent`}
+                  style={{ height: 44 }}
                 />
                 {showEnd && (
                   <div className="absolute">
@@ -557,14 +566,17 @@ const TableDemo = () => {
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.address ? "border-red-600" : "border-gray-300"
                   } rounded-lg bg-transparent`}
+                  style={{ height: 44 }}
                 />
               </div>
               <div style={{ width: 16 }} />
               <div className="field flex-1">
                 <label htmlFor="name">Status</label>
                 <Dropdown
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  value={selectedStatus}
+                  onChange={(e) =>
+                    formik.setFieldValue("status", e.target.value)
+                  }
+                  value={formik.values.status}
                   options={eventStatus?.data?.map?.((el: any) => {
                     return {
                       label: el.name,
@@ -588,6 +600,7 @@ const TableDemo = () => {
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.notes ? "border-red-600" : "border-gray-300"
                 } rounded-lg bg-transparent`}
+                style={{ height: 44 }}
               />
             </div>
           </Dialog>

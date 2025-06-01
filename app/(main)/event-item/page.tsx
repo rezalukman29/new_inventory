@@ -89,6 +89,7 @@ const Page = (props: Props) => {
   const [areaList, setAreaList] = useState<any | null>(null);
   const [selectedArea, setSelectedArea] = useState<any | null>("all");
   const [selectedStatus, setSelectedStatus] = useState<any | null>("all");
+  const [selectedStatusForm, setSelectedStatusForm] = useState<any | null>(1);
   const [barangGudangPage, setBarangGudangPage] = useState<number>(1);
   const [barangGudangTotalPage, setBarangGudangTotalPage] = useState<number>(1);
   const [barangGudangTotalRecords, setBarangGudangTotalRecords] =
@@ -111,6 +112,8 @@ const Page = (props: Props) => {
   const [productDialog, setProductDialog] = useState(false);
   const [imageDialog, setImageDialog] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
+  const [checkoutConfirmation, setCheckoutConfirmation] =
+    useState<boolean>(false);
   const [isCancelScan, setIsCancelScan] = useState<boolean>(false);
   const [selected, setSelecetd] = useState<any | null>(null);
   const pdfHeader = `            ${eventDetail?.name} | ${
@@ -189,7 +192,9 @@ const Page = (props: Props) => {
   const onChangeSubArea = (e: any) => {
     setSubArea(e.target.value);
   };
-
+  const onChangeStatusForm = (e: any) => {
+    setSelectedStatusForm(e.target.value);
+  };
   const getListSubArea = async () => {
     try {
       const response = await InventoryService.getSubArea({
@@ -317,15 +322,19 @@ const Page = (props: Props) => {
     let gudang: any = await InventoryService.getGudang();
     setGudang(gudang.data);
     if (eventDetail.data) {
-      let listArea: any = await fetch(`/api/list-area?eventId=${eventId}`);
-      listArea = await listArea.json();
-      const listingArea = listArea?.data?.map((item: any) => {
-        return {
-          label: item.area_name,
-          value: item.area_id,
-        };
-      });
-      setAreaList([...[{ value: "all", label: "All Area" }], ...listingArea]);
+      try {
+        let listArea: any = await InventoryService.getListAreaByEvent(eventId);
+        const listingArea = listArea?.data?.map((item: any) => {
+          return {
+            label: item.area_name,
+            value: item.area_id,
+          };
+        });
+        setAreaList([...[{ value: "all", label: "All Area" }], ...listingArea]);
+      } catch (error: any) {
+        setAreaList([{ value: "all", label: "All Area" }]);
+        setLoadingGet(false);
+      }
     }
     setLoadingGet(false);
   };
@@ -624,7 +633,7 @@ const Page = (props: Props) => {
       selectedAdditionalCode === "all" ||
       !selectedBarangGudang ||
       !qty ||
-      selectedStatus === "all"
+      selectedStatusForm === "all"
     ) {
       return toast?.current?.show({
         severity: "error",
@@ -645,7 +654,7 @@ const Page = (props: Props) => {
           scan_in: 1,
           scan_out: 1,
           notes,
-          event_status_id: Number(selectedStatus),
+          event_status_id: Number(selectedStatusForm),
           detail: {
             ...selectedBarangGudang,
             nama_gudang: selectedBarangGudang.gudang.gudang_name,
@@ -659,7 +668,7 @@ const Page = (props: Props) => {
     localStorageService.setCart({ key: "cart", value: JSON.stringify(carts) });
     setItemCarts(carts);
     setSelectedArea("all");
-    setSelectedStatus("all");
+    setSelectedStatusForm(1);
     setSubArea(null);
     setSelectedAdditionalCode("all");
     setCheckedItem([false, false]);
@@ -1084,7 +1093,15 @@ const Page = (props: Props) => {
         }}
       />
       {itemCarts?.length ? (
-        <Button label="Checkout" icon="pi pi-check" text onClick={onCheckOut} />
+        <Button
+          label="Checkout"
+          icon="pi pi-check"
+          text
+          onClick={() => {
+            setCartDialog(false);
+            setCheckoutConfirmation(true);
+          }}
+        />
       ) : null}
     </>
   );
@@ -1146,6 +1163,19 @@ const Page = (props: Props) => {
           setDeleteConfirmation(false);
           setSelecetd(null);
           setIsCancelScan(false);
+        }}
+      />
+      <ConfirmDialog
+        visible={checkoutConfirmation}
+        onHide={() => {
+          setCheckoutConfirmation(false);
+        }}
+        message={`Are you sure you want to checkout ${itemCarts?.length} item?`}
+        header={"Checkout Confirmation"}
+        icon="pi pi-exclamation-triangle"
+        accept={onCheckOut}
+        reject={() => {
+          setCheckoutConfirmation(false);
         }}
       />
       {(loadingGet || isFetching || isFetchingPrint) && <Loading />}
@@ -1399,8 +1429,9 @@ const Page = (props: Props) => {
                       // width: 300,
                       flexDirection: "column",
                       backgroundColor: "transparent",
-                      borderWidth: 2,
-                      borderRadius: 4,
+                      borderWidth: 4,
+                      borderRadius: 8,
+                      padding: 4,
                       borderColor:
                         selectedBarangGudang?.barang_gudang_id ===
                         item.barang_gudang_id
@@ -1559,8 +1590,8 @@ const Page = (props: Props) => {
               <div className="field flex-1">
                 <label htmlFor="name">Status</label>
                 <Dropdown
-                  onChange={onChangeStatus}
-                  value={selectedStatus}
+                  onChange={onChangeStatusForm}
+                  value={selectedStatusForm}
                   options={listEventStatus}
                   optionLabel="label"
                   placeholder="Select status"

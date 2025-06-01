@@ -334,4 +334,8 @@ export const InventoryService = {
     const response = await ax.post(`/v1/event-status/create`, payload);
     return response.data;
   },
+  getListAreaByEvent: async (eventId: string) => {
+    const response = await ax.get(`/v1/fix-event-list-area/${eventId}`);
+    return response.data.data;
+  },
 };
