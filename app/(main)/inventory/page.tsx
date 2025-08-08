@@ -43,7 +43,7 @@ import useGetEmiUser from "@/app/hooks/api/useGetEmiUser";
 import moment from "moment";
 import { SortType } from "@/app/interfaces/interfaces";
 
-interface ISelect {
+export interface ISelect {
   label: string;
   value: string;
 }
