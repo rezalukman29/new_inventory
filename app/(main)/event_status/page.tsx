@@ -41,10 +41,13 @@ const TableDemo = () => {
     initialValues: {
       id: isModify ? status.id : "",
       name: isModify ? status.name : "",
+      order_data: isModify ? status.order_data : "",
+      action: isModify ? status.action : "",
       is_show_scan_result: isModify ? status.is_show_scan_result : "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Required"),
+      order_data: Yup.string().required("Required"),
     }),
     validateOnChange: false,
     enableReinitialize: true,
@@ -53,6 +56,8 @@ const TableDemo = () => {
       const payload: any = {
         name: values.name,
         is_show_scan_result: values.is_show_scan_result,
+        order_data: Number(values.order_data),
+        action: values.action
       };
       if (isModify) {
         const result: APIResponse<any> = await InventoryService.putEventStatus({
@@ -209,6 +214,12 @@ const TableDemo = () => {
             currentPageReportTemplate="{first} to {last} of {totalRecords} events"
           >
             <Column
+              field="order_data"
+              header="Order"
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "1rem", paddingTop: 8, paddingBottom: 8 }}
+            />
+            <Column
               field="name"
               header="Status"
               filterPlaceholder="Search by name"
@@ -222,6 +233,12 @@ const TableDemo = () => {
               body={(data) => {
                 return <p>{data.is_show_scan_result === 0 ? "No" : "Yes"}</p>;
               }}
+            />
+            <Column
+              field="action"
+              header="Action"
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="address"
@@ -289,6 +306,23 @@ const TableDemo = () => {
             onHide={hideDialog}
           >
             <div className="field">
+              <label htmlFor="name">Order</label>
+              <InputText
+                id="name"
+                value={formik.values.order_data}
+                onChange={(e) =>
+                  formik.setFieldValue("order_data", e.target.value)
+                }
+                autoFocus
+                type="number"
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.order_data
+                    ? "border-red-600"
+                    : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field">
               <label htmlFor="name">Name</label>
               <InputText
                 id="name"
@@ -297,6 +331,18 @@ const TableDemo = () => {
                 autoFocus
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.name ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="action">Action</label>
+              <InputText
+                id="action"
+                value={formik.values.action}
+                onChange={(e) => formik.setFieldValue("action", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.action ? "border-red-600" : "border-gray-300"
                 } rounded-lg bg-transparent`}
               />
             </div>
