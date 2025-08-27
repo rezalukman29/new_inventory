@@ -3,7 +3,7 @@ import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { InputText } from "primereact/inputtext";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { InventoryService } from "@/app/service/InventoryService";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import moment from "moment";
@@ -58,8 +58,11 @@ const TableDemo = () => {
   const [eventItemData, setItemEventData] = useState<any[]>([]);
   const [listSubArea, setListSubArea] = useState<any[]>([]);
   const [listArea, setListArea] = useState<any[]>([]);
-
+  const [eventDetail, setEventDetail] = useState<any | null>(null);
+  const [loadingGet, setLoadingGet] = useState(false);
+  const [cartDialog, setCartDialog] = useState(false);
   const [listCategory, setListCategory] = useState<ISelect[]>([]);
+  const [width] = useDeviceSize();
 
   const getInventoryList = async (size?: number) => {
     try {
@@ -107,6 +110,14 @@ const TableDemo = () => {
     }
   };
 
+  const handleFetch = async () => {
+    setLoadingGet(true);
+    let eventDetail: any = await fetch(`/api/event?eventId=${selectedEvent}`);
+    eventDetail = await eventDetail.json();
+    setEventDetail(eventDetail.data);
+    setLoadingGet(false);
+  };
+
   const getAreaList = async () => {
     if (selectedEvent) {
       try {
@@ -149,6 +160,14 @@ const TableDemo = () => {
       setIsLoading(false);
     }
   };
+
+  const isGroup = useMemo(() => {
+    if (eventDetail?.scan_type === "INDIVIDUAL" || !eventDetail) {
+      return false;
+    } else {
+      return true;
+    }
+  }, [eventDetail]);
 
   useEffect(() => {
     getLogs();
@@ -236,7 +255,7 @@ const TableDemo = () => {
       setTotalPages(0);
     }
   };
-
+  console.log(selected);
   const getListSubArea = async () => {
     try {
       const response = await InventoryService.getSubArea({
@@ -302,6 +321,20 @@ const TableDemo = () => {
     return dataviewGridItemEvent(data, false);
   };
 
+  const cartFooter = (
+    <>
+      <Button
+        label="Close"
+        icon="pi pi-times"
+        text
+        onClick={() => {
+          setCartDialog(false);
+          setSelecetd(null);
+        }}
+      />
+    </>
+  );
+
   const dataviewGridItemEvent = (item: any, isCart: boolean) => {
     const area = listArea.find((el) => el.id === item.list_id)?.name;
     return (
@@ -324,19 +357,32 @@ const TableDemo = () => {
             </span>
           </div>
           <div className="flex flex-column align-items-center text-center mb-3 mt-3">
-            <Canvas
-              text={`${WEB_URL}/pages/scan/${selectedEvent}-${item.barang_id}`}
-              options={{
-                errorCorrectionLevel: "M",
-                margin: 3,
-                scale: 4,
-                width: 200,
-                color: {
-                  dark: "#000",
-                  light: "#FFBF60FF",
-                },
-              }}
-            />
+            {isGroup ? (
+              <Canvas
+                text={`${WEB_URL}/pages/scan/${selectedEvent}-${item.barang_id}`}
+                options={{
+                  errorCorrectionLevel: "M",
+                  margin: 3,
+                  scale: 4,
+                  width: 200,
+                  color: {
+                    dark: "#000",
+                    light: "#FFBF60FF",
+                  },
+                }}
+              />
+            ) : (
+              <img
+                onClick={() => {
+                  setCartDialog(true);
+                  setSelecetd(item);
+                }}
+                src={
+                  "https://i.ibb.co.com/KxY93HYH/d731b458-fc52-47c3-bc0e-70a58c2ae871-1.png"
+                }
+                style={{ width: 200, height: 200, cursor: "pointer" }}
+              />
+            )}
             <div className="text mt-2 font-bold">{item.nama_barang}</div>
             <div className="text mt-1">Qty: {item.qty}</div>
             <div className="flex flex-row items-center mt-1">
@@ -401,21 +447,42 @@ const TableDemo = () => {
       <div className="col-12 lg:col-4">
         <div className="card m-2 border-1 surface-border p-5">
           <div className="flex flex-column align-items-center text-center mb-3 mt-3">
-            <Canvas
-              text={`${WEB_URL}/pages/scan/inventory-${item.id}`}
-              options={{
-                errorCorrectionLevel: "M",
-                margin: 3,
-                scale: 4,
-                width: 200,
-                color: {
-                  dark: "#000",
-                  light: "#FFBF60FF",
-                },
-              }}
-            />
-            <div className="text mt-2 font-bold">{item.nama}</div>
-            {inventoryCategory(item)}
+            {selected && !isGroup ? (
+              <>
+                <Canvas
+                  text={`${WEB_URL}/pages/scan/${selectedEvent}-${item.barang_id}-${item + 1}`}
+                  options={{
+                    errorCorrectionLevel: "M",
+                    margin: 3,
+                    scale: 4,
+                    width: 200,
+                    color: {
+                      dark: "#000",
+                      light: "#FFBF60FF",
+                    },
+                  }}
+                />
+                <div className="text mt-2 font-bold">{selected.nama}</div>
+              </>
+            ) : (
+              <>
+                <Canvas
+                  text={`${WEB_URL}/pages/scan/inventory-${item.id}`}
+                  options={{
+                    errorCorrectionLevel: "M",
+                    margin: 3,
+                    scale: 4,
+                    width: 200,
+                    color: {
+                      dark: "#000",
+                      light: "#FFBF60FF",
+                    },
+                  }}
+                />
+                <div className="text mt-2 font-bold">{item.nama}</div>
+                {inventoryCategory(item)}
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -458,6 +525,17 @@ const TableDemo = () => {
     );
   };
 
+  const itemTemplateCart = (
+    data: any,
+    layout: "grid" | "list" | (string & Record<string, unknown>)
+  ) => {
+    if (!data) {
+      return;
+    }
+
+    return dataviewGridItem(data, true);
+  };
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -480,7 +558,7 @@ const TableDemo = () => {
             placeholder="Select Option"
             className="w-full md:w-14rem mr-4"
           />
-          {isLoading || isFetching ? (
+          {isLoading || isFetching || loadingGet ? (
             <Loading />
           ) : selectedMenu === "BARANG" ? (
             <DataView
@@ -526,7 +604,13 @@ const TableDemo = () => {
                 <Button
                   icon="pi pi-qrcode"
                   severity="secondary"
-                  onClick={() => refetchEventItem()}
+                  onClick={() => {
+                    if (selectedEvent) {
+                      handleFetch();
+                    }
+
+                    refetchEventItem();
+                  }}
                   label="Print"
                 />
               )}
@@ -550,6 +634,36 @@ const TableDemo = () => {
           ) : null}
         </div>
       </div>
+      <Dialog
+        visible={cartDialog}
+        style={{ width: width * 0.7 }}
+        header={"Qr Code"}
+        modal
+        className="p-fluid"
+        footer={cartFooter}
+        onHide={() => setCartDialog(false)}
+      >
+        {selected?.qty > 0 ? (
+          <section style={{ gridColumn: 1 }}>
+            <DataView
+              value={Array.from(Array(selected.qty + 1).keys())}
+              layout={"grid"}
+              paginator
+              rows={6}
+              itemTemplate={itemTemplateCart}
+            ></DataView>
+          </section>
+        ) : (
+          <div className="mt-12">
+            <Text
+              variant="large"
+              color="black"
+              label={"No Data"}
+              textAlign="center"
+            />
+          </div>
+        )}
+      </Dialog>
     </div>
   );
 };

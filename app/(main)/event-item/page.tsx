@@ -1069,6 +1069,14 @@ const Page = (props: Props) => {
     return dataviewGridItem(data, true);
   };
 
+  const isGroup = useMemo(() => {
+    if (eventDetail?.scan_type === "INDIVIDUAL" || !eventDetail) {
+      return false;
+    } else {
+      return true;
+    }
+  }, [eventDetail]);
+
   const productDialogFooter = (
     <>
       <Button
@@ -1127,6 +1135,45 @@ const Page = (props: Props) => {
     } catch (error: any) {
       setLoadingGet(false);
     }
+  };
+
+  const itemTemplateQR = (
+    data: any,
+    layout: "grid" | "list" | (string & Record<string, unknown>)
+  ) => {
+    if (!data) {
+      return;
+    }
+
+    return dataviewGridQR(data, true);
+  };
+
+  const dataviewGridQR = (item: any, isCart: boolean) => {
+    return (
+      <div className="col-12 lg:col-4">
+        <div className="card m-2 border-1 surface-border p-5">
+          <div className="flex flex-column align-items-center text-center mb-3 mt-3">
+            <>
+              <Canvas
+                text={`${WEB_URL}/pages/scan/${eventDetail?.id}-${
+                  item.barang_id
+                }-${item + 1}`}
+                options={{
+                  errorCorrectionLevel: "M",
+                  margin: 3,
+                  scale: 4,
+                  width: 200,
+                  color: {
+                    dark: "#000",
+                    light: "#FFBF60FF",
+                  },
+                }}
+              />
+            </>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -1663,7 +1710,7 @@ const Page = (props: Props) => {
           </Dialog>
           <Dialog
             visible={qrDialog}
-            // style={{ width: width * 0.4 }}
+            style={{ width: !isGroup ? width * 0.7 : undefined }}
             header={"QR Code"}
             modal
             className="p-fluid"
@@ -1671,26 +1718,40 @@ const Page = (props: Props) => {
             onHide={() => setQrDialog(false)}
           >
             <div style={{ justifyContent: "center", textAlign: "center" }}>
-              <Canvas
-                text={`${WEB_URL}/pages/scan/${eventId}-${barang.barang_id}`}
-                options={{
-                  errorCorrectionLevel: "M",
-                  margin: 3,
-                  scale: 4,
-                  width: 200,
-                  color: {
-                    dark: "#000",
-                    light: "#FFBF60FF",
-                  },
-                }}
-              />
-              <Text
-                variant="large"
-                color="black"
-                label={barang?.nama_barang}
-                textAlign="center"
-                className="mt-2"
-              />
+              {isGroup ? (
+                <>
+                  <Canvas
+                    text={`${WEB_URL}/pages/scan/${eventId}-${barang.barang_id}`}
+                    options={{
+                      errorCorrectionLevel: "M",
+                      margin: 3,
+                      scale: 4,
+                      width: 200,
+                      color: {
+                        dark: "#000",
+                        light: "#FFBF60FF",
+                      },
+                    }}
+                  />
+                  <Text
+                    variant="large"
+                    color="black"
+                    label={barang?.nama_barang}
+                    textAlign="center"
+                    className="mt-2"
+                  />
+                </>
+              ) : barang?.stok > 0 ? (
+                <section style={{ gridColumn: 1 }}>
+                  <DataView
+                    value={Array?.from(Array(barang?.stok + 1).keys())}
+                    layout={"grid"}
+                    paginator
+                    rows={6}
+                    itemTemplate={itemTemplateQR}
+                  ></DataView>
+                </section>
+              ) : null}
             </div>
           </Dialog>
         </div>

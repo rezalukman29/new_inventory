@@ -126,4 +126,5 @@ export interface PayloadAddEventI {
   longitude: string;
   event_running: string;
   notes: string;
+  scan_type:  string
 }

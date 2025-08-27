@@ -89,3 +89,15 @@ export const STATUS_EVENT: Array<StatusEventInterface> = [
       value: "VENUE",
     },
   ];
+
+  export const SCAN_TYPE = [
+    {
+      value: "GROUP",
+      label: "GROUP"
+    },
+    {
+      value: "INDIVIDUAL",
+      label: "INDIVIDUAL"
+    },
+
+  ]

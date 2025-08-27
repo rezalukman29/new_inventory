@@ -22,6 +22,7 @@ import { ConfirmDialog } from "primereact/confirmdialog";
 import { SortType } from "@/app/interfaces/interfaces";
 import { useRouter } from "next/navigation";
 import { localStorageService } from "../service/localStorage";
+import { SCAN_TYPE } from "../util/data";
 
 interface ISelect {
   label: string;
@@ -50,24 +51,37 @@ const TableDemo = () => {
   const [sort, setSort] = useState<SortType>("ASC");
   const [sortBy, setSortBy] = useState<string>("name");
 
+  const datepickerFormat = (value: Date) => {
+    return {
+      day: moment(value)?.day() + 1,
+      month: moment(value)?.month() + 1,
+      year: moment(value)?.year(),
+    };
+  };
+
   const formik = useFormik<PayloadAddEventI>({
     initialValues: {
-      name: "",
-      event_code: "",
-      description: "",
-      event_start: utils("en").getToday(),
-      event_end: utils("en").getToday(),
-      PIC: "",
+      name: isModify ? event?.name : "",
+      event_code: isModify ? event?.event_code : "",
+      description: isModify ? event?.description : "",
+      event_start: isModify
+        ? datepickerFormat(event?.event_start)
+        : utils("en").getToday(),
+      event_end: isModify
+        ? datepickerFormat(event?.event_end)
+        : utils("en").getToday(),
+      PIC: isModify ? event?.PIC : "",
       images: "",
-      address: "",
+      address: isModify ? event?.address : "",
       files: "",
       is_complete: 0,
-      status: 1,
-      notes: "",
+      status: isModify ? event?.status : 1,
+      notes: isModify ? event?.notes : "",
       type: "",
       latitude: "",
       longitude: "",
       event_running: "",
+      scan_type: isModify ? event?.scan_type : "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Required"),
@@ -75,6 +89,7 @@ const TableDemo = () => {
       description: Yup.string().required("Required"),
       PIC: Yup.string().required("Required"),
       notes: Yup.string().required("Required"),
+      scan_type: Yup.string().required("Required"),
     }),
     validateOnChange: false,
     enableReinitialize: true,
@@ -97,13 +112,35 @@ const TableDemo = () => {
         longitude: "",
         event_running: "",
         notes: values.notes,
+        scan_type: values.scan_type,
       };
-      const result: APIResponse<any> = await InventoryService.addEvent(payload);
-      if (result.success) {
-        setTimeout(() => {
-          setProductDialog(false);
-        }, 200);
+      if (isModify) {
+        const result: APIResponse<any> = await InventoryService.editEvent({
+          ...payload,
+          id: event.id,
+        });
+        if (result.success) {
+          setTimeout(() => {
+            setProductDialog(false);
+          }, 200);
+          toast?.current?.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Modify Event",
+            life: 3000,
+          });
+        }
+      } else {
+        const result: APIResponse<any> = await InventoryService.addEvent(
+          payload
+        );
+        if (result.success) {
+          setTimeout(() => {
+            setProductDialog(false);
+          }, 200);
+        }
       }
+
       setIsLoading(false);
       toast?.current?.show({
         severity: "success",
@@ -114,7 +151,7 @@ const TableDemo = () => {
       getListEvent();
     },
   });
-
+  console.log(formik.values.scan_type, formik.values.status);
   const onChangeStatus = (e: any) => {
     setSelectedStatus(e.target.value);
   };
@@ -221,7 +258,7 @@ const TableDemo = () => {
         onClick={hideDialog}
       />
       <Button
-        label="Save"
+        label={isModify ? "Update" : "Save"}
         icon="pi pi-check"
         severity="success"
         style={{ width: 120 }}
@@ -248,6 +285,7 @@ const TableDemo = () => {
             onHide={() => {
               setDeleteConfirmation(false);
               setEvent(null);
+              setIsModify(false);
             }}
             message={`Are you sure you want to delete event ${event?.name}?`}
             header="Delete Confirmation"
@@ -283,10 +321,6 @@ const TableDemo = () => {
             sortField={sortBy}
             sortOrder={sort === "ASC" ? 1 : -1}
             selectionMode={"single"}
-            onRowClick={(e) => {
-              localStorageService.clearCart("cart");
-              router.push(`/event-item?event=${e.data.id}`);
-            }}
           >
             <Column
               field="name"
@@ -341,6 +375,14 @@ const TableDemo = () => {
               sortField="address"
             />
             <Column
+              field="scan_type"
+              header="QR Type"
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              sortable
+              sortField="scan_type"
+            />
+            <Column
               field="address"
               header="Action"
               filterPlaceholder="Search by name"
@@ -355,13 +397,21 @@ const TableDemo = () => {
                   }}
                 >
                   <div
-                    onClick={(e) => router.push(`/event-item?event=${data.id}`)}
+                    onClick={(e) => {
+                      localStorageService.clearCart("cart");
+                      router.push(`/event-item?event=${data.id}`);
+                    }}
                     className="pi pi-folder"
                     style={{ fontSize: 18, cursor: "pointer" }}
                   ></div>
                   <div
                     className="pi pi-file-edit"
                     style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
+                    onClick={() => {
+                      setIsModify(true);
+                      setEvent(data);
+                      setProductDialog(true);
+                    }}
                   ></div>
 
                   <div
@@ -590,18 +640,37 @@ const TableDemo = () => {
                 />
               </div>
             </div>
-            <div className="field">
-              <label htmlFor="notes">Note</label>
-              <InputText
-                id="notes"
-                value={formik.values.notes}
-                onChange={(e) => formik.setFieldValue("notes", e.target.value)}
-                autoFocus
-                className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.notes ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-                style={{ height: 44 }}
-              />
+            <div className="flex flex-row items-center">
+              <div className="field flex-1">
+                <label htmlFor="notes">Note</label>
+                <InputText
+                  id="notes"
+                  value={formik.values.notes}
+                  onChange={(e) =>
+                    formik.setFieldValue("notes", e.target.value)
+                  }
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.notes ? "border-red-600" : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                  style={{ height: 44 }}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field flex-1">
+                <label htmlFor="notes">QR Type</label>
+                <Dropdown
+                  onChange={(e) =>
+                    formik.setFieldValue("scan_type", e.target.value)
+                  }
+                  value={formik.values.scan_type}
+                  options={SCAN_TYPE}
+                  optionLabel="label"
+                  placeholder="Select QR Type"
+                  className="flex-1"
+                  // style={{ width: "100%" }}
+                />
+              </div>
             </div>
           </Dialog>
         </div>
