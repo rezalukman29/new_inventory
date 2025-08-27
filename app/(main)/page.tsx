@@ -139,15 +139,16 @@ const TableDemo = () => {
             setProductDialog(false);
           }, 200);
         }
+        toast?.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Adding event",
+          life: 3000,
+        });
       }
 
       setIsLoading(false);
-      toast?.current?.show({
-        severity: "success",
-        summary: "Success",
-        detail: "Adding event",
-        life: 3000,
-      });
+
       getListEvent();
     },
   });
