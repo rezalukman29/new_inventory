@@ -1636,14 +1636,15 @@ const Page = (props: Props) => {
               <div style={{ width: 16 }} />
               <div className="field flex-1">
                 <label htmlFor="name">Status</label>
-                <Dropdown
-                  onChange={onChangeStatusForm}
-                  value={selectedStatusForm}
-                  options={listEventStatus}
-                  optionLabel="label"
-                  placeholder="Select status"
-                  className="flex-1"
-                  style={{ width: "100%" }}
+                <Text
+                  fontWeight="regular"
+                  color="black"
+                  label={
+                    listEventStatus?.find(
+                      (el) => el.value === selectedStatusForm
+                    )?.label as string
+                  }
+                  textAlign="left"
                 />
               </div>
             </div>

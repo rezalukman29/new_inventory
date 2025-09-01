@@ -12,6 +12,7 @@ import { useFormik } from "formik";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { Dialog } from "primereact/dialog";
 import { InputSwitch } from "primereact/inputswitch";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 interface ISelect {
   label: string;
@@ -36,6 +37,8 @@ const TableDemo = () => {
   const [statusList, setStatusList] = useState<any[]>([]);
   const [productDialog, setProductDialog] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [selected, setSelecetd] = useState<any | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
 
   const formik = useFormik<any>({
     initialValues: {
@@ -57,7 +60,7 @@ const TableDemo = () => {
         name: values.name,
         is_show_scan_result: values.is_show_scan_result,
         order_data: Number(values.order_data),
-        action: values.action
+        action: values.action,
       };
       if (isModify) {
         const result: APIResponse<any> = await InventoryService.putEventStatus({
@@ -113,11 +116,11 @@ const TableDemo = () => {
   const onDeleteEvent = async (id: string) => {
     try {
       setIsLoading(true);
-      await InventoryService.deleteSubArea(id);
+      await InventoryService.deleteStatus(id);
       toast?.current?.show({
         severity: "success",
         summary: "Success",
-        detail: "Delete event",
+        detail: "Delete Event Status",
         life: 3000,
       });
       getListSubArea();
@@ -188,6 +191,21 @@ const TableDemo = () => {
       <div className="col-12">
         <div className="card">
           <h5>Event Status</h5>
+          <ConfirmDialog
+            visible={deleteConfirmation}
+            onHide={() => {
+              setDeleteConfirmation(false);
+              setSelecetd(null);
+            }}
+            message={`Are you sure you want to delete status ${selected?.name}?`}
+            header="Delete Confirmation"
+            icon="pi pi-exclamation-triangle"
+            accept={() => onDeleteEvent(selected.id)}
+            reject={() => {
+              setDeleteConfirmation(false);
+              setSelecetd(null);
+            }}
+          />
           <DataTable
             value={statusList.filter(
               (el: any) =>
@@ -241,6 +259,12 @@ const TableDemo = () => {
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
+              field="active_event"
+              header="Event Running"
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+            />
+            <Column
               field="address"
               header="Action"
               headerStyle={{ justifyItems: "center" }}
@@ -271,6 +295,23 @@ const TableDemo = () => {
                       color: over === data.id + "edit" ? "blue" : undefined,
                     }}
                   ></div>
+                  {data.active_event === 0 ? (
+                    <div
+                      className="pi pi-trash"
+                      onClick={() => {
+                        setSelecetd(data);
+                        setDeleteConfirmation(true);
+                      }}
+                      onMouseOver={() => setOver(data.id + "delete")}
+                      onMouseOut={() => setOver("")}
+                      style={{
+                        fontSize: 18,
+                        marginLeft: 20,
+                        cursor: "pointer",
+                        color: over === data.id + "delete" ? "blue" : undefined,
+                      }}
+                    ></div>
+                  ) : null}
                 </div>
               )}
             />

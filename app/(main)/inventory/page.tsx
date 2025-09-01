@@ -1109,204 +1109,190 @@ const TableDemo = () => {
               {barang?.nama}
             </p>
           </OverlayPanel>
-          {isLoading ? (
-            <Loading />
-          ) : (
-            <DataTable
-              value={listBarang}
-              paginator
-              className="p-datatable-gridlines"
-              onPage={(e) => {
-                setFirst(e.first);
-                setPage(Number(e.page) + 1);
-              }}
-              rows={10}
-              dataKey="id"
-              totalRecords={total}
-              lazy
-              first={first}
-              alwaysShowPaginator
-              tableStyle={{ width: 1800, fontSize: 13 }}
-              loading={isLoading}
-              responsiveLayout="scroll"
-              emptyMessage="No customers found."
-              header={header1}
-              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-              currentPageReportTemplate="{first} to {last} of {totalRecords} inventory"
-              onSort={(e) => onSort(e.sortField)}
-              sortField={sortBy}
-              sortOrder={sort === 'ASC' ? 1 : -1}
-            >
-              <Column
-                field="nama"
-                header="Name"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "12rem" , paddingTop: 8, paddingBottom: 8 }}
-                sortable
-                sortField="name"
-              />
-              <Column
-                field="stok_barang"
-                header="Stok"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-                sortable
-                sortField="stock"
-              />
-              <Column
-                field="stok_barang"
-                header="Stok All"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-                body={(data: any) => {
-                  return (
-                    <p>
-                      {data.barang_gudang?.reduce(
-                        (accumulator: any, object: any) => {
-                          return accumulator + Number(object.stok);
-                        },
-                        0
-                      )}
-                    </p>
-                  );
+          <div style={{ flex: 1, overflowX: "auto", width: 1300 }}>
+            {isLoading ? (
+              <Loading />
+            ) : (
+              <DataTable
+                value={listBarang}
+                paginator
+                className="p-datatable-gridlines"
+                onPage={(e) => {
+                  setFirst(e.first);
+                  setPage(Number(e.page) + 1);
                 }}
-                sortable
-                sortField="stok_all"
-              />
-              <Column
-                field="satuan.name"
-                header="Satuan"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
-                sortable
-                sortField="satuan"
-              />
-              <Column
-                field="satuan.name"
-                header="Image"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
-                body={inventoryImage}
-              />
-              <Column
-                field="satuan.name"
-                header="Category"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
-                body={inventoryCategory}
-                sortable
-                sortField="category"
-              />
-              <Column
-                field="satuan.name"
-                header="Warehouse"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
-                body={inventoryWarehouse}
-                sortable
-                sortField="warehouse"
-              />
-              <Column
-                field="address"
-                header="Action"
-                headerStyle={{ justifyItems: "center" }}
-                filterPlaceholder="Search by name"
-                style={{ width: 120 , paddingTop: 8, paddingBottom: 8 }}
-                bodyStyle={{ textAlign: "center" }}
-                body={(data) => {
-                  return (
-                    <div
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        flex: 1,
-                      }}
-                    >
-                      
+                rows={10}
+                dataKey="id"
+                totalRecords={total}
+                lazy
+                first={first}
+                alwaysShowPaginator
+                tableStyle={{ width: 1800, fontSize: 13 }}
+                loading={isLoading}
+                emptyMessage="No customers found."
+                header={header1}
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} to {last} of {totalRecords} inventory"
+                onSort={(e) => onSort(e.sortField)}
+                sortField={sortBy}
+                sortOrder={sort === "ASC" ? 1 : -1}
+              >
+                <Column
+                  field="nama"
+                  header="Name"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "12rem", paddingTop: 8, paddingBottom: 8 }}
+                  sortable
+                  sortField="name"
+                />
+                <Column
+                  field="stok_barang"
+                  header="Stok"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  sortable
+                  sortField="stock"
+                />
+                <Column
+                  field="stok_barang"
+                  header="Stok All"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  body={(data: any) => {
+                    return (
+                      <p>
+                        {data.barang_gudang?.reduce(
+                          (accumulator: any, object: any) => {
+                            return accumulator + Number(object.stok);
+                          },
+                          0
+                        )}
+                      </p>
+                    );
+                  }}
+                  sortable
+                  sortField="stok_all"
+                />
+                <Column
+                  field="satuan.name"
+                  header="Satuan"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  sortable
+                  sortField="satuan"
+                />
+                <Column
+                  field="satuan.name"
+                  header="Image"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  body={inventoryImage}
+                />
+                <Column
+                  field="satuan.name"
+                  header="Category"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  body={inventoryCategory}
+                  sortable
+                  sortField="category"
+                />
+                <Column
+                  field="satuan.name"
+                  header="Warehouse"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  body={inventoryWarehouse}
+                  sortable
+                  sortField="warehouse"
+                />
+                <Column
+                  field="address"
+                  header="Action"
+                  headerStyle={{ justifyItems: "center" }}
+                  filterPlaceholder="Search by name"
+                  style={{ width: 120, paddingTop: 8, paddingBottom: 8 }}
+                  bodyStyle={{ textAlign: "center" }}
+                  body={(data) => {
+                    return (
                       <div
-                        onClick={() => {
-                          setIsModify(true);
-                          setBarang(data);
-                          setProductDialog(true);
-                        }}
-                        onMouseOver={() => setOver(data.id + "edit")}
-                        onMouseOut={() => setOver("")}
-                        className="pi pi-file-edit"
                         style={{
-                          fontSize: 18,
-                          cursor: "pointer",
-                          color: over === data.id + "edit" ? "blue" : undefined,
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          flex: 1,
                         }}
-                      ></div>
-                      <div
-                        className="pi pi-trash hover:bg-red"
-                        onClick={() => {
-                          setBarang(data);
-                          setDeleteConfirmation(true);
-                        }}
-                        onMouseOver={() => setOver(data.id + "delete")}
-                        onMouseOut={() => setOver("")}
-                        style={{
-                          fontSize: 18,
-                          marginLeft: 12,
-                          cursor: "pointer",
-                          color:
-                            over === data.id + "delete" ? "blue" : undefined,
-                        }}
-                      ></div>
-                      <OverlayPanel ref={opMenu}>
+                      >
                         <div
-                          style={{
-                            paddingLeft: 12,
-                            paddingRight: 12,
-                            cursor: "pointer",
+                          onClick={() => {
+                            setIsModify(true);
+                            setBarang(data);
+                            setProductDialog(true);
                           }}
-                          onClick={getLogs}
-                        >
-                          <p className="text-lg">Log</p>
-                        </div>
-                      </OverlayPanel>
-                      <div
-                        className="pi pi-ellipsis-v"
-                        onMouseOver={() => setOver(data.id + "more")}
-                        onMouseOut={() => setOver("")}
-                        onClick={(e) => {
-                          opMenu.current.toggle(e);
-                          setBarang(data);
-                          setFirstLog(0);
-                          setPageLog(1);
-                        }}
-                        style={{
-                          fontSize: 18,
-                          marginLeft: 12,
-                          cursor: "pointer",
-                          color: over === data.id + "more" ? "blue" : undefined,
-                          // ...buttonstyle
-                        }}
-                      ></div>
-                    </div>
-                  );
-                }}
-              />
-              {/* <Column header="Stok" filterField="country.name" style={{ minWidth: '12rem' }} body={countryBodyTemplate} filterPlaceholder="Search by country" filterClear={filterClearTemplate} filterApply={filterApplyTemplate} />
-                        <Column
-                            header="Agent"
-                            filterField="representative"
-                            showFilterMatchModes={false}
-                            filterMenuStyle={{ width: '14rem' }}
-                            style={{ minWidth: '14rem' }}
-                            body={representativeBodyTemplate}
-
-                            filterElement={representativeFilterTemplate}
-                        />
-                        <Column header="Date" filterField="date" dataType="date" style={{ minWidth: '10rem' }} body={dateBodyTemplate} filterElement={dateFilterTemplate} />
-                        <Column header="Balance" filterField="balance" dataType="numeric" style={{ minWidth: '10rem' }} body={balanceBodyTemplate} filterElement={balanceFilterTemplate} />
-                        <Column field="status" header="Status" filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '12rem' }} body={statusBodyTemplate} filterElement={statusFilterTemplate} />
-                        <Column field="activity" header="Activity" showFilterMatchModes={false} style={{ minWidth: '12rem' }} body={activityBodyTemplate} filter filterElement={activityFilterTemplate} />
-                        <Column field="verified" header="Verified" dataType="boolean" bodyClassName="text-center" style={{ minWidth: '8rem' }} body={verifiedBodyTemplate} filter filterElement={verifiedFilterTemplate} /> */}
-            </DataTable>
-          )}
+                          onMouseOver={() => setOver(data.id + "edit")}
+                          onMouseOut={() => setOver("")}
+                          className="pi pi-file-edit"
+                          style={{
+                            fontSize: 18,
+                            cursor: "pointer",
+                            color:
+                              over === data.id + "edit" ? "blue" : undefined,
+                          }}
+                        ></div>
+                        <div
+                          className="pi pi-trash hover:bg-red"
+                          onClick={() => {
+                            setBarang(data);
+                            setDeleteConfirmation(true);
+                          }}
+                          onMouseOver={() => setOver(data.id + "delete")}
+                          onMouseOut={() => setOver("")}
+                          style={{
+                            fontSize: 18,
+                            marginLeft: 12,
+                            cursor: "pointer",
+                            color:
+                              over === data.id + "delete" ? "blue" : undefined,
+                          }}
+                        ></div>
+                        <OverlayPanel ref={opMenu}>
+                          <div
+                            style={{
+                              paddingLeft: 12,
+                              paddingRight: 12,
+                              cursor: "pointer",
+                            }}
+                            onClick={getLogs}
+                          >
+                            <p className="text-lg">Log</p>
+                          </div>
+                        </OverlayPanel>
+                        <div
+                          className="pi pi-ellipsis-v"
+                          onMouseOver={() => setOver(data.id + "more")}
+                          onMouseOut={() => setOver("")}
+                          onClick={(e) => {
+                            opMenu.current.toggle(e);
+                            setBarang(data);
+                            setFirstLog(0);
+                            setPageLog(1);
+                          }}
+                          style={{
+                            fontSize: 18,
+                            marginLeft: 12,
+                            cursor: "pointer",
+                            color:
+                              over === data.id + "more" ? "blue" : undefined,
+                            // ...buttonstyle
+                          }}
+                        ></div>
+                      </div>
+                    );
+                  }}
+                />
+              </DataTable>
+            )}
+          </div>
 
           <Dialog
             visible={productDialog}
@@ -1324,7 +1310,7 @@ const TableDemo = () => {
                 value={formik.values.nama}
                 onChange={(e) => {
                   formik.setFieldValue("nama", e.target.value);
-                  formik.setFieldError("nama", undefined)
+                  formik.setFieldError("nama", undefined);
                 }}
                 autoFocus
                 className={`text-black border w-full py-2 px-4 ${

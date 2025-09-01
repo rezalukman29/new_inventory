@@ -310,6 +310,10 @@ export const InventoryService = {
     const response = await ax.put(`/v1/event-status/update-scan`, payload);
     return response.data;
   },
+  deleteStatus: async (id: string) => {
+    const response = await ax.delete(`/v1/event-status/${id}`);
+    return response.data;
+  },
   putSyncInventory: async (id: string) => {
     const response = await ax.put(`/v1/barang/update-sync`, {
       barang_id: id,

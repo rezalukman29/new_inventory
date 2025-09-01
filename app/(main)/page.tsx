@@ -23,6 +23,7 @@ import { SortType } from "@/app/interfaces/interfaces";
 import { useRouter } from "next/navigation";
 import { localStorageService } from "../service/localStorage";
 import { SCAN_TYPE } from "../util/data";
+import { Text } from "@/app/components/atoms/Text";
 
 interface ISelect {
   label: string;
@@ -48,8 +49,8 @@ const TableDemo = () => {
   const [event, setEvent] = useState<any | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState("");
-  const [sort, setSort] = useState<SortType>("ASC");
-  const [sortBy, setSortBy] = useState<string>("name");
+  const [sort, setSort] = useState<SortType>("DESC");
+  const [sortBy, setSortBy] = useState<string>("event_start");
 
   const datepickerFormat = (value: Date) => {
     return {
@@ -297,143 +298,160 @@ const TableDemo = () => {
               setEvent(null);
             }}
           />
-          <DataTable
-            value={listEvent}
-            paginator
-            className="p-datatable-gridlines"
-            onPage={(e) => {
-              setFirst(e.first);
-              setPage(Number(e.page) + 1);
-            }}
-            tableStyle={{ width: 1800, fontSize: 13 }}
-            rows={pageSize}
-            dataKey="id"
-            totalRecords={total}
-            lazy
-            first={first}
-            alwaysShowPaginator
-            loading={isLoading}
-            responsiveLayout="scroll"
-            emptyMessage="No customers found."
-            header={header1}
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-            currentPageReportTemplate="{first} to {last} of {totalRecords} events"
-            onSort={(e) => onSort(e.sortField)}
-            sortField={sortBy}
-            sortOrder={sort === "ASC" ? 1 : -1}
-            selectionMode={"single"}
-          >
-            <Column
-              field="name"
-              header="Name"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
-              sortable
-              sortField="name"
-            />
-            <Column
-              field="description"
-              header="Description"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
-            />
-            <Column
-              field="event_start"
-              header="Start"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
-              body={(data: any) => (
-                <p>{moment(data.event_start as any).format("LLL")}</p>
-              )}
-              sortable
-              sortField="event_start"
-            />
-            <Column
-              field="event_end"
-              header="Finish"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
-              body={(data: any) => (
-                <p>{moment(data.event_end as any).format("LLL")}</p>
-              )}
-              sortable
-              sortField="event_end"
-            />
-            <Column
-              field="event_code"
-              header="Code"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-              sortable
-              sortField="event_code"
-            />
-            <Column
-              field="address"
-              header="Location"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-              sortable
-              sortField="address"
-            />
-            <Column
-              field="scan_type"
-              header="QR Type"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-              sortable
-              sortField="scan_type"
-            />
-            <Column
-              field="address"
-              header="Action"
-              filterPlaceholder="Search by name"
-              style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
-              body={(data) => (
-                <div
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flex: 1,
-                  }}
-                >
+          <div style={{ flex: 1, overflowX: "auto", width: 1300 }}>
+            <DataTable
+              value={listEvent}
+              paginator
+              className="p-datatable-gridlines"
+              onPage={(e) => {
+                setFirst(e.first);
+                setPage(Number(e.page) + 1);
+              }}
+              tableStyle={{ width: 1800, fontSize: 13 }}
+              rows={pageSize}
+              dataKey="id"
+              totalRecords={total}
+              lazy
+              first={first}
+              alwaysShowPaginator
+              loading={isLoading}
+              responsiveLayout="scroll"
+              emptyMessage="No customers found."
+              header={header1}
+              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+              currentPageReportTemplate="{first} to {last} of {totalRecords} events"
+              onSort={(e) => onSort(e.sortField)}
+              sortField={sortBy}
+              sortOrder={sort === "ASC" ? 1 : -1}
+              selectionMode={"single"}
+            >
+              <Column
+                field="id"
+                header="ID"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "4rem" }}
+                sortable
+                sortField="id"
+              />
+              <Column
+                field="name"
+                header="Name"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
+                sortable
+                sortField="name"
+              />
+              <Column
+                field="description"
+                header="Description"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
+              />
+              <Column
+                field="event_start"
+                header="Start"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
+                body={(data: any) => (
+                  <p>{moment(data.event_start as any).format("LLL")}</p>
+                )}
+                sortable
+                sortField="event_start"
+              />
+              <Column
+                field="event_end"
+                header="Finish"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
+                body={(data: any) => (
+                  <p>{moment(data.event_end as any).format("LLL")}</p>
+                )}
+                sortable
+                sortField="event_end"
+              />
+              <Column
+                field="event_code"
+                header="Code"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                sortable
+                sortField="event_code"
+              />
+              <Column
+                field="address"
+                header="Location"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                sortable
+                sortField="address"
+              />
+              <Column
+                field="scan_type"
+                header="QR Type"
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                sortable
+                sortField="scan_type"
+              />
+              <Column
+                field="address"
+                header="Action"
+                filterPlaceholder="Search by name"
+                style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
+                body={(data) => (
                   <div
-                    onClick={(e) => {
-                      localStorageService.clearCart("cart");
-                      router.push(`/event-item?event=${data.id}`);
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flex: 1,
                     }}
-                    className="pi pi-folder"
-                    style={{ fontSize: 18, cursor: "pointer" }}
-                  ></div>
-                  <div
-                    className="pi pi-file-edit"
-                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
-                    onClick={() => {
-                      setIsModify(true);
-                      setEvent(data);
-                      setProductDialog(true);
-                    }}
-                  ></div>
+                  >
+                    <div
+                      onClick={(e) => {
+                        localStorageService.clearCart("cart");
+                        router.push(`/event-item?event=${data.id}`);
+                      }}
+                      className="pi pi-folder"
+                      style={{ fontSize: 18, cursor: "pointer" }}
+                    ></div>
+                    <div
+                      className="pi pi-file-edit"
+                      style={{
+                        fontSize: 18,
+                        marginLeft: 20,
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        setIsModify(true);
+                        setEvent(data);
+                        setProductDialog(true);
+                      }}
+                    ></div>
 
-                  <div
-                    className="pi pi-trash"
-                    onClick={() => {
-                      setEvent(data);
-                      setDeleteConfirmation(true);
-                    }}
-                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer" }}
-                  ></div>
-                </div>
-              )}
-            />
-            {/* <Column
+                    <div
+                      className="pi pi-trash"
+                      onClick={() => {
+                        setEvent(data);
+                        setDeleteConfirmation(true);
+                      }}
+                      style={{
+                        fontSize: 18,
+                        marginLeft: 20,
+                        cursor: "pointer",
+                      }}
+                    ></div>
+                  </div>
+                )}
+              />
+              {/* <Column
               field="event_end"
               header="Satuan"
               filterPlaceholder="Search by name"
               style={{ minWidth: "3rem" }}
               body={inventoryImage}
             /> */}
-            {/* <Column
+              {/* <Column
               field="satuan.name"
               header="Category"
               filterPlaceholder="Search by name"
@@ -447,7 +465,8 @@ const TableDemo = () => {
               style={{ minWidth: "4rem" }}
               body={inventoryWarehouse}
             /> */}
-          </DataTable>
+            </DataTable>
+          </div>
           <Dialog
             visible={productDialog}
             style={{ width: "800px" }}
@@ -526,20 +545,30 @@ const TableDemo = () => {
             <div className="flex flex-row items-center">
               <div className="field flex-1">
                 <label htmlFor="name"> Event Start</label>
-                <InputText
-                  id="name"
-                  value={`${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`}
-                  onFocus={() => {
-                    setShowEnd(false);
-                    setShowStart(true);
-                  }}
-                  className={`text-black border w-full py-2 px-4 ${
-                    formik.errors.event_start
-                      ? "border-red-600"
-                      : "border-gray-300"
-                  } rounded-lg bg-transparent`}
-                  style={{ height: 44 }}
-                />
+                {isModify ? (
+                  <Text
+                    fontWeight="regular"
+                    color="black"
+                    label={`${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`}
+                    textAlign="left"
+                    variant="base"
+                  />
+                ) : (
+                  <InputText
+                    id="name"
+                    value={`${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`}
+                    onFocus={() => {
+                      setShowEnd(false);
+                      setShowStart(true);
+                    }}
+                    className={`text-black border w-full py-2 px-4 ${
+                      formik.errors.event_start
+                        ? "border-red-600"
+                        : "border-gray-300"
+                    } rounded-lg bg-transparent`}
+                    style={{ height: 44 }}
+                  />
+                )}
                 {showStart && (
                   <div className="absolute">
                     <div className="relative mt-2" style={{ width: 320 }}>
@@ -565,24 +594,34 @@ const TableDemo = () => {
               <div style={{ width: 16 }} />
               <div className="field flex-1">
                 <label htmlFor="name"> Event End</label>
-                <InputText
-                  id="name"
-                  value={
-                    formik.values.event_end
-                      ? `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
-                      : ""
-                  }
-                  onFocus={() => {
-                    setShowEnd(true);
-                    setShowStart(false);
-                  }}
-                  className={`text-black border w-full py-2 px-4 ${
-                    formik.errors.event_end
-                      ? "border-red-600"
-                      : "border-gray-300"
-                  } rounded-lg bg-transparent`}
-                  style={{ height: 44 }}
-                />
+                {isModify ? (
+                  <Text
+                    fontWeight="regular"
+                    color="black"
+                    label={`${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`}
+                    textAlign="left"
+                    variant="base"
+                  />
+                ) : (
+                  <InputText
+                    id="name"
+                    value={
+                      formik.values.event_end
+                        ? `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
+                        : ""
+                    }
+                    onFocus={() => {
+                      setShowEnd(true);
+                      setShowStart(false);
+                    }}
+                    className={`text-black border w-full py-2 px-4 ${
+                      formik.errors.event_end
+                        ? "border-red-600"
+                        : "border-gray-300"
+                    } rounded-lg bg-transparent`}
+                    style={{ height: 44 }}
+                  />
+                )}
                 {showEnd && (
                   <div className="absolute">
                     <div className="relative mt-2" style={{ width: 320 }}>
@@ -623,22 +662,39 @@ const TableDemo = () => {
               <div style={{ width: 16 }} />
               <div className="field flex-1">
                 <label htmlFor="name">Status</label>
-                <Dropdown
-                  onChange={(e) =>
-                    formik.setFieldValue("status", e.target.value)
-                  }
-                  value={formik.values.status}
-                  options={eventStatus?.data?.map?.((el: any) => {
-                    return {
-                      label: el.name,
-                      value: el.id,
-                    };
-                  })}
-                  optionLabel="label"
-                  placeholder="Select status"
-                  className="flex-1"
-                  // style={{ width: "100%" }}
-                />
+                {isModify ? (
+                  <Text
+                    fontWeight="regular"
+                    color="black"
+                    label={
+                      eventStatus?.data?.find(
+                        (el) => el.id === formik.values.status
+                      )?.name as string
+                    }
+                    textAlign="left"
+                  />
+                ) : (
+                  <Dropdown
+                    onChange={(e) =>
+                      formik.setFieldValue("status", e.target.value)
+                    }
+                    value={formik.values.status}
+                    options={eventStatus?.data?.map?.((el: any) => {
+                      return {
+                        label: el.name,
+                        value: el.id,
+                      };
+                    })}
+                    optionLabel="label"
+                    placeholder="Select status"
+                    className={`flex-1 rounded ${
+                      formik.errors.status
+                        ? "border-red-600"
+                        : "border-gray-300"
+                    }`}
+                    // style={{ width: "100%" }}
+                  />
+                )}
               </div>
             </div>
             <div className="flex flex-row items-center">
@@ -668,8 +724,9 @@ const TableDemo = () => {
                   options={SCAN_TYPE}
                   optionLabel="label"
                   placeholder="Select QR Type"
-                  className="flex-1"
-                  // style={{ width: "100%" }}
+                  className={`flex-1 rounded ${
+                    formik.errors.notes ? "border-red-600" : "border-gray-300"
+                  }`}
                 />
               </div>
             </div>

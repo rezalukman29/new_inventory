@@ -44,8 +44,8 @@ const TableDemo = () => {
   const [event, setEvent] = useState<any | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState("");
-  const [sort, setSort] = useState<SortType>("ASC");
-  const [sortBy, setSortBy] = useState<string>("name");
+  const [sort, setSort] = useState<SortType>("DESC");
+  const [sortBy, setSortBy] = useState<string>("event_start");
 
   const formik = useFormik<PayloadAddEventI>({
     initialValues: {
@@ -263,15 +263,22 @@ const TableDemo = () => {
             first={first}
             alwaysShowPaginator
             loading={isLoading}
-            responsiveLayout="scroll"
             emptyMessage="No customers found."
             header={header1}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="{first} to {last} of {totalRecords} events"
             onSort={(e) => onSort(e.sortField)}
             sortField={sortBy}
-            sortOrder={sort === 'ASC' ? 1 : -1}
+            sortOrder={sort === "ASC" ? 1 : -1}
           >
+            <Column
+              field="id"
+              header="ID"
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem" }}
+              sortable
+              sortField="id"
+            />
             <Column
               field="name"
               header="Name"
