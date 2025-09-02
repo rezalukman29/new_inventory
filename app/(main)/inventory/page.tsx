@@ -42,6 +42,7 @@ import { getLogActivity } from "@/app/hooks/api/useGetLogActivity";
 import useGetEmiUser from "@/app/hooks/api/useGetEmiUser";
 import moment from "moment";
 import { SortType } from "@/app/interfaces/interfaces";
+import useDeviceSize from "@/app/hooks/getWindowsDimension";
 
 export interface ISelect {
   label: string;
@@ -57,7 +58,7 @@ const TableDemo = () => {
   const [listBarang, setListBarang] = useState<any[]>([]);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [itemDetal, setItemDetail] = useState<boolean>(false);
-
+  const [width] = useDeviceSize();
   const [listSatuan, setListSatuan] = useState<ISelect[]>([]);
   const [listCategory, setListCategory] = useState<ISelect[]>([]);
   const [logs, setLogs] = useState<any[]>([]);
@@ -1109,7 +1110,7 @@ const TableDemo = () => {
               {barang?.nama}
             </p>
           </OverlayPanel>
-          <div style={{ flex: 1, overflowX: "auto", width: 1300 }}>
+          <div style={{ flex: 1, overflowX: "auto", width: width * 0.73 }}>
             {isLoading ? (
               <Loading />
             ) : (

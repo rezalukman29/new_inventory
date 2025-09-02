@@ -118,7 +118,7 @@ export interface PayloadAddEventI {
   event_code: string;
   is_complete: number;
   status: number;
-  images: string;
+  images?: string;
   files: string;
   address: string;
   type: string;

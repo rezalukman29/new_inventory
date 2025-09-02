@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { localStorageService } from "../service/localStorage";
 import { SCAN_TYPE } from "../util/data";
 import { Text } from "@/app/components/atoms/Text";
+import { Icon } from "@iconify/react";
 
 interface ISelect {
   label: string;
@@ -37,7 +38,7 @@ const TableDemo = () => {
   const [isModify, setIsModify] = useState<boolean>(false);
   const [listEvent, setListEvent] = useState<any[]>([]);
   const [selectedStatus, setSelectedStatus] = useState(1);
-  const [height] = useDeviceSize();
+  const [width] = useDeviceSize();
   const [page, setPage] = useState<number>(1);
   const [first, setFirst] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
@@ -51,6 +52,7 @@ const TableDemo = () => {
   const [searchValue, setSearchValue] = useState("");
   const [sort, setSort] = useState<SortType>("DESC");
   const [sortBy, setSortBy] = useState<string>("event_start");
+  const [base64, setBase64] = useState<string>();
 
   const datepickerFormat = (value: Date) => {
     return {
@@ -72,7 +74,6 @@ const TableDemo = () => {
         ? datepickerFormat(event?.event_end)
         : utils("en").getToday(),
       PIC: isModify ? event?.PIC : "",
-      images: "",
       address: isModify ? event?.address : "",
       files: "",
       is_complete: 0,
@@ -105,7 +106,6 @@ const TableDemo = () => {
         event_code: values.event_code,
         is_complete: 0,
         status: values.status,
-        images: values.images,
         files: values.files,
         address: values.address,
         type: "",
@@ -119,6 +119,7 @@ const TableDemo = () => {
         const result: APIResponse<any> = await InventoryService.editEvent({
           ...payload,
           id: event.id,
+          ...(base64 ? { images: base64?.split(",")[1] as string } : {images: ""}),
         });
         if (result.success) {
           setTimeout(() => {
@@ -132,9 +133,11 @@ const TableDemo = () => {
           });
         }
       } else {
-        const result: APIResponse<any> = await InventoryService.addEvent(
-          payload
-        );
+        const result: APIResponse<any> = await InventoryService.addEvent({
+          ...payload,
+
+          ...(base64 ? { images: base64?.split(",")[1] as string } : {images: ""}),
+        });
         if (result.success) {
           setTimeout(() => {
             setProductDialog(false);
@@ -147,13 +150,13 @@ const TableDemo = () => {
           life: 3000,
         });
       }
-
+      setBase64("");
       setIsLoading(false);
 
       getListEvent();
     },
   });
-  console.log(formik.values.scan_type, formik.values.status);
+
   const onChangeStatus = (e: any) => {
     setSelectedStatus(e.target.value);
   };
@@ -196,6 +199,34 @@ const TableDemo = () => {
       setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);
+    }
+  };
+
+  const convertToBase64 = (file: any) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
+
+  const handleProfile = async (e: any) => {
+    const file = e.target.files[0];
+    if (file?.size / 1024 / 1024 < 2) {
+      const base64 = await convertToBase64(file);
+      setBase64(base64 as any);
+    } else {
+      toast?.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Image size must be of 2MB or less",
+        life: 3000,
+      });
     }
   };
 
@@ -298,7 +329,7 @@ const TableDemo = () => {
               setEvent(null);
             }}
           />
-          <div style={{ flex: 1, overflowX: "auto", width: 1300 }}>
+          <div style={{ flex: 1, overflowX: "auto", width: width * 0.73 }}>
             <DataTable
               value={listEvent}
               paginator
@@ -728,6 +759,90 @@ const TableDemo = () => {
                     formik.errors.notes ? "border-red-600" : "border-gray-300"
                   }`}
                 />
+              </div>
+            </div>
+            <div className="flex flex-row items-center">
+              <div className="field flex-1">
+                <label htmlFor="notes">Image</label>
+                {base64 ? (
+                  <div className="flex flex-row gap-x-4 items-center">
+                    <img
+                      src={base64}
+                      style={{
+                        height: 100,
+                        width: 180,
+                        objectFit: "cover",
+                      }}
+                    />
+
+                    <Icon
+                      icon="entypo:trash"
+                      className="cursor-pointer"
+                      fontSize={24}
+                      color="#000"
+                      onClick={() => setBase64("")}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-row items-center gap-x-4">
+                      {isModify && event?.images ? (
+                        <>
+                          {base64 ? (
+                            <img
+                              src={base64}
+                              style={{
+                                height: 100,
+                                width: 180,
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            <img
+                              src={
+                                event?.images?.includes("66.42.48.163")
+                                  ? event?.images?.replace(
+                                      "http://66.42.48.163:9000/booqable/",
+                                      "https://storage-booqable.emi-project.my.id/booqable/"
+                                    )
+                                  : event.images
+                                  ? `https://democreation.site/home/public/${event?.images}`
+                                  : event
+                              }
+                              style={{
+                                width: 86,
+                                height: 86,
+                                borderRadius: 8,
+                              }}
+                            />
+                          )}
+                          <input
+                            type="file"
+                            style={{ color: "#000" }}
+                            className="form-control"
+                            onChange={(e) => handleProfile(e)}
+                          />
+                        </>
+                      ) : (
+                        <input
+                          type="file"
+                          style={{ color: "#000" }}
+                          className="form-control"
+                          onChange={(e) => handleProfile(e)}
+                        />
+                      )}
+                      {/* {isModify && barang.photo && (
+                          <Icon
+                            icon="entypo:trash"
+                            className="cursor-pointer"
+                            fontSize={24}
+                            color="#000"
+                            onClick={() => setBase64("")}
+                          />
+                        )} */}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </Dialog>
