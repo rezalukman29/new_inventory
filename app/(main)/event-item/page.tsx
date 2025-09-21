@@ -97,6 +97,7 @@ const Page = (props: Props) => {
   const [barangGudangSearch, setBarangGudangSearch] = useState<string>("");
   const [qty, setQty] = useState("");
   const [notes, setNotes] = useState("");
+  const [inputBy, setInputBy] = useState("");
   const [itemCarts, setItemCarts] = useState<any[]>([]);
   const [eventItemData, setItemEventData] = useState<any[]>([]);
   const [base64, setBase64] = useState<any[]>([]);
@@ -531,6 +532,7 @@ const Page = (props: Props) => {
             notes: dt.notes,
             isChecking: dt.is_checking.Valid,
             isWarehouseItem: dt.is_ware_house_item.Valid,
+            inputBy: dt.input_by,
           };
         })
         .filter((item: any) =>
@@ -576,6 +578,7 @@ const Page = (props: Props) => {
           notes: dt.notes,
           isChecking: dt.isChecking,
           isWarehouseItem: dt.isWarehouseItem,
+          inputBy: dt.inputBy,
         };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -654,6 +657,7 @@ const Page = (props: Props) => {
           scan_in: 1,
           scan_out: 1,
           notes,
+          inputBy,
           event_status_id: Number(selectedStatusForm),
           detail: {
             ...selectedBarangGudang,
@@ -675,6 +679,7 @@ const Page = (props: Props) => {
     setSelectedBarangGudang(null);
     setQty("");
     setNotes("");
+    setInputBy("");
     toast?.current?.show({
       severity: "success",
       summary: "Success",
@@ -710,8 +715,8 @@ const Page = (props: Props) => {
           fix_event_list_id: eventListId,
           barang_gudang_id: selectedBarangGudang.barang_gudang_id,
           qty: parseInt(qty),
-          scan_in: 1,
-          scan_out: 1,
+          scan_in: 0,
+          scan_out: 0,
           notes: "",
           event_status_id: Number(selectedStatus),
           detail: {
@@ -753,9 +758,10 @@ const Page = (props: Props) => {
             fix_event_list_id: eventListId,
             barang_gudang_id: item.barang_gudang_id,
             qty: item.qty,
-            scan_in: 1,
-            scan_out: 1,
+            scan_in: 0,
+            scan_out: 0,
             notes: item?.notes,
+            input_by: item.inputBy,
             event_status_id: item.event_status_id,
             additional_code: item.additionalCode,
             is_checking: item.isChecking ? 1 : 0,
@@ -787,6 +793,7 @@ const Page = (props: Props) => {
         detail: "Add item has been successfully",
         life: 3000,
       });
+      fetchData(true);
     } catch (error: any) {
       setLoadingGet(false);
       toast?.current?.show({
@@ -904,6 +911,16 @@ const Page = (props: Props) => {
                   className="mr-2"
                 />
                 <Text label={item.notes} color="gray" className="break-all" />
+              </div>
+            )}
+            {item?.inputBy && (
+              <div className="flex flex-row items-start mt-1 ">
+                <Icon
+                  icon="solar:user-bold-duotone"
+                  color="#000"
+                  className="mr-2"
+                />
+                <Text label={item.inputBy} color="gray" className="break-all" />
               </div>
             )}
             <div className="mt-3 flex flex-col gap-x-4">
@@ -1548,107 +1565,109 @@ const Page = (props: Props) => {
                 onClick={() => setBarangGudangPage(barangGudangPage + 1)}
               />
             )}
-            <div className="flex flex-row items-center mt-4">
-              <div className="field flex-1">
-                <label htmlFor="name">Quantity</label>
-                <InputText
-                  id="name"
-                  value={qty}
-                  onChange={(e) => {
-                    if (
-                      (Number(e.target.value) > 0 &&
-                        Number(e.target.value) <=
-                          selectedBarangGudang.stok_gudang &&
-                        !e.target.value.includes(".")) ||
-                      (e.target.value === "" && !e.target.value.includes("."))
-                    ) {
-                      setQty(e.target.value);
-                    }
-                  }}
-                  autoFocus
-                  //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
-                />
-              </div>
-              <div style={{ width: 16 }} />
-              <div className="field flex-1">
-                <label htmlFor="name">Additional Code</label>
-                <Dropdown
-                  onChange={(e) => setSelectedAdditionalCode(e.target.value)}
-                  value={selectedAdditionalCode}
-                  options={ADDITIONAL_CODE}
-                  optionLabel="label"
-                  placeholder="Select unit"
-                  className="flex-1"
-                  style={{ width: "100%" }}
-                />
-              </div>
+
+            <div className="field flex-1 mt-4">
+              <label htmlFor="name">Quantity</label>
+              <InputText
+                id="name"
+                value={qty}
+                onChange={(e) => {
+                  if (
+                    (Number(e.target.value) > 0 &&
+                      Number(e.target.value) <=
+                        selectedBarangGudang.stok_gudang &&
+                      !e.target.value.includes(".")) ||
+                    (e.target.value === "" && !e.target.value.includes("."))
+                  ) {
+                    setQty(e.target.value);
+                  }
+                }}
+                autoFocus
+                //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
+              />
             </div>
-            <div className="flex flex-row items-center">
-              <div className="field flex-1">
-                <label htmlFor="name">Select Area</label>
-                <Dropdown
-                  onChange={onChangeArea}
-                  value={selectedArea}
-                  options={areas?.data?.map((el) => {
+            <div className="field flex-1 mt-4">
+              <label htmlFor="name">Additional Code</label>
+              <Dropdown
+                onChange={(e) => setSelectedAdditionalCode(e.target.value)}
+                value={selectedAdditionalCode}
+                options={ADDITIONAL_CODE}
+                optionLabel="label"
+                placeholder="Select unit"
+                className="flex-1"
+                style={{ width: "100%" }}
+              />
+            </div>
+            <div className="field flex-1 mt-4">
+              <label htmlFor="name">Select Area</label>
+              <Dropdown
+                onChange={onChangeArea}
+                value={selectedArea}
+                options={areas?.data?.map((el) => {
+                  return {
+                    value: el.id,
+                    label: el.name,
+                  };
+                })}
+                optionLabel="label"
+                placeholder="Select area"
+                className="flex-1"
+                style={{ width: "100%" }}
+              />
+            </div>
+            <div className="field flex-1 mt-4">
+              <label htmlFor="name">Sub area</label>
+              <Dropdown
+                onChange={onChangeSubArea}
+                value={subArea}
+                options={listSubArea
+                  ?.filter((a) => a.area_id === Number(selectedArea))
+                  .map((el) => {
                     return {
                       value: el.id,
-                      label: el.name,
+                      label: el.sub_area_name,
                     };
                   })}
-                  optionLabel="label"
-                  placeholder="Select area"
-                  className="flex-1"
-                  style={{ width: "100%" }}
-                />
-              </div>
-              <div style={{ width: 16 }} />
-              <div className="field flex-1">
-                <label htmlFor="name">Sub area</label>
-                <Dropdown
-                  onChange={onChangeSubArea}
-                  value={subArea}
-                  options={listSubArea
-                    ?.filter((a) => a.area_id === Number(selectedArea))
-                    .map((el) => {
-                      return {
-                        value: el.id,
-                        label: el.sub_area_name,
-                      };
-                    })}
-                  optionLabel="label"
-                  placeholder="Select sub area"
-                  className="flex-1"
-                  style={{ width: "100%" }}
-                />
-              </div>
+                optionLabel="label"
+                placeholder="Select sub area"
+                className="flex-1"
+                style={{ width: "100%" }}
+              />
             </div>
-            <div className="flex flex-row items-center">
-              <div className="field flex-1">
-                <label htmlFor="name">Memo</label>
-                <InputText
-                  id="name"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  autoFocus
-                  //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
-                />
-              </div>
-              <div style={{ width: 16 }} />
-              <div className="field flex-1">
-                <label htmlFor="name">Status</label>
-                <Text
-                  fontWeight="regular"
-                  color="black"
-                  label={
-                    listEventStatus?.find(
-                      (el) => el.value === selectedStatusForm
-                    )?.label as string
-                  }
-                  textAlign="left"
-                />
-              </div>
+            <div className="field flex-1 mt-4">
+              <label htmlFor="name">Memo</label>
+              <InputText
+                id="name"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                autoFocus
+                //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
+              />
             </div>
-            <div className="mt-3 flex flex-col gap-x-4">
+            <div className="field flex-1 mt-4">
+              <label htmlFor="name">Input By</label>
+              <InputText
+                id="name"
+                value={inputBy}
+                onChange={(e) => setInputBy(e.target.value)}
+                autoFocus
+                //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field flex-1 mt-4">
+              <label htmlFor="name">Status</label>
+              <Text
+                fontWeight="regular"
+                color="black"
+                label={
+                  listEventStatus?.find((el) => el.value === selectedStatusForm)
+                    ?.label as string
+                }
+                textAlign="left"
+                variant="base"
+              />
+            </div>
+            <div className="field flex-1 mt-4">
               <div className="flex flex-row">
                 <Checkbox
                   checked={checkedItem[0] as boolean}
@@ -1661,9 +1680,11 @@ const Page = (props: Props) => {
                 >
                   Checking
                 </Checkbox>
-                <p className="ml-2"> Checking</p>
+                <p className="ml-2"> Checked</p>
               </div>
-              <div className="flex flex-row ml-4">
+            </div>
+            <div className="field flex-1 mt-2">
+              <div className="flex flex-row">
                 <Checkbox
                   checked={checkedItem[1] as boolean}
                   onChange={(e) =>
