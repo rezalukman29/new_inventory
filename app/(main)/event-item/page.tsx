@@ -1416,134 +1416,137 @@ const Page = (props: Props) => {
 
           <Dialog
             visible={productDialog}
-            style={{ width: 900 }}
+            style={{ width: width * 0.7 }}
             header={"Add Inventory"}
             modal
             className="p-fluid"
             footer={productDialogFooter}
             onHide={() => setProductDialog(false)}
           >
-            {loadingSearchInventory && <Loading />}
-            <div className="field flex-1">
-              <label htmlFor="name">Warehouse</label>
-              <Dropdown
-                onChange={(e) => setSelectedGudang(e.target.value)}
-                value={selectedGudang}
-                options={[
-                  ...gudang.map((el: any) => {
-                    return {
-                      label: el.nama,
-                      value: el.id,
-                    };
-                  }),
-                  ...ADDITIONAL_WAREHOUESE,
-                ]}
-                optionLabel="label"
-                placeholder="Select warehouse"
-                className="flex-1"
-                // style={{ width: "100%"}}
-              />
-            </div>
-            {selectedGudang && (
-              <div className="field flex-1">
-                <label htmlFor="name">Inventory</label>
-                <div className="flex flex-row">
-                  <span className="p-input-icon-left mr-4">
-                    <i className="pi pi-search" />
-                    <InputText
-                      value={barangGudangSearch}
-                      onChange={(e) => setBarangGudangSearch(e.target.value)}
-                      placeholder="Keyword Search"
-                      style={{ width: 420 }}
-                    />
-                  </span>
-
-                  <div
-                    style={{
-                      flexDirection: "row",
-                      display: "flex",
-                      columnGap: 4,
-                      paddingBottom: 8,
-                      width: "100%",
-                    }}
-                  >
-                    <Text
-                      fontWeight="bold"
-                      color="black"
-                      label={barangGudangTotalRecords.toString()}
-                    />
-                    <Text
-                      fontWeight="regular"
-                      color="black"
-                      label="records found"
-                    />
-                  </div>
+            <div className="flex flex-row">
+              <div style={{ width: width * 0.4, marginRight: 32 }}>
+                <div className="field flex-1">
+                  <label htmlFor="name">Warehouse</label>
+                  <Dropdown
+                    onChange={(e) => setSelectedGudang(e.target.value)}
+                    value={selectedGudang}
+                    options={[
+                      ...gudang.map((el: any) => {
+                        return {
+                          label: el.nama,
+                          value: el.id,
+                        };
+                      }),
+                      ...ADDITIONAL_WAREHOUESE,
+                    ]}
+                    optionLabel="label"
+                    placeholder="Select warehouse"
+                    className="flex-1"
+                    // style={{ width: "100%"}}
+                  />
                 </div>
-              </div>
-            )}
-            <div
-              className="holagrid"
-              onScroll={handleScroll}
-              style={{ maxHeight: height * 0.36 }}
-            >
-              {selectedGudang &&
-                barangGudang.map((item: any) => (
-                  <div
-                    style={{
-                      // width: 300,
-                      flexDirection: "column",
-                      backgroundColor: "transparent",
-                      borderWidth: 4,
-                      borderRadius: 8,
-                      padding: 4,
-                      borderColor:
-                        selectedBarangGudang?.barang_gudang_id ===
-                        item.barang_gudang_id
-                          ? "#6366F1"
-                          : "transparent",
-                      borderStyle: "solid",
-                    }}
-                    className="flex  rounded-lg mb-3 cursor-pointer items-center"
-                    onClick={() => {
-                      setSelectedBarangGudang(item);
-                      setQty("");
-                    }}
-                  >
-                    <img
-                      src={
-                        isValidUrl(item.photo)
-                          ? item.photo
-                          : item.photo
-                          ? `https://democreation.site/home/public/${item.photo}`
-                          : noImage
-                      }
-                      alt={item.nama_barang}
-                      style={{
-                        width: "100%",
-                        height: 220,
-                        objectFit: "cover",
-                        marginBottom: 8,
-                        borderRadius: 4,
-                      }}
-                    />
-                    <div className="items-start">
-                      <Text
-                        fontWeight="semi-bold"
-                        color="black"
-                        label={item.nama_barang}
-                        textAlign="left"
-                      />
-                      <Text
-                        fontWeight="regular"
-                        color="black"
-                        label={"Stok : " + item.stok_gudang}
-                        textAlign="left"
-                      />
+                {selectedGudang && (
+                  <div className="field flex-1">
+                    <label htmlFor="name">Inventory</label>
+                    <div className="flex flex-row">
+                      <span className="p-input-icon-left mr-4">
+                        <i className="pi pi-search" />
+                        <InputText
+                          value={barangGudangSearch}
+                          onChange={(e) =>
+                            setBarangGudangSearch(e.target.value)
+                          }
+                          placeholder="Keyword Search"
+                          style={{ width: 420 }}
+                        />
+                      </span>
+
+                      <div
+                        style={{
+                          flexDirection: "row",
+                          display: "flex",
+                          columnGap: 4,
+                          paddingBottom: 8,
+                          width: "100%",
+                        }}
+                      >
+                        <Text
+                          fontWeight="bold"
+                          color="black"
+                          label={barangGudangTotalRecords.toString()}
+                        />
+                        <Text
+                          fontWeight="regular"
+                          color="black"
+                          label="records found"
+                        />
+                      </div>
                     </div>
                   </div>
-                ))}
+                )}
+                <div
+                  className="holagridItem"
+                  onScroll={handleScroll}
+                  style={{ maxHeight: height * 0.55 }}
+                >
+                  {selectedGudang &&
+                    barangGudang.map((item: any) => (
+                      <div
+                        style={{
+                          // width: 300,
+                          flexDirection: "column",
+                          backgroundColor: "transparent",
+                          borderWidth: 4,
+                          borderRadius: 8,
+                          padding: 4,
+                          borderColor:
+                            selectedBarangGudang?.barang_gudang_id ===
+                            item.barang_gudang_id
+                              ? "#6366F1"
+                              : "transparent",
+                          borderStyle: "solid",
+                        }}
+                        className="flex  rounded-lg mb-3 cursor-pointer items-center"
+                        onClick={() => {
+                          setSelectedBarangGudang(item);
+                          setQty("");
+                        }}
+                      >
+                        <img
+                          src={
+                            isValidUrl(item.photo)
+                              ? item.photo
+                              : item.photo
+                              ? `https://democreation.site/home/public/${item.photo}`
+                              : noImage
+                          }
+                          alt={item.nama_barang}
+                          style={{
+                            width: "100%",
+                            height: 240,
+                            objectFit: "cover",
+                            marginBottom: 8,
+                            borderRadius: 4,
+                          }}
+                        />
+                        <div className="items-start">
+                          <Text
+                            fontWeight="semi-bold"
+                            color="black"
+                            label={item.nama_barang}
+                            textAlign="left"
+                          />
+                          <Text
+                            fontWeight="regular"
+                            color="black"
+                            label={"Stok : " + item.stok_gudang}
+                            textAlign="left"
+                          />
+                        </div>
+                      </div>
+                    ))}
 
-              {/* <Button
+                  {/* <Button
                 onClick={() => setBarangGudangPage(barangGudangPage + 1)}
                 style={{
                   backgroundColor: "#6366F1",
@@ -1554,151 +1557,160 @@ const Page = (props: Props) => {
               >
                 Load More
               </Button> */}
-            </div>
-            {selectedGudang && (
-              <Button
-                label={"Load More"}
-                severity="info"
-                className=" mr-2"
-                loading={loadingSearchInventory}
-                style={{ justifyContent: "center", height: 50, marginTop: 8 }}
-                onClick={() => setBarangGudangPage(barangGudangPage + 1)}
-              />
-            )}
-
-            <div className="field flex-1 mt-4">
-              <label htmlFor="name">Quantity</label>
-              <InputText
-                id="name"
-                value={qty}
-                onChange={(e) => {
-                  if (
-                    (Number(e.target.value) > 0 &&
-                      Number(e.target.value) <=
-                        selectedBarangGudang.stok_gudang &&
-                      !e.target.value.includes(".")) ||
-                    (e.target.value === "" && !e.target.value.includes("."))
-                  ) {
-                    setQty(e.target.value);
-                  }
-                }}
-                autoFocus
-                //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
-              />
-            </div>
-            <div className="field flex-1 mt-4">
-              <label htmlFor="name">Additional Code</label>
-              <Dropdown
-                onChange={(e) => setSelectedAdditionalCode(e.target.value)}
-                value={selectedAdditionalCode}
-                options={ADDITIONAL_CODE}
-                optionLabel="label"
-                placeholder="Select unit"
-                className="flex-1"
-                style={{ width: "100%" }}
-              />
-            </div>
-            <div className="field flex-1 mt-4">
-              <label htmlFor="name">Select Area</label>
-              <Dropdown
-                onChange={onChangeArea}
-                value={selectedArea}
-                options={areas?.data?.map((el) => {
-                  return {
-                    value: el.id,
-                    label: el.name,
-                  };
-                })}
-                optionLabel="label"
-                placeholder="Select area"
-                className="flex-1"
-                style={{ width: "100%" }}
-              />
-            </div>
-            <div className="field flex-1 mt-4">
-              <label htmlFor="name">Sub area</label>
-              <Dropdown
-                onChange={onChangeSubArea}
-                value={subArea}
-                options={listSubArea
-                  ?.filter((a) => a.area_id === Number(selectedArea))
-                  .map((el) => {
-                    return {
-                      value: el.id,
-                      label: el.sub_area_name,
-                    };
-                  })}
-                optionLabel="label"
-                placeholder="Select sub area"
-                className="flex-1"
-                style={{ width: "100%" }}
-              />
-            </div>
-            <div className="field flex-1 mt-4">
-              <label htmlFor="name">Memo</label>
-              <InputText
-                id="name"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                autoFocus
-                //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
-              />
-            </div>
-            <div className="field flex-1 mt-4">
-              <label htmlFor="name">Input By</label>
-              <InputText
-                id="name"
-                value={inputBy}
-                onChange={(e) => setInputBy(e.target.value)}
-                autoFocus
-                //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
-              />
-            </div>
-            <div className="field flex-1 mt-4">
-              <label htmlFor="name">Status</label>
-              <Text
-                fontWeight="regular"
-                color="black"
-                label={
-                  listEventStatus?.find((el) => el.value === selectedStatusForm)
-                    ?.label as string
-                }
-                textAlign="left"
-                variant="base"
-              />
-            </div>
-            <div className="field flex-1 mt-4">
-              <div className="flex flex-row">
-                <Checkbox
-                  checked={checkedItem[0] as boolean}
-                  onChange={(e) =>
-                    setCheckedItem([
-                      e.target.checked as boolean,
-                      checkedItem[1],
-                    ])
-                  }
-                >
-                  Checking
-                </Checkbox>
-                <p className="ml-2"> Checked</p>
+                </div>
+                {selectedGudang && (
+                  <Button
+                    label={"Load More"}
+                    severity="info"
+                    className=" mr-2"
+                    loading={loadingSearchInventory}
+                    style={{
+                      justifyContent: "center",
+                      height: 50,
+                      marginTop: 8,
+                    }}
+                    onClick={() => setBarangGudangPage(barangGudangPage + 1)}
+                  />
+                )}
+              </div>
+              <div style={{width: width * 0.3 - 32}}>
+                <div className="field flex-1">
+                  <label htmlFor="name">Quantity</label>
+                  <InputText
+                    id="name"
+                    value={qty}
+                    onChange={(e) => {
+                      if (
+                        (Number(e.target.value) > 0 &&
+                          Number(e.target.value) <=
+                            selectedBarangGudang.stok_gudang &&
+                          !e.target.value.includes(".")) ||
+                        (e.target.value === "" && !e.target.value.includes("."))
+                      ) {
+                        setQty(e.target.value);
+                      }
+                    }}
+                    autoFocus
+                    //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
+                  />
+                </div>
+                <div className="field flex-1 mt-4">
+                  <label htmlFor="name">Additional Code</label>
+                  <Dropdown
+                    onChange={(e) => setSelectedAdditionalCode(e.target.value)}
+                    value={selectedAdditionalCode}
+                    options={ADDITIONAL_CODE}
+                    optionLabel="label"
+                    placeholder="Select unit"
+                    className="flex-1"
+                    style={{ width: "100%" }}
+                  />
+                </div>
+                <div className="field flex-1 mt-4">
+                  <label htmlFor="name">Select Area</label>
+                  <Dropdown
+                    onChange={onChangeArea}
+                    value={selectedArea}
+                    options={areas?.data?.map((el) => {
+                      return {
+                        value: el.id,
+                        label: el.name,
+                      };
+                    })}
+                    optionLabel="label"
+                    placeholder="Select area"
+                    className="flex-1"
+                    style={{ width: "100%" }}
+                  />
+                </div>
+                <div className="field flex-1 mt-4">
+                  <label htmlFor="name">Sub area</label>
+                  <Dropdown
+                    onChange={onChangeSubArea}
+                    value={subArea}
+                    options={listSubArea
+                      ?.filter((a) => a.area_id === Number(selectedArea))
+                      .map((el) => {
+                        return {
+                          value: el.id,
+                          label: el.sub_area_name,
+                        };
+                      })}
+                    optionLabel="label"
+                    placeholder="Select sub area"
+                    className="flex-1"
+                    style={{ width: "100%" }}
+                  />
+                </div>
+                <div className="field flex-1 mt-4">
+                  <label htmlFor="name">Memo</label>
+                  <InputText
+                    id="name"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    autoFocus
+                    //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
+                  />
+                </div>
+                <div className="field flex-1 mt-4">
+                  <label htmlFor="name">Input By</label>
+                  <InputText
+                    id="name"
+                    value={inputBy}
+                    onChange={(e) => setInputBy(e.target.value)}
+                    autoFocus
+                    //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
+                  />
+                </div>
+                <div className="field flex-1 mt-4">
+                  <label htmlFor="name">Status</label>
+                  <Text
+                    fontWeight="regular"
+                    color="black"
+                    label={
+                      listEventStatus?.find(
+                        (el) => el.value === selectedStatusForm
+                      )?.label as string
+                    }
+                    textAlign="left"
+                    variant="base"
+                  />
+                </div>
+                <div className="field flex-1 mt-4">
+                  <div className="flex flex-row">
+                    <Checkbox
+                      checked={checkedItem[0] as boolean}
+                      onChange={(e) =>
+                        setCheckedItem([
+                          e.target.checked as boolean,
+                          checkedItem[1],
+                        ])
+                      }
+                    >
+                      Checking
+                    </Checkbox>
+                    <p className="ml-2"> Checked</p>
+                  </div>
+                </div>
+                <div className="field flex-1 mt-2">
+                  <div className="flex flex-row">
+                    <Checkbox
+                      checked={checkedItem[1] as boolean}
+                      onChange={(e) =>
+                        setCheckedItem([
+                          e.target.checked as boolean,
+                          checkedItem[0],
+                        ])
+                      }
+                    >
+                      Warehouse Item
+                    </Checkbox>
+                    <p className="ml-2"> Warehouse Item</p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="field flex-1 mt-2">
-              <div className="flex flex-row">
-                <Checkbox
-                  checked={checkedItem[1] as boolean}
-                  onChange={(e) =>
-                    setCheckedItem([
-                      e.target.checked as boolean,
-                      checkedItem[0],
-                    ])
-                  }
-                >
-                  Warehouse Item
-                </Checkbox>
-                <p className="ml-2"> Warehouse Item</p>
-              </div>
-            </div>
+            {loadingSearchInventory && <Loading />}
           </Dialog>
           <Dialog
             visible={cartDialog}
