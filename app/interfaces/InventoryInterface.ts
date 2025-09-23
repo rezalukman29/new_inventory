@@ -127,4 +127,5 @@ export interface PayloadAddEventI {
   event_running: string;
   notes: string;
   scan_type?:  string
+  packaging?: string;
 }

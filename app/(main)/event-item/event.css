@@ -6,6 +6,14 @@
   justify-content: space-between;
 }
 
+.holagridItem {
+  display: grid;
+  /* grid-gap: 10px; */
+  grid-template-columns: repeat(auto-fit, 220px);
+  overflow-y: auto;
+  justify-content: space-between;
+}
+
 /* .holagrid > * {
   background-color: green;
   height: 200px;

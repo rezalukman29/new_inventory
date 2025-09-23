@@ -84,6 +84,7 @@ const TableDemo = () => {
       longitude: "",
       event_running: "",
       scan_type: isModify ? event?.scan_type : "",
+      packaging: "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Required"),
@@ -114,12 +115,15 @@ const TableDemo = () => {
         event_running: "",
         notes: values.notes,
         scan_type: values.scan_type,
+        packaging: values.packaging,
       };
       if (isModify) {
         const result: APIResponse<any> = await InventoryService.editEvent({
           ...payload,
           id: event.id,
-          ...(base64 ? { images: base64?.split(",")[1] as string } : {images: ""}),
+          ...(base64
+            ? { images: base64?.split(",")[1] as string }
+            : { images: "" }),
         });
         if (result.success) {
           setTimeout(() => {
@@ -136,7 +140,9 @@ const TableDemo = () => {
         const result: APIResponse<any> = await InventoryService.addEvent({
           ...payload,
 
-          ...(base64 ? { images: base64?.split(",")[1] as string } : {images: ""}),
+          ...(base64
+            ? { images: base64?.split(",")[1] as string }
+            : { images: "" }),
         });
         if (result.success) {
           setTimeout(() => {
@@ -150,6 +156,7 @@ const TableDemo = () => {
           life: 3000,
         });
       }
+      formik.resetForm();
       setBase64("");
       setIsLoading(false);
 
@@ -758,6 +765,25 @@ const TableDemo = () => {
                   className={`flex-1 rounded ${
                     formik.errors.notes ? "border-red-600" : "border-gray-300"
                   }`}
+                />
+              </div>
+            </div>
+            <div className="flex flex-row items-center">
+              <div className="field flex-1">
+                <label htmlFor="notes">Packaging</label>
+                <InputText
+                  id="notes"
+                  value={formik.values.packaging}
+                  onChange={(e) =>
+                    formik.setFieldValue("packaging", e.target.value)
+                  }
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.packaging
+                      ? "border-red-600"
+                      : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                  style={{ height: 44 }}
                 />
               </div>
             </div>
