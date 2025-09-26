@@ -1732,61 +1732,6 @@ const Page = (props: Props) => {
                   />
                 </div>
                 <div className="field flex-1 mt-4">
-                  <label htmlFor="name">Input By</label>
-                  <InputText
-                    id="name"
-                    value={inputBy}
-                    onChange={(e) => setInputBy(e.target.value)}
-                    autoFocus
-                    //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
-                  />
-                </div>
-                <div className="field flex-1">
-                  <label htmlFor="notes">Image</label>
-                  {base64Add ? (
-                    <div className="flex flex-row gap-x-4 items-center">
-                      <img
-                        src={base64Add}
-                        style={{
-                          height: 100,
-                          width: 180,
-                          objectFit: "cover",
-                        }}
-                      />
-
-                      <Icon
-                        icon="entypo:trash"
-                        className="cursor-pointer"
-                        fontSize={24}
-                        color="#000"
-                        onClick={() => setBase64Add("")}
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex flex-row items-center gap-x-4">
-
-                          <input
-                            type="file"
-                            style={{ color: "#000" }}
-                            className="form-control"
-                            onChange={(e) => handleProfile(e)}
-                          />
-                    
-                        {/* {isModify && barang.photo && (
-                          <Icon
-                            icon="entypo:trash"
-                            className="cursor-pointer"
-                            fontSize={24}
-                            color="#000"
-                            onClick={() => setBase64("")}
-                          />
-                        )} */}
-                      </div>
-                    </>
-                  )}
-                </div>
-                <div className="field flex-1 mt-4">
                   <label htmlFor="name">Status</label>
                   <Text
                     fontWeight="regular"
@@ -1816,6 +1761,54 @@ const Page = (props: Props) => {
                     <p className="ml-2"> Checked</p>
                   </div>
                 </div>
+                {!!checkedItem[0] ? (
+                  <div className="mb-4">
+                    <div className="field flex-1 mt-4">
+                      <label htmlFor="name">Input By</label>
+                      <InputText
+                        id="name"
+                        value={inputBy}
+                        onChange={(e) => setInputBy(e.target.value)}
+                        autoFocus
+                        //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
+                      />
+                    </div>
+                    <div className="field flex-1">
+                      <label htmlFor="notes">Image</label>
+                      {base64Add ? (
+                        <div className="flex flex-row gap-x-4 items-center">
+                          <img
+                            src={base64Add}
+                            style={{
+                              height: 100,
+                              width: 180,
+                              objectFit: "cover",
+                            }}
+                          />
+
+                          <Icon
+                            icon="entypo:trash"
+                            className="cursor-pointer"
+                            fontSize={24}
+                            color="#000"
+                            onClick={() => setBase64Add("")}
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex flex-row items-center gap-x-4">
+                            <input
+                              type="file"
+                              style={{ color: "#000" }}
+                              className="form-control"
+                              onChange={(e) => handleProfile(e)}
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
                 <div className="field flex-1 mt-2">
                   <div className="flex flex-row">
                     <Checkbox
