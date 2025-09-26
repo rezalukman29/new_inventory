@@ -45,6 +45,8 @@ import { WEB_URL } from "@/app/util/config";
 import moment from "moment";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import * as Yup from "yup";
+import { useFormik } from "formik";
 
 type Props = {};
 
@@ -101,6 +103,7 @@ const Page = (props: Props) => {
   const [itemCarts, setItemCarts] = useState<any[]>([]);
   const [eventItemData, setItemEventData] = useState<any[]>([]);
   const [base64, setBase64] = useState<any[]>([]);
+  const [base64Add, setBase64Add] = useState<string>();
   const [selectedAdditionalCode, setSelectedAdditionalCode] = useState<
     any | null
   >("all");
@@ -110,6 +113,7 @@ const Page = (props: Props) => {
   const [subArea, setSubArea] = useState<any | null>(null);
   const [cartDialog, setCartDialog] = useState(false);
   const [qrDialog, setQrDialog] = useState(false);
+  const [isShowPackaging, setIsShowPackaging] = useState(false);
   const [productDialog, setProductDialog] = useState(false);
   const [imageDialog, setImageDialog] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
@@ -120,6 +124,47 @@ const Page = (props: Props) => {
   const pdfHeader = `            ${eventDetail?.name} | ${
     STATUS_EVENT.find((el) => el.id === eventDetail?.status)?.status ?? ""
   }`;
+
+  const formik = useFormik<any>({
+    initialValues: {
+      name: "",
+      qr_type: "",
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("Required"),
+    }),
+    validateOnChange: false,
+    enableReinitialize: true,
+    onSubmit: async () => {},
+  });
+
+  const handleProfile = async (e: any) => {
+    const file = e.target.files[0];
+    if (file?.size / 1024 / 1024 < 2) {
+      const base64 = await convertToBase64(file);
+      setBase64Add(base64 as any);
+    } else {
+      toast?.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Image size must be of 2MB or less",
+        life: 3000,
+      });
+    }
+  };
+
+  const convertToBase64 = (file: any) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
 
   const toDataURL = (url: string) =>
     fetch(url)
@@ -877,7 +922,11 @@ const Page = (props: Props) => {
             <div className="text mt-2 font-bold">{item.nama_barang}</div>
             <div className="text mt-1">Qty: {item.stok}</div>
             <div className="flex flex-row items-center mt-1">
-              <Icon icon="vaadin:area-select" color="#000" className="mr-2" />
+              <Icon
+                icon="material-symbols:edit-location-alt-outline-sharp"
+                color="#000"
+                className="mr-2"
+              />
               <Text
                 label={item?.subArea ? item?.subArea : "No Sub Area"}
                 color="gray"
@@ -893,16 +942,32 @@ const Page = (props: Props) => {
                 <Text label={item.status} color="gray" />
               </div>
             )}
-            {item?.additionalCode && (
-              <div className="flex flex-row items-center mt-1">
-                <Icon
-                  icon="material-symbols-light:code"
-                  color="#000"
-                  className="mr-2"
-                />
-                <Text label={item.additionalCode} color="gray" />
-              </div>
-            )}
+            <div className="flex flex-row" style={{ alignItems: "center" }}>
+              {item?.additionalCode && (
+                <div className="flex flex-row items-center mt-1">
+                  <Icon
+                    icon="material-symbols-light:code"
+                    color="#000"
+                    className="mr-2"
+                  />
+                  <Text label={item.additionalCode} color="gray" />
+                </div>
+              )}
+              {item?.inputBy && (
+                <div className="flex flex-row items-center mt-1 ml-2">
+                  <Icon
+                    icon="solar:user-bold-duotone"
+                    color="#000"
+                    className="mr-2"
+                  />
+                  <Text
+                    label={item.inputBy}
+                    color="gray"
+                    className="break-all"
+                  />
+                </div>
+              )}
+            </div>
             {item?.notes && (
               <div className="flex flex-row items-start mt-1 ">
                 <Icon
@@ -913,16 +978,7 @@ const Page = (props: Props) => {
                 <Text label={item.notes} color="gray" className="break-all" />
               </div>
             )}
-            {item?.inputBy && (
-              <div className="flex flex-row items-start mt-1 ">
-                <Icon
-                  icon="solar:user-bold-duotone"
-                  color="#000"
-                  className="mr-2"
-                />
-                <Text label={item.inputBy} color="gray" className="break-all" />
-              </div>
-            )}
+
             <div className="mt-3 flex flex-col gap-x-4">
               <div className="flex flex-row">
                 <Checkbox checked={Boolean(item.isChecking)} disabled>
@@ -1103,6 +1159,22 @@ const Page = (props: Props) => {
         onClick={() => setProductDialog(false)}
       />
       <Button label="Save" icon="pi pi-check" onClick={onAddCart} />
+    </>
+  );
+
+  const dialogPackagingFooter = (
+    <>
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        text
+        onClick={() => setIsShowPackaging(false)}
+      />
+      <Button
+        label="Save"
+        icon="pi pi-check"
+        onClick={() => setIsShowPackaging(false)}
+      />
     </>
   );
 
@@ -1335,6 +1407,13 @@ const Page = (props: Props) => {
               </span>
             </div>
             <div className="flex-row">
+              <Button
+                label={`New Packaging`}
+                icon="pi pi-inbox"
+                severity="warning"
+                className=" mr-2"
+                onClick={() => setIsShowPackaging(true)}
+              />
               <Button
                 label={`Cart (${itemCarts?.length})`}
                 icon="pi pi-shopping-cart"
@@ -1573,7 +1652,7 @@ const Page = (props: Props) => {
                   />
                 )}
               </div>
-              <div style={{width: width * 0.3 - 32}}>
+              <div style={{ width: width * 0.3 - 32 }}>
                 <div className="field flex-1">
                   <label htmlFor="name">Quantity</label>
                   <InputText
@@ -1661,6 +1740,51 @@ const Page = (props: Props) => {
                     autoFocus
                     //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
                   />
+                </div>
+                <div className="field flex-1">
+                  <label htmlFor="notes">Image</label>
+                  {base64Add ? (
+                    <div className="flex flex-row gap-x-4 items-center">
+                      <img
+                        src={base64Add}
+                        style={{
+                          height: 100,
+                          width: 180,
+                          objectFit: "cover",
+                        }}
+                      />
+
+                      <Icon
+                        icon="entypo:trash"
+                        className="cursor-pointer"
+                        fontSize={24}
+                        color="#000"
+                        onClick={() => setBase64Add("")}
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex flex-row items-center gap-x-4">
+
+                          <input
+                            type="file"
+                            style={{ color: "#000" }}
+                            className="form-control"
+                            onChange={(e) => handleProfile(e)}
+                          />
+                    
+                        {/* {isModify && barang.photo && (
+                          <Icon
+                            icon="entypo:trash"
+                            className="cursor-pointer"
+                            fontSize={24}
+                            color="#000"
+                            onClick={() => setBase64("")}
+                          />
+                        )} */}
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className="field flex-1 mt-4">
                   <label htmlFor="name">Status</label>
@@ -1786,6 +1910,44 @@ const Page = (props: Props) => {
                   ></DataView>
                 </section>
               ) : null}
+            </div>
+          </Dialog>
+          <Dialog
+            visible={isShowPackaging}
+            style={{ width: "450px" }}
+            header={"New Packaging"}
+            modal
+            className="p-fluid"
+            footer={dialogPackagingFooter}
+            onHide={() => setIsShowPackaging(false)}
+          >
+            <div className="field">
+              <label htmlFor="name">Name</label>
+              <InputText
+                id="name"
+                value={formik.values.name}
+                onChange={(e) => formik.setFieldValue("name", e.target.value)}
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formik.errors.name ? "border-red-600" : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field flex-1">
+              <label htmlFor="name">Qr Code</label>
+              <Dropdown
+                value={formik.values.qr_type}
+                onChange={(e) => {
+                  formik.setFieldValue("qr_type", e.value);
+                }}
+                options={[
+                  { value: "BARANG", label: "QR Code Inventory" },
+                  { value: "EVENT", label: "QR Code Event" },
+                ]}
+                optionLabel="label"
+                placeholder="Select Option"
+                className="w-full md:w-14rem mr-4"
+              />
             </div>
           </Dialog>
         </div>
