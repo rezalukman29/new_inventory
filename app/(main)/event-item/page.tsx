@@ -254,6 +254,12 @@ const Page = (props: Props) => {
   const { data: eventStatus, refetch: refetchEventStatus } = useGetEventStatus({
     options: {
       enabled: true,
+      onSuccess: ({ data }) => {
+        setSelectedStatus(data?.find((el) => el.order_data === 1)?.id);
+        setTimeout(() => {
+          refetchEventItem();
+        }, 500);
+      },
     },
   });
 
@@ -370,12 +376,15 @@ const Page = (props: Props) => {
     if (eventDetail.data) {
       try {
         let listArea: any = await InventoryService.getListAreaByEvent(eventId);
-        const listingArea = listArea?.data?.map((item: any) => {
+        const listingArea = listArea?.map((item: any) => {
           return {
             label: item.area_name,
             value: item.area_id,
           };
         });
+        if (listingArea.length) {
+          setSelectedArea(listingArea[0]?.value)
+        }
         setAreaList([...[{ value: "all", label: "All Area" }], ...listingArea]);
       } catch (error: any) {
         setAreaList([{ value: "all", label: "All Area" }]);
@@ -1158,7 +1167,13 @@ const Page = (props: Props) => {
         text
         onClick={() => setProductDialog(false)}
       />
-      <Button label="Save" icon="pi pi-check" onClick={onAddCart} />
+      <Button
+        label="Save to Packaging"
+        severity="info"
+        icon="pi pi-check"
+        onClick={() => undefined}
+      />
+      <Button label="Save to Cart" icon="pi pi-check" onClick={onAddCart} />
     </>
   );
 
