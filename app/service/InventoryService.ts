@@ -65,9 +65,9 @@ export const InventoryService = {
     const response = await ax.get(
       `/v1/${URL_BARANG_FILTER}${
         filter.category ? `kategori=${filter.category}&` : ""
-      }page=${filter.page}&limit=${filter.limit}&sort=${filter.sort}&sort_by=${filter.sortBy}${
-        filter.search ? `&search=${filter.search}` : ""
-      }`
+      }page=${filter.page}&limit=${filter.limit}&sort=${filter.sort}&sort_by=${
+        filter.sortBy
+      }${filter.search ? `&search=${filter.search}` : ""}`
     );
     return response.data;
   },
@@ -149,11 +149,11 @@ export const InventoryService = {
     return response.data;
   },
   getItemCategory: async (filter: any) => {
-    const response = await ax.get(`/v1/kategori-barang-all`,  {
+    const response = await ax.get(`/v1/kategori-barang-all`, {
       params: {
         sort: filter.sort,
         sort_by: filter.sort_by,
-      }
+      },
     });
     return response.data;
   },
@@ -198,7 +198,7 @@ export const InventoryService = {
       params: {
         sort: filter.sort,
         sort_by: filter.sortBy,
-      }
+      },
     });
     return response.data;
   },
@@ -223,7 +223,7 @@ export const InventoryService = {
       params: {
         sort: filter.sort,
         sort_by: filter.sortBy,
-      }
+      },
     });
     return response.data;
   },
@@ -321,7 +321,7 @@ export const InventoryService = {
     return response.data;
   },
   getSyncInventory: async (): Promise<APIResponse<Array<any>>> => {
-    const response = await  ax.get(`/v1/barang/get-sync`);
+    const response = await ax.get(`/v1/barang/get-sync`);
     return response.data;
   },
   getEventInventory: async (filter: any) => {
@@ -341,5 +341,30 @@ export const InventoryService = {
   getListAreaByEvent: async (eventId: string) => {
     const response = await ax.get(`/v1/fix-event-list-area/${eventId}`);
     return response.data.data;
+  },
+  addPackaging: async (data: any): Promise<APIResponse<any>> => {
+    const response = await ax.post(`/v1/package`, data);
+    return response.data;
+  },
+  deletePackaging: async (id: any): Promise<APIResponse<any>> => {
+    const response = await ax.delete(`/v1/package/${id}`);
+    return response.data;
+  },
+  updatePackaging: async (data: any): Promise<APIResponse<any>> => {
+    const response = await ax.put(`/v1/package`, data);
+    return response.data;
+  },
+  addEventPackaging: async (data: any[]): Promise<APIResponse<any>> => {
+    const response = await ax.post(`/v1/event-item-package`, data);
+    return response.data;
+  },
+  getEventPackaging: async (params: any): Promise<APIResponse<any>> => {
+    const response = await ax.post(`/v1/event-item-package`, {
+      params: {
+        event_id: params.event_id,
+        package_id: params.package_id,
+      },
+    });
+    return response.data;
   },
 };
