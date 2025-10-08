@@ -47,6 +47,8 @@ import { ProgressSpinner } from "primereact/progressspinner";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import * as Yup from "yup";
 import { useFormik } from "formik";
+import useGetPackaging from "@/app/hooks/api/useGetPackaging";
+import useGetEventPackaging from "@/app/hooks/api/useGetEventPackaging";
 
 type Props = {};
 
@@ -94,6 +96,8 @@ const Page = (props: Props) => {
   const [selectedStatusForm, setSelectedStatusForm] = useState<any | null>(1);
   const [barangGudangPage, setBarangGudangPage] = useState<number>(1);
   const [barangGudangTotalPage, setBarangGudangTotalPage] = useState<number>(1);
+  const [isModifyPackaging, setIsModifyPackaging] = useState<boolean>(false);
+  const [isShowPackageDetail, setIsShowPackageDetail] = useState<boolean>(true);
   const [barangGudangTotalRecords, setBarangGudangTotalRecords] =
     useState<number>(0);
   const [barangGudangSearch, setBarangGudangSearch] = useState<string>("");
@@ -111,6 +115,7 @@ const Page = (props: Props) => {
   const [checkedItem, setCheckedItem] = useState<Boolean[]>([false, false]);
   const [listSubArea, setListSubArea] = useState<any[]>([]);
   const [subArea, setSubArea] = useState<any | null>(null);
+  const [selectedPackaging, setSelectedPackaging] = useState<number>(0);
   const [cartDialog, setCartDialog] = useState(false);
   const [qrDialog, setQrDialog] = useState(false);
   const [isShowPackaging, setIsShowPackaging] = useState(false);
@@ -127,15 +132,49 @@ const Page = (props: Props) => {
 
   const formik = useFormik<any>({
     initialValues: {
+      id: "",
       name: "",
       qr_type: "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Required"),
+      qr_type: Yup.string().required("Required"),
     }),
     validateOnChange: false,
     enableReinitialize: true,
-    onSubmit: async () => {},
+    onSubmit: async () => {
+      if (isModifyPackaging) {
+        await InventoryService.updatePackaging({
+          id: Number(formik.values.id),
+          name: formik.values.name,
+          qr_type: formik.values.qr_type,
+          note: eventId,
+        });
+        toast?.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Update Packaging",
+          life: 3000,
+        });
+        setIsModifyPackaging(false);
+      } else {
+        setIsShowPackaging(false);
+        await InventoryService.addPackaging({
+          name: formik.values.name,
+          qr_type: formik.values.qr_type,
+          note: eventId,
+        });
+
+        toast?.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Create Packaging",
+          life: 3000,
+        });
+      }
+      refetchGetPackage();
+      formik.resetForm();
+    },
   });
 
   const handleProfile = async (e: any) => {
@@ -238,6 +277,9 @@ const Page = (props: Props) => {
   const onChangeSubArea = (e: any) => {
     setSubArea(e.target.value);
   };
+  const onChangePackaging = (e: any) => {
+    setSelectedPackaging(e.target.value);
+  };
   const onChangeStatusForm = (e: any) => {
     setSelectedStatusForm(e.target.value);
   };
@@ -262,6 +304,17 @@ const Page = (props: Props) => {
       },
     },
   });
+
+  const { data: eventPackaging, refetch: refetchEventPackaging } =
+    useGetEventPackaging({
+      params: { event_id: eventId, package_id: formik.values.id },
+      options: {
+        enabled: false,
+        onSuccess: () => {
+          setIsShowPackageDetail(true);
+        },
+      },
+    });
 
   const listEventStatus: ValueLabel[] = eventStatus?.data?.length
     ? eventStatus?.data.map?.((el: any) => {
@@ -361,6 +414,15 @@ const Page = (props: Props) => {
     },
   });
 
+  const { data: packages, refetch: refetchGetPackage } = useGetPackaging({
+    options: {
+      enabled: !!eventId,
+    },
+    params: {
+      eventId,
+    },
+  });
+
   const onOpenModalImage = (image: string) => {
     setImageModal(image);
     setImageDialog(true);
@@ -383,7 +445,7 @@ const Page = (props: Props) => {
           };
         });
         if (listingArea.length) {
-          setSelectedArea(listingArea[0]?.value)
+          setSelectedArea(listingArea[0]?.value);
         }
         setAreaList([...[{ value: "all", label: "All Area" }], ...listingArea]);
       } catch (error: any) {
@@ -633,6 +695,7 @@ const Page = (props: Props) => {
           isChecking: dt.isChecking,
           isWarehouseItem: dt.isWarehouseItem,
           inputBy: dt.inputBy,
+          packaging: dt.packaging,
         };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -720,6 +783,7 @@ const Page = (props: Props) => {
           additionalCode: selectedAdditionalCode,
           isChecking: checkedItem[0],
           isWarehouseItem: checkedItem[1],
+          packaging: selectedPackaging,
         },
       ],
     ];
@@ -731,6 +795,7 @@ const Page = (props: Props) => {
     setSelectedAdditionalCode("all");
     setCheckedItem([false, false]);
     setSelectedBarangGudang(null);
+    setSelectedPackaging(0);
     setQty("");
     setNotes("");
     setInputBy("");
@@ -821,9 +886,12 @@ const Page = (props: Props) => {
             is_checking: item.isChecking ? 1 : 0,
             is_ware_house_item: item.isWarehouseItem ? 1 : 0,
           };
-          await formPostFixListItemV2(payload);
+          const data: any = await formPostFixListItemV2(payload);
           response.push({
             eventListId,
+            fix_list_item_id: data.id,
+            event_id: item.event_id,
+            package_id: item.packaging,
           });
           if (response.length == arr.length) resolve();
         });
@@ -837,8 +905,12 @@ const Page = (props: Props) => {
     try {
       setCartDialog(false);
       setLoadingGet(true);
-      await onInsert(itemCarts);
+      const response = await onInsert(itemCarts);
+      await InventoryService.addEventPackaging(
+        response?.filter((el: any) => Number(el.package_id) > 0)
+      );
       setItemCarts([]);
+      refetchGetPackage();
       setLoadingGet(false);
       localStorageService.clearCart("cart");
       toast?.current?.show({
@@ -985,6 +1057,20 @@ const Page = (props: Props) => {
                   className="mr-2"
                 />
                 <Text label={item.notes} color="gray" className="break-all" />
+              </div>
+            )}
+            {item?.packaging && (
+              <div className="flex flex-row items-start mt-1 ">
+                <Icon icon="solar:box-linear" color="#000" className="mr-2" />
+                <Text
+                  label={
+                    packageList?.find(
+                      (el) => Number(el.value) === Number(item.packaging)
+                    )?.label ?? "No Packaging"
+                  }
+                  color="gray"
+                  className="break-all"
+                />
               </div>
             )}
 
@@ -1167,12 +1253,6 @@ const Page = (props: Props) => {
         text
         onClick={() => setProductDialog(false)}
       />
-      <Button
-        label="Save to Packaging"
-        severity="info"
-        icon="pi pi-check"
-        onClick={() => undefined}
-      />
       <Button label="Save to Cart" icon="pi pi-check" onClick={onAddCart} />
     </>
   );
@@ -1183,13 +1263,22 @@ const Page = (props: Props) => {
         label="Cancel"
         icon="pi pi-times"
         text
-        onClick={() => setIsShowPackaging(false)}
+        onClick={() => {
+          setIsShowPackaging(false);
+          formik.resetForm();
+          setIsModifyPackaging(false);
+          setIsShowPackageDetail(false);
+        }}
       />
-      <Button
-        label="Save"
-        icon="pi pi-check"
-        onClick={() => setIsShowPackaging(false)}
-      />
+      {!isShowPackageDetail && (
+        <Button
+          label={isModifyPackaging ? "Update" : "Save"}
+          icon="pi pi-check"
+          onClick={async () => {
+            formik.handleSubmit();
+          }}
+        />
+      )}
     </>
   );
 
@@ -1241,6 +1330,21 @@ const Page = (props: Props) => {
     }
   };
 
+  const onDeletePackaging = async (id: number) => {
+    try {
+      setIsModifyPackaging(false);
+      formik.resetForm();
+      await InventoryService.deletePackaging(id);
+      toast?.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Delete packaging",
+        life: 3000,
+      });
+      refetchGetPackage();
+    } catch (error: any) {}
+  };
+
   const itemTemplateQR = (
     data: any,
     layout: "grid" | "list" | (string & Record<string, unknown>)
@@ -1279,6 +1383,15 @@ const Page = (props: Props) => {
       </div>
     );
   };
+
+  const packageList = packages?.data?.length
+    ? (packages?.data.map((el) => {
+        return {
+          value: el.id,
+          label: el.name,
+        };
+      }) as any[])
+    : [];
 
   return (
     <div className="grid">
@@ -1423,7 +1536,7 @@ const Page = (props: Props) => {
             </div>
             <div className="flex-row">
               <Button
-                label={`New Packaging`}
+                label={`Packaging`}
                 icon="pi pi-inbox"
                 severity="warning"
                 className=" mr-2"
@@ -1840,6 +1953,21 @@ const Page = (props: Props) => {
                     <p className="ml-2"> Warehouse Item</p>
                   </div>
                 </div>
+                <div className="field flex-1 mt-4">
+                  <label htmlFor="name">Packaging</label>
+                  <Dropdown
+                    onChange={onChangePackaging}
+                    value={selectedPackaging}
+                    options={[
+                      ...[{ label: "No Packaging", value: 0 }],
+                      ...packageList,
+                    ]}
+                    optionLabel="label"
+                    placeholder="Select packaging"
+                    className="flex-1"
+                    style={{ width: "100%" }}
+                  />
+                </div>
               </div>
             </div>
             {loadingSearchInventory && <Loading />}
@@ -1922,40 +2050,224 @@ const Page = (props: Props) => {
           </Dialog>
           <Dialog
             visible={isShowPackaging}
-            style={{ width: "450px" }}
-            header={"New Packaging"}
+            style={{ width: width / 2, maxHeight: height * 0.8 }}
+            header={"Packaging"}
             modal
             className="p-fluid"
             footer={dialogPackagingFooter}
             onHide={() => setIsShowPackaging(false)}
           >
-            <div className="field">
-              <label htmlFor="name">Name</label>
-              <InputText
-                id="name"
-                value={formik.values.name}
-                onChange={(e) => formik.setFieldValue("name", e.target.value)}
-                autoFocus
-                className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.name ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
-            </div>
-            <div className="field flex-1">
-              <label htmlFor="name">Qr Code</label>
-              <Dropdown
-                value={formik.values.qr_type}
-                onChange={(e) => {
-                  formik.setFieldValue("qr_type", e.value);
+            <div className="flex flex-row">
+              <div
+                style={{
+                  width: isShowPackageDetail ? "100%" : width / 3.3,
+                  paddingRight: 16,
+                  marginRight: 16,
+                  overflowY: "auto",
+                  maxHeight: 800,
                 }}
-                options={[
-                  { value: "BARANG", label: "QR Code Inventory" },
-                  { value: "EVENT", label: "QR Code Event" },
-                ]}
-                optionLabel="label"
-                placeholder="Select Option"
-                className="w-full md:w-14rem mr-4"
-              />
+              >
+                {packages?.data?.length ? (
+                  packages?.data
+                    ?.filter((el) =>
+                      formik.values.id && isShowPackageDetail
+                        ? Number(el.id) === Number(formik.values.id)
+                        : el
+                    )
+                    ?.map((el) => {
+                      return (
+                        <div className="card border-1 surface-border p-3 mb-2">
+                          <div
+                            className="flex flex-row"
+                            style={{ justifyContent: "space-between" }}
+                          >
+                            <div>
+                              <Text
+                                variant="medium"
+                                label={`Package : ${el.name}`}
+                              />
+                              <Text
+                                variant="medium"
+                                label={`Total Item : ${el.item_count} Item`}
+                              />
+                              <Text
+                                variant="medium"
+                                label={`QR Type : ${el.qr_type}`}
+                              />
+                            </div>
+                            <div style={{ flexDirection: "column" }}>
+                              {isShowPackageDetail ? (
+                                <Button
+                                  label="Close"
+                                  severity="danger"
+                                  style={{
+                                    width: 120,
+                                    height: 40,
+                                  }}
+                                  onClick={() => {
+                                    formik.resetForm();
+                                    setIsShowPackageDetail(false);
+                                  }}
+                                />
+                              ) : (
+                                <Button
+                                  severity={
+                                    formik.values.id === el.id &&
+                                    isModifyPackaging
+                                      ? "warning"
+                                      : "info"
+                                  }
+                                  label={
+                                    formik.values.id === el.id &&
+                                    isModifyPackaging
+                                      ? "Cancel Update"
+                                      : "Update"
+                                  }
+                                  style={{
+                                    width:
+                                      formik.values.id === el.id &&
+                                      isModifyPackaging
+                                        ? 160
+                                        : 120,
+                                    height: 40,
+                                  }}
+                                  onClick={() => {
+                                    if (
+                                      formik.values.id === el.id &&
+                                      isModifyPackaging
+                                    ) {
+                                      formik.resetForm();
+                                      setIsModifyPackaging(false);
+                                    } else {
+                                      setIsModifyPackaging(true);
+                                      formik.setFieldValue("id", el.id);
+                                      formik.setFieldValue("name", el.name);
+                                      formik.setFieldValue(
+                                        "qr_type",
+                                        el.qr_type
+                                      );
+                                    }
+                                  }}
+                                />
+                              )}
+
+                              {!isShowPackageDetail && (
+                                <Button
+                                  onClick={() => {
+                                    if (el.item_count === 0) {
+                                      onDeletePackaging(el.id);
+                                    } else {
+                                      formik.setFieldValue("id", el.id);
+                                      setTimeout(() => {
+                                        refetchEventPackaging();
+                                      }, 500);
+                                    }
+                                  }}
+                                  severity={
+                                    el.item_count === 0 ? "danger" : "success"
+                                  }
+                                  label={
+                                    el.item_count === 0 ? "Delete" : "Detail"
+                                  }
+                                  style={{
+                                    width: 120,
+                                    height: 40,
+                                    marginLeft: 16,
+                                  }}
+                                />
+                              )}
+                            </div>
+                          </div>
+                          <div
+                            className="flex flex-row"
+                            style={{ justifyContent: "space-between" }}
+                          ></div>
+                        </div>
+                      );
+                    })
+                ) : (
+                  <Text label={"No Packaging"} />
+                )}
+                {isShowPackageDetail &&
+                  eventPackaging?.data?.length &&
+                  eventPackaging?.data?.map((el) => {
+                    const item = el.barang;
+                    return (
+                      <div className="card border-1 surface-border p-3 mb-2 flex flex-row">
+                        <img
+                          src={
+                            isValidUrl(item.photo)
+                              ? item.photo
+                              : item.photo
+                              ? `https://democreation.site/home/public/${item.photo}`
+                              : noImage
+                          }
+                          alt={item.name}
+                          style={{
+                            width: 80,
+                            height: 80,
+                            objectFit: "cover",
+                            borderRadius: 4,
+                            marginRight: 8,
+                          }}
+                        />
+                        <div>
+                          <div className="text font-bold">
+                            {item.nama_barang}
+                          </div>
+                          <div className="text mt-2">{item.qty} Pcs</div>
+                          <div className="text mt-2">{item.area_name}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+              {!isShowPackageDetail && (
+                <div>
+                  <Text
+                    variant="large"
+                    fontWeight="bold"
+                    label={
+                      isModifyPackaging ? "Modify Packaging " : "Add Packaging"
+                    }
+                  />
+                  <div className="field">
+                    <label htmlFor="name">Name</label>
+                    <InputText
+                      id="name"
+                      value={formik.values.name}
+                      onChange={(e) =>
+                        formik.setFieldValue("name", e.target.value)
+                      }
+                      autoFocus
+                      className={`text-black border w-full py-2 px-4 ${
+                        formik.errors.name
+                          ? "border-red-600"
+                          : "border-gray-300"
+                      } rounded-lg bg-transparent`}
+                    />
+                  </div>
+                  <div className="field flex-1">
+                    <label htmlFor="name">Qr Code</label>
+                    <Dropdown
+                      value={formik.values.qr_type}
+                      onChange={(e) => {
+                        formik.setFieldValue("qr_type", e.value);
+                      }}
+                      options={[
+                        { value: "BARANG", label: "QR Code Inventory" },
+                        { value: "EVENT", label: "QR Code Event" },
+                      ]}
+                      optionLabel="label"
+                      placeholder="Select Option"
+                      className="w-full md:w-14rem mr-4"
+                      style={{
+                        ...(formik.errors.qr_type && { borderColor: "red" }),
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </Dialog>
         </div>
