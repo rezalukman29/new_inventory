@@ -97,7 +97,8 @@ const Page = (props: Props) => {
   const [barangGudangPage, setBarangGudangPage] = useState<number>(1);
   const [barangGudangTotalPage, setBarangGudangTotalPage] = useState<number>(1);
   const [isModifyPackaging, setIsModifyPackaging] = useState<boolean>(false);
-  const [isShowPackageDetail, setIsShowPackageDetail] = useState<boolean>(true);
+  const [isShowPackageDetail, setIsShowPackageDetail] =
+    useState<boolean>(false);
   const [barangGudangTotalRecords, setBarangGudangTotalRecords] =
     useState<number>(0);
   const [barangGudangSearch, setBarangGudangSearch] = useState<string>("");
@@ -1059,7 +1060,7 @@ const Page = (props: Props) => {
                 <Text label={item.notes} color="gray" className="break-all" />
               </div>
             )}
-            {item?.packaging && (
+            {item?.packaging !== 0 && (
               <div className="flex flex-row items-start mt-1 ">
                 <Icon icon="solar:box-linear" color="#000" className="mr-2" />
                 <Text
@@ -1984,7 +1985,15 @@ const Page = (props: Props) => {
             {itemCarts?.length ? (
               <section style={{ gridColumn: 1 }}>
                 <DataView
-                  value={RenderItemsCart}
+                  value={RenderItemsCart?.filter(el => el.packaging === 0)}
+                  layout={"grid"}
+                  paginator
+                  rows={6}
+                  itemTemplate={itemTemplateCart}
+                ></DataView>
+                <Text variant="large" label={"Packaging"} fontWeight="semi-bold" className="mt-2"/>
+                <DataView
+                  value={RenderItemsCart?.filter(el => el.packaging > 0)}
                   layout={"grid"}
                   paginator
                   rows={6}
