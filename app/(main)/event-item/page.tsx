@@ -1392,7 +1392,6 @@ const Page = (props: Props) => {
       setSelectedPackaging(0);
       refetchEventItem();
       refetchGetPackage();
-      refetchEventPackaging();
     } catch (error: any) {
       setLoadingGet(false);
     }
