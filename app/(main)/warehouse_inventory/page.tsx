@@ -18,6 +18,7 @@ import { getLogActivity } from "@/app/hooks/api/useGetLogActivity";
 import useGetEmiUser from "@/app/hooks/api/useGetEmiUser";
 import { OverlayPanel } from "primereact/overlaypanel";
 import moment from "moment";
+import "../index.css";
 
 interface ISelect {
   label: string;
@@ -298,13 +299,14 @@ const TableDemo = () => {
                 setPage(1);
               }
             }}
+            className="button"
           />
         </div>
         <Button
           label="New"
           icon="pi pi-plus"
           severity="success"
-          className=" mr-2"
+          className="button mr-2"
           onClick={() => setProductDialog(true)}
         />
       </div>
@@ -350,13 +352,20 @@ const TableDemo = () => {
 
   const productDialogFooter = (
     <>
-      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        text
+        onClick={hideDialog}
+        className="button"
+      />
       <Button
         label="Save"
         icon="pi pi-check"
         text
         type="submit"
         onClick={() => formik.handleSubmit()}
+        className="button"
       />
     </>
   );
@@ -543,7 +552,7 @@ const TableDemo = () => {
               field="stok_gudang"
               header="Warehouse Stock"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
             />
@@ -552,7 +561,7 @@ const TableDemo = () => {
               header="Item Stock"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
             />
             <Column
@@ -560,7 +569,7 @@ const TableDemo = () => {
               header="Stok Min"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
             />
             <Column
@@ -568,7 +577,7 @@ const TableDemo = () => {
               header="Stok Used"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
             />
             <Column
@@ -589,6 +598,7 @@ const TableDemo = () => {
                     severity={
                       isLow ? "danger" : isNotSet ? "secondary" : "success"
                     }
+                    className="button"
                   />
                 );
               }}
@@ -606,7 +616,7 @@ const TableDemo = () => {
               header="Flag 2"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
             />
             <Column
@@ -626,74 +636,90 @@ const TableDemo = () => {
               bodyStyle={{ textAlign: "center" }}
               body={(data) => {
                 return (
-                <div
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flex: 1,
-                  }}
-                >
                   <div
-                    onClick={() => {
-                      setIsModify(true);
-                      setBarang(data);
-                      setProductDialog(true);
-                      setInventory({ id: data.barang_id });
-                    }}
-                    onMouseOver={() => setOver(data.barang_gudang_id + "edit")}
-                    onMouseOut={() => setOver("")}
-                    className="pi pi-file-edit"
                     style={{
-                      fontSize: 18,
-                      cursor: "pointer",
-                      color: over === data.barang_gudang_id + "edit" ? "blue" : undefined,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flex: 1,
                     }}
-                  ></div>
-
-                  <div
-                    className="pi pi-trash"
-                    onClick={() => onDeleteItem(data.barang_gudang_id)}
-                    onMouseOver={() => setOver(data.barang_gudang_id + "delete")}
-                    onMouseOut={() => setOver("")}
-                    style={{
-                      fontSize: 18,
-                      marginLeft: 8,
-                      cursor: "pointer",
-                      color: over === data.barang_gudang_id + "delete" ? "blue" : undefined,
-                    }}
-                  ></div>
-                  <OverlayPanel ref={opMenu}>
+                  >
                     <div
-                      style={{
-                        paddingLeft: 12,
-                        paddingRight: 12,
-                        cursor: "pointer",
+                      onClick={() => {
+                        setIsModify(true);
+                        setBarang(data);
+                        setProductDialog(true);
+                        setInventory({ id: data.barang_id });
                       }}
-                      onClick={getLogs}
-                    >
-                      <p className="text-lg">Log</p>
-                    </div>
-                  </OverlayPanel>
-                  <div
-                    className="pi pi-ellipsis-v"
-                    onClick={(e) => {
-                      opMenu.current.toggle(e);
-                      setBarang(data);
-                      setFirstLog(0);
-                      setPageLog(1);
-                    }}
-                    onMouseOver={() => setOver(data.barang_gudang_id + "more")}
-                    onMouseOut={() => setOver("")}
-                    style={{
-                      fontSize: 18,
-                      marginLeft: 12,
-                      cursor: "pointer",
-                      color: over === data.barang_gudang_id + "more" ? "blue" : undefined,
-                    }}
-                  ></div>
-                </div>
-              )}}
+                      onMouseOver={() =>
+                        setOver(data.barang_gudang_id + "edit")
+                      }
+                      onMouseOut={() => setOver("")}
+                      className="pi pi-file-edit"
+                      style={{
+                        fontSize: 18,
+                        cursor: "pointer",
+                        color:
+                          over === data.barang_gudang_id + "edit"
+                            ? "blue"
+                            : undefined,
+                      }}
+                    ></div>
+
+                    <div
+                      className="pi pi-trash"
+                      onClick={() => onDeleteItem(data.barang_gudang_id)}
+                      onMouseOver={() =>
+                        setOver(data.barang_gudang_id + "delete")
+                      }
+                      onMouseOut={() => setOver("")}
+                      style={{
+                        fontSize: 18,
+                        marginLeft: 8,
+                        cursor: "pointer",
+                        color:
+                          over === data.barang_gudang_id + "delete"
+                            ? "blue"
+                            : undefined,
+                      }}
+                    ></div>
+                    <OverlayPanel ref={opMenu}>
+                      <div
+                        style={{
+                          paddingLeft: 12,
+                          paddingRight: 12,
+                          cursor: "pointer",
+                        }}
+                        onClick={getLogs}
+                      >
+                        <p className="text-lg">Log</p>
+                      </div>
+                    </OverlayPanel>
+                    <div
+                      className="pi pi-ellipsis-v"
+                      onClick={(e) => {
+                        opMenu.current.toggle(e);
+                        setBarang(data);
+                        setFirstLog(0);
+                        setPageLog(1);
+                      }}
+                      onMouseOver={() =>
+                        setOver(data.barang_gudang_id + "more")
+                      }
+                      onMouseOut={() => setOver("")}
+                      style={{
+                        fontSize: 18,
+                        marginLeft: 12,
+                        cursor: "pointer",
+                        color:
+                          over === data.barang_gudang_id + "more"
+                            ? "blue"
+                            : undefined,
+                      }}
+                    ></div>
+                  </div>
+                );
+              }}
             />
             {/* <Column
               field="event_end"
@@ -739,7 +765,7 @@ const TableDemo = () => {
                 <Button
                   label="Search"
                   icon="pi pi-search"
-                  className="mr-2"
+                  className="button mr-2"
                   style={{ width: 120 }}
                   onClick={() => {
                     getBarang();

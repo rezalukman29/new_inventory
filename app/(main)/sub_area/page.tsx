@@ -40,6 +40,7 @@ import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { Dialog } from "primereact/dialog";
 import { useSearchParams } from "next/navigation";
 import { SortType } from "@/app/interfaces/interfaces";
+import "../index.css";
 
 interface ISelect {
   label: string;
@@ -147,7 +148,7 @@ const TableDemo = () => {
   const getListSubArea = async () => {
     try {
       setIsLoading(true);
-      const response = await InventoryService.getSubArea({sort, sortBy});
+      const response = await InventoryService.getSubArea({ sort, sortBy });
       if (areaId) {
         setListSubArea(
           response.data?.filter((el) => Number(el.area_id) === Number(areaId))
@@ -196,7 +197,7 @@ const TableDemo = () => {
           label="New"
           icon="pi pi-plus"
           severity="success"
-          className=" mr-2"
+          className="button mr-2"
           onClick={() => setProductDialog(true)}
         />
       </div>
@@ -207,7 +208,6 @@ const TableDemo = () => {
 
   useEffect(() => {
     getListArea();
-
   }, []);
 
   useEffect(() => {
@@ -221,12 +221,19 @@ const TableDemo = () => {
 
   const productDialogFooter = (
     <>
-      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        text
+        onClick={hideDialog}
+        className="button"
+      />
       <Button
         label="Save"
         icon="pi pi-check"
         text
         onClick={() => formik.handleSubmit()}
+        className="button"
       />
     </>
   );
@@ -309,7 +316,7 @@ const TableDemo = () => {
               field="lokasi"
               header="Area"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data) => {
                 const area =
                   listArea?.find((el) => el.id === data.area_id)?.name ?? "";
@@ -322,7 +329,7 @@ const TableDemo = () => {
               field="created_at"
               header="Created At"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>{moment(data.created_at as any).format("LLL")}</p>
               )}

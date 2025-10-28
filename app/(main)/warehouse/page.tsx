@@ -13,6 +13,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import "../index.css";
 
 interface ISelect {
   label: string;
@@ -146,7 +147,7 @@ const TableDemo = () => {
           label="New"
           icon="pi pi-plus"
           severity="success"
-          className=" mr-2"
+          className="button mr-2"
           onClick={() => setProductDialog(true)}
         />
       </div>
@@ -162,12 +163,19 @@ const TableDemo = () => {
 
   const productDialogFooter = (
     <>
-      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        text
+        onClick={hideDialog}
+        className="button"
+      />
       <Button
         label="Save"
         icon="pi pi-check"
         text
         onClick={() => formik.handleSubmit()}
+        className="button"
       />
     </>
   );
@@ -196,8 +204,7 @@ const TableDemo = () => {
           <DataTable
             value={gudangs.filter(
               (el: any) =>
-                el.nama &&
-                el.nama.match(new RegExp(searchValue, "i"))
+                el.nama && el.nama.match(new RegExp(searchValue, "i"))
             )}
             paginator
             className="p-datatable-gridlines"
@@ -209,7 +216,7 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={gudangs.length}
             lazy
-            tableStyle={{fontSize: 13 }}
+            tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -235,7 +242,7 @@ const TableDemo = () => {
               field="pic"
               header="PIC"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="created_at"
@@ -271,7 +278,11 @@ const TableDemo = () => {
                       setGudang(data);
                       setProductDialog(true);
                     }}
-                    style={{ fontSize: 18, cursor: "pointer" , color: over === data.id + "edit" ? "blue" : undefined}}
+                    style={{
+                      fontSize: 18,
+                      cursor: "pointer",
+                      color: over === data.id + "edit" ? "blue" : undefined,
+                    }}
                   ></div>
 
                   <div
@@ -282,7 +293,12 @@ const TableDemo = () => {
                       setSelecetd(data);
                       setDeleteConfirmation(true);
                     }}
-                    style={{ fontSize: 18, marginLeft: 20, cursor: "pointer",color: over === data.id + "delete" ? "blue" : undefined }}
+                    style={{
+                      fontSize: 18,
+                      marginLeft: 20,
+                      cursor: "pointer",
+                      color: over === data.id + "delete" ? "blue" : undefined,
+                    }}
                   ></div>
                 </div>
               )}

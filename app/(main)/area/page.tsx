@@ -15,6 +15,7 @@ import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { Dialog } from "primereact/dialog";
 import { useRouter } from "next/navigation";
 import { SortType } from "@/app/interfaces/interfaces";
+import "../index.css";
 
 const TableDemo = () => {
   const router = useRouter();
@@ -143,7 +144,7 @@ const TableDemo = () => {
           label="New"
           icon="pi pi-plus"
           severity="success"
-          className=" mr-2"
+          className="button mr-2"
           onClick={() => setProductDialog(true)}
         />
       </div>
@@ -164,6 +165,7 @@ const TableDemo = () => {
         severity="danger"
         icon="pi pi-times"
         onClick={hideDialog}
+        className="button"
       />
       <Button
         label="Save"
@@ -171,6 +173,7 @@ const TableDemo = () => {
         severity="success"
         style={{ width: 120 }}
         onClick={() => formik.handleSubmit()}
+        className="button"
       />
     </>
   );

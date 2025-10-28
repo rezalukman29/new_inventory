@@ -25,6 +25,7 @@ import { localStorageService } from "../service/localStorage";
 import { SCAN_TYPE } from "../util/data";
 import { Text } from "@/app/components/atoms/Text";
 import { Icon } from "@iconify/react";
+import "./index.css"
 
 interface ISelect {
   label: string;
@@ -268,13 +269,14 @@ const TableDemo = () => {
                 setPage(1);
               }
             }}
+            className="button"
           />
         </div>
         <Button
           label="New"
           icon="pi pi-plus"
           severity="success"
-          className=" mr-2"
+          className="button mr-2"
           onClick={() => setProductDialog(true)}
         />
       </div>
@@ -294,6 +296,7 @@ const TableDemo = () => {
         icon="pi pi-times"
         style={{ width: 120 }}
         onClick={hideDialog}
+        className="button"
       />
       <Button
         label={isModify ? "Update" : "Save"}
@@ -301,6 +304,7 @@ const TableDemo = () => {
         severity="success"
         style={{ width: 120 }}
         onClick={() => formik.handleSubmit()}
+        className="button"
       />
     </>
   );
