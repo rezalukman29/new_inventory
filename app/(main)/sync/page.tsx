@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { InventoryService } from "@/app/service/InventoryService";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import { Toast } from "primereact/toast";
+import "../index.css";
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
@@ -171,6 +172,7 @@ const TableDemo = () => {
                   icon="pi pi-sync"
                   severity="secondary"
                   onClick={() => onSync(data.id_barang)}
+                  className="button"
                 />
               )}
             />

@@ -39,6 +39,7 @@ import { ValueLabel } from "@/app/interfaces/interfaces";
 import { DataView, DataViewLayoutOptions } from "primereact/dataview";
 import { Dialog } from "primereact/dialog";
 import "./event.css";
+import "../index.css";
 import Loading from "@/app/components/atoms/loading";
 import { useQRCode } from "next-qrcode";
 import { WEB_URL } from "@/app/util/config";
@@ -119,6 +120,7 @@ const Page = (props: Props) => {
   const [selectedPackaging, setSelectedPackaging] = useState<number>(0);
   const [cartDialog, setCartDialog] = useState(false);
   const [qrDialog, setQrDialog] = useState(false);
+  const [packagingDialog, setPackagingDialog] = useState(false);
   const [isShowPackaging, setIsShowPackaging] = useState(false);
   const [productDialog, setProductDialog] = useState(false);
   const [imageDialog, setImageDialog] = useState(false);
@@ -650,6 +652,7 @@ const Page = (props: Props) => {
             isChecking: dt.is_checking.Valid,
             isWarehouseItem: dt.is_ware_house_item.Valid,
             inputBy: dt.input_by,
+            packaging: dt.packaging,
           };
         })
         .filter((item: any) =>
@@ -921,6 +924,7 @@ const Page = (props: Props) => {
         life: 3000,
       });
       fetchData(true);
+      refetchEventItem();
     } catch (error: any) {
       setLoadingGet(false);
       toast?.current?.show({
@@ -1060,7 +1064,7 @@ const Page = (props: Props) => {
                 <Text label={item.notes} color="gray" className="break-all" />
               </div>
             )}
-            {item?.packaging !== 0 && (
+            {isCart && item?.packaging !== 0 && (
               <div className="flex flex-row items-start mt-1 ">
                 <Icon icon="solar:box-linear" color="#000" className="mr-2" />
                 <Text
@@ -1069,6 +1073,36 @@ const Page = (props: Props) => {
                       (el) => Number(el.value) === Number(item.packaging)
                     )?.label ?? "No Packaging"
                   }
+                  color="gray"
+                  className="break-all"
+                />
+              </div>
+            )}
+
+            {!isCart && item?.packaging?.length > 0 ? (
+              <>
+                {item.packaging.map((el: any) => {
+                  return (
+                    <div className="flex flex-row items-start mt-1 ">
+                      <Icon
+                        icon="solar:box-linear"
+                        color="#000"
+                        className="mr-2"
+                      />
+                      <Text
+                        label={`${el?.package_name} (${el.qty} pcs)`}
+                        color="gray"
+                        className="break-all"
+                      />
+                    </div>
+                  );
+                })}
+              </>
+            ) : (
+              <div className="flex flex-row items-start mt-1 ">
+                <Icon icon="solar:box-linear" color="#000" className="mr-2" />
+                <Text
+                  label={"No Packaging"}
                   color="gray"
                   className="break-all"
                 />
@@ -1126,6 +1160,7 @@ const Page = (props: Props) => {
                     </p>
                     {item?.scan_in === 1 && (
                       <Button
+                        className="button"
                         severity={"danger"}
                         label="Cancel"
                         style={{ padding: 6, fontSize: 10, top: -8 }}
@@ -1174,6 +1209,7 @@ const Page = (props: Props) => {
                           setIsCancelScan(true);
                           setDeleteConfirmation(true);
                         }}
+                        className="button"
                       />
                     )}
                   </div>
@@ -1185,6 +1221,18 @@ const Page = (props: Props) => {
           <div className="flex align-items-center justify-content-between">
             <span className="text-2xl font-semibold"></span>
             <div className="flex-row">
+              <Button
+                icon="pi pi-box"
+                style={{ marginRight: 8 }}
+                severity="warning"
+                onClick={() => {
+                  setBarang(item);
+                  setTimeout(() => {
+                    setPackagingDialog(true);
+                  }, 500);
+                }}
+                className="button"
+              />
               {!isCart && (
                 <Button
                   icon="pi pi-qrcode"
@@ -1195,6 +1243,7 @@ const Page = (props: Props) => {
                       setQrDialog(true);
                     }, 500);
                   }}
+                  className="button"
                 />
               )}
               <Button
@@ -1208,6 +1257,7 @@ const Page = (props: Props) => {
                     setDeleteConfirmation(item);
                   }
                 }}
+                className="button"
               />
             </div>
           </div>
@@ -1252,9 +1302,15 @@ const Page = (props: Props) => {
         label="Cancel"
         icon="pi pi-times"
         text
+        className="button"
         onClick={() => setProductDialog(false)}
       />
-      <Button label="Save to Cart" icon="pi pi-check" onClick={onAddCart} />
+      <Button
+        label="Save to Cart"
+        icon="pi pi-check"
+        onClick={onAddCart}
+        className="button"
+      />
     </>
   );
 
@@ -1270,6 +1326,7 @@ const Page = (props: Props) => {
           setIsModifyPackaging(false);
           setIsShowPackageDetail(false);
         }}
+        className="button"
       />
       {!isShowPackageDetail && (
         <Button
@@ -1278,6 +1335,7 @@ const Page = (props: Props) => {
           onClick={async () => {
             formik.handleSubmit();
           }}
+          className="button"
         />
       )}
     </>
@@ -1293,18 +1351,73 @@ const Page = (props: Props) => {
           setCartDialog(false);
           setQrDialog(false);
         }}
+        className="button"
       />
-      {itemCarts?.length ? (
-        <Button
-          label="Checkout"
-          icon="pi pi-check"
-          text
-          onClick={() => {
-            setCartDialog(false);
-            setCheckoutConfirmation(true);
-          }}
-        />
-      ) : null}
+
+      <Button
+        label="Checkout"
+        icon="pi pi-check"
+        text
+        onClick={() => {
+          setCartDialog(false);
+          setCheckoutConfirmation(true);
+        }}
+        className="button"
+      />
+    </>
+  );
+
+  const onAddToPackaging = async () => {
+    try {
+      setPackagingDialog(false);
+      // setLoadingGet(true);
+      await InventoryService.addEventPackaging([
+        {
+          fix_list_item_id: barang?.id,
+          package_id: selectedPackaging,
+          event_id: Number(eventId),
+          qty: Number(qty),
+          note: "",
+        },
+      ]);
+      // setLoadingGet(false);
+      toast?.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Add to Packaging",
+        life: 3000,
+      });
+      setQty("");
+      setBarang(null);
+      setSelectedPackaging(0);
+      refetchEventItem();
+      refetchGetPackage();
+      refetchEventPackaging();
+    } catch (error: any) {
+      setLoadingGet(false);
+    }
+  };
+
+  const packagingFooter = (
+    <>
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        text
+        className="button"
+        onClick={() => {
+          setPackagingDialog(false);
+          setQty("");
+          setSelectedPackaging(0);
+        }}
+      />
+      <Button
+        label="Submit"
+        icon="pi pi-check"
+        disabled={packagingDialog && (!qty || selectedPackaging === 0)}
+        onClick={onAddToPackaging}
+        className="button"
+      />
     </>
   );
 
@@ -1520,9 +1633,17 @@ const Page = (props: Props) => {
               // style={{ width: "100%"}}
             />
             <div style={{ width: 8 }} />
-            <Button label="Check" onClick={() => refetchEventItem()} />
+            <Button
+              label="Check"
+              onClick={() => refetchEventItem()}
+              className="button"
+            />
             <div style={{ width: 8 }} />
-            <Button label="Print" onClick={() => refetchEventItemPrint()} />
+            <Button
+              label="Print"
+              onClick={() => refetchEventItemPrint()}
+              className="button"
+            />
           </div>
           <div className="flex justify-content-between mt-4">
             <div className="flex">
@@ -1540,21 +1661,21 @@ const Page = (props: Props) => {
                 label={`Packaging`}
                 icon="pi pi-inbox"
                 severity="warning"
-                className=" mr-2"
+                className="button mr-2"
                 onClick={() => setIsShowPackaging(true)}
               />
               <Button
                 label={`Cart (${itemCarts?.length})`}
                 icon="pi pi-shopping-cart"
                 severity="info"
-                className=" mr-2"
+                className="button mr-2"
                 onClick={() => setCartDialog(true)}
               />
               <Button
                 label="New"
                 icon="pi pi-plus"
                 severity="success"
-                className=" mr-2"
+                className="button mr-2"
                 onClick={() => setProductDialog(true)}
               />
             </div>
@@ -1602,7 +1723,6 @@ const Page = (props: Props) => {
 
           {eventItemData?.length ? (
             <section style={{ gridColumn: 1 }}>
-              {/* {productList} */}
               <DataView
                 value={productList}
                 layout={"grid"}
@@ -1770,7 +1890,7 @@ const Page = (props: Props) => {
                   <Button
                     label={"Load More"}
                     severity="info"
-                    className=" mr-2"
+                    className="button mr-2"
                     loading={loadingSearchInventory}
                     style={{
                       justifyContent: "center",
@@ -1985,15 +2105,20 @@ const Page = (props: Props) => {
             {itemCarts?.length ? (
               <section style={{ gridColumn: 1 }}>
                 <DataView
-                  value={RenderItemsCart?.filter(el => el.packaging === 0)}
+                  value={RenderItemsCart?.filter((el) => el.packaging === 0)}
                   layout={"grid"}
                   paginator
                   rows={6}
                   itemTemplate={itemTemplateCart}
                 ></DataView>
-                <Text variant="large" label={"Packaging"} fontWeight="semi-bold" className="mt-2"/>
+                <Text
+                  variant="large"
+                  label={"Packaging"}
+                  fontWeight="semi-bold"
+                  className="mt-2"
+                />
                 <DataView
-                  value={RenderItemsCart?.filter(el => el.packaging > 0)}
+                  value={RenderItemsCart?.filter((el) => el.packaging > 0)}
                   layout={"grid"}
                   paginator
                   rows={6}
@@ -2024,7 +2149,7 @@ const Page = (props: Props) => {
               {isGroup ? (
                 <>
                   <Canvas
-                    text={`${WEB_URL}/pages/scan/${eventId}-${barang.barang_id}`}
+                    text={`${WEB_URL}/pages/scan/${eventId}-${barang?.barang_id}`}
                     options={{
                       errorCorrectionLevel: "M",
                       margin: 3,
@@ -2058,6 +2183,54 @@ const Page = (props: Props) => {
             </div>
           </Dialog>
           <Dialog
+            visible={packagingDialog}
+            style={{ width: 700 }}
+            header={"Add to Packaging"}
+            modal
+            className="p-fluid"
+            footer={packagingFooter}
+            onHide={() => {
+              setPackagingDialog(false);
+              setQty("");
+              setSelectedPackaging(0);
+            }}
+          >
+            <div style={{ justifyContent: "center" }}>
+              <div className="text mb-4 font-bold">{`${barang?.nama_barang} (${barang?.stok} pcs)`}</div>
+              <div className="field flex-1">
+                <label htmlFor="name">Quantity</label>
+                <InputText
+                  id="name"
+                  value={qty}
+                  onChange={(e) => {
+                    if (
+                      (Number(e.target.value) > 0 &&
+                        Number(e.target.value) <= barang?.stok &&
+                        !e.target.value.includes(".")) ||
+                      (e.target.value === "" && !e.target.value.includes("."))
+                    ) {
+                      setQty(e.target.value);
+                    }
+                  }}
+                  autoFocus
+                  //   className={`text-black border w-full py-2 px-4 rounded-lg bg-transparent`}
+                />
+              </div>
+              <div className="field flex-1 mt-4">
+                <label htmlFor="name">Packaging</label>
+                <Dropdown
+                  onChange={onChangePackaging}
+                  value={selectedPackaging}
+                  options={[...packageList]}
+                  optionLabel="label"
+                  placeholder="Select packaging"
+                  className="flex-1"
+                  style={{ width: "100%" }}
+                />
+              </div>
+            </div>
+          </Dialog>
+          <Dialog
             visible={isShowPackaging}
             style={{ width: width / 2, maxHeight: height * 0.8 }}
             header={"Packaging"}
@@ -2084,6 +2257,7 @@ const Page = (props: Props) => {
                         : el
                     )
                     ?.map((el) => {
+                      console.log(el)
                       return (
                         <div className="card border-1 surface-border p-3 mb-2">
                           <div
@@ -2103,21 +2277,39 @@ const Page = (props: Props) => {
                                 variant="medium"
                                 label={`QR Type : ${el.qr_type}`}
                               />
+                              {isShowPackageDetail && (
+                                <Canvas
+                                  text={`packaging/${el.id}`}
+                                  options={{
+                                    errorCorrectionLevel: "M",
+                                    margin: 3,
+                                    scale: 4,
+                                    width: 200,
+                                    color: {
+                                      dark: "#000",
+                                      light: "#FFBF60FF",
+                                    },
+                                  }}
+                                />
+                              )}
                             </div>
                             <div style={{ flexDirection: "column" }}>
                               {isShowPackageDetail ? (
-                                <Button
-                                  label="Close"
-                                  severity="danger"
-                                  style={{
-                                    width: 120,
-                                    height: 40,
-                                  }}
-                                  onClick={() => {
-                                    formik.resetForm();
-                                    setIsShowPackageDetail(false);
-                                  }}
-                                />
+                                <div>
+                                  <Button
+                                    label="Close"
+                                    severity="danger"
+                                    style={{
+                                      width: 120,
+                                      height: 40,
+                                    }}
+                                    onClick={() => {
+                                      formik.resetForm();
+                                      setIsShowPackageDetail(false);
+                                    }}
+                                    className="button"
+                                  />
+                                </div>
                               ) : (
                                 <Button
                                   severity={
@@ -2132,6 +2324,7 @@ const Page = (props: Props) => {
                                       ? "Cancel Update"
                                       : "Update"
                                   }
+                                  className="button"
                                   style={{
                                     width:
                                       formik.values.id === el.id &&
@@ -2183,6 +2376,7 @@ const Page = (props: Props) => {
                                     height: 40,
                                     marginLeft: 16,
                                   }}
+                                  className="button"
                                 />
                               )}
                             </div>

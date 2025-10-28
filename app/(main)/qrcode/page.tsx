@@ -29,6 +29,7 @@ import useGetEventItem from "@/app/hooks/api/useGetEventItem";
 import { Icon } from "@iconify/react";
 import { Text } from "@/app/components/atoms/Text";
 import { Checkbox } from "primereact/checkbox";
+import "../index.css";
 
 const TableDemo = () => {
   const { Canvas } = useQRCode();
@@ -202,6 +203,7 @@ const TableDemo = () => {
                 setPage(1);
               }
             }}
+            className="button"
           />
         </div>
       </div>
@@ -331,6 +333,7 @@ const TableDemo = () => {
           setCartDialog(false);
           setSelecetd(null);
         }}
+        className="button"
       />
     </>
   );
@@ -612,6 +615,7 @@ const TableDemo = () => {
                     refetchEventItem();
                   }}
                   label="Print"
+                  className="button"
                 />
               )}
               {eventItemData?.length ? (

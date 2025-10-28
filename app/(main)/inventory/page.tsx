@@ -43,6 +43,7 @@ import useGetEmiUser from "@/app/hooks/api/useGetEmiUser";
 import moment from "moment";
 import { SortType } from "@/app/interfaces/interfaces";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
+import "../index.css";
 
 export interface ISelect {
   label: string;
@@ -359,13 +360,14 @@ const TableDemo = () => {
                 setPage(1);
               }
             }}
+            className="button"
           />
         </div>
         <Button
           label="New"
           icon="pi pi-plus"
           severity="success"
-          className=" mr-2"
+          className="button mr-2"
           onClick={() => setProductDialog(true)}
         />
       </div>
@@ -476,6 +478,7 @@ const TableDemo = () => {
         icon="pi pi-times"
         onClick={options.filterClearCallback}
         severity="secondary"
+        className="button"
       ></Button>
     );
   };
@@ -487,6 +490,7 @@ const TableDemo = () => {
         icon="pi pi-check"
         onClick={options.filterApplyCallback}
         severity="success"
+        className="button"
       ></Button>
     );
   };
@@ -691,7 +695,7 @@ const TableDemo = () => {
   };
 
   const searchBodyTemplate = () => {
-    return <Button icon="pi pi-search" />;
+    return <Button icon="pi pi-search" className="button" />;
   };
 
   const imageBodyTemplate = (rowData: Demo.Product) => {
@@ -813,7 +817,7 @@ const TableDemo = () => {
       icon={allExpanded ? "pi pi-minus" : "pi pi-plus"}
       label={allExpanded ? "Collapse All" : "Expand All"}
       onClick={toggleAll}
-      className="w-11rem"
+      className="button w-11rem"
     />
   );
 
@@ -869,12 +873,19 @@ const TableDemo = () => {
 
   const productDialogFooter = (
     <>
-      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        text
+        onClick={hideDialog}
+        className="button"
+      />
       <Button
         label="Save"
         icon="pi pi-check"
         text
         onClick={() => formik.handleSubmit()}
+        className="button"
       />
     </>
   );

@@ -1,11 +1,7 @@
 "use client";
 import { Button } from "primereact/button";
-import {
-  Column,
-} from "primereact/column";
-import {
-  DataTable,
-} from "primereact/datatable";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import React, { useEffect, useRef, useState } from "react";
@@ -23,6 +19,7 @@ import { Dialog } from "primereact/dialog";
 import { Calendar } from "@hassanmojab/react-modern-calendar-datepicker";
 import "./DatePicker.css";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import "../index.css";
 
 interface ISelect {
   label: string;
@@ -137,7 +134,6 @@ const TableDemo = () => {
       setTotalPages(0);
     }
   };
-  
 
   const onDeleteEvent = async (id: string) => {
     try {
@@ -190,6 +186,7 @@ const TableDemo = () => {
                 setPage(1);
               }
             }}
+            className="button"
           />
         </div>
       </div>
@@ -203,12 +200,19 @@ const TableDemo = () => {
 
   const productDialogFooter = (
     <>
-      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        text
+        onClick={hideDialog}
+        className="button"
+      />
       <Button
         label="Save"
         icon="pi pi-check"
         text
         onClick={() => formik.handleSubmit()}
+        className="button"
       />
     </>
   );
@@ -244,7 +248,7 @@ const TableDemo = () => {
               setFirst(e.first);
               setPage(Number(e.page) + 1);
             }}
-            tableStyle={{fontSize: 13 }}
+            tableStyle={{ fontSize: 13 }}
             rows={pageSize}
             dataKey="id"
             totalRecords={total}
@@ -262,7 +266,7 @@ const TableDemo = () => {
               field="event_name"
               header="Event"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="event_location"
@@ -274,9 +278,13 @@ const TableDemo = () => {
               field="event_status_id.Int64"
               header="Status"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
-                <p>{eventStatus?.data?.find(el => el.id === (data.event_status_id.Int64) + 1)?.name ?? ""}</p>
+                <p>
+                  {eventStatus?.data?.find(
+                    (el) => el.id === data.event_status_id.Int64 + 1
+                  )?.name ?? ""}
+                </p>
               )}
             />
             <Column
@@ -295,7 +303,7 @@ const TableDemo = () => {
               field="stok_di_keranjang.Int64"
               header="Stock in Cart"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             {/* <Column
               field="event_end"

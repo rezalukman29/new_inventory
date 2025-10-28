@@ -14,6 +14,7 @@ import * as Yup from "yup";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { Dialog } from "primereact/dialog";
 import { SortType } from "@/app/interfaces/interfaces";
+import "../index.css";
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
@@ -145,7 +146,7 @@ const TableDemo = () => {
           label="New"
           icon="pi pi-plus"
           severity="success"
-          className=" mr-2"
+          className="button mr-2"
           onClick={() => setProductDialog(true)}
         />
       </div>
@@ -161,12 +162,19 @@ const TableDemo = () => {
 
   const productDialogFooter = (
     <>
-      <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        text
+        onClick={hideDialog}
+        className="button"
+      />
       <Button
         label="Save"
         icon="pi pi-check"
         text
         onClick={() => formik.handleSubmit()}
+        className="button"
       />
     </>
   );
@@ -201,7 +209,10 @@ const TableDemo = () => {
           />
           <DataTable
             value={listCategory.filter(
-              (el) => el.name && el.name.match(new RegExp(searchValue, "i")) || el.description && el.description.match(new RegExp(searchValue, "i"))
+              (el) =>
+                (el.name && el.name.match(new RegExp(searchValue, "i"))) ||
+                (el.description &&
+                  el.description.match(new RegExp(searchValue, "i")))
             )}
             paginator
             className="p-datatable-gridlines"
@@ -224,7 +235,7 @@ const TableDemo = () => {
             currentPageReportTemplate="{first} to {last} of {totalRecords} events"
             onSort={(e) => onSort(e.sortField)}
             sortField={sort_by}
-            sortOrder={sort === 'ASC' ? 1 : -1}
+            sortOrder={sort === "ASC" ? 1 : -1}
           >
             <Column
               field="name"
