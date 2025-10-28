@@ -2256,7 +2256,7 @@ const Page = (props: Props) => {
                         : el
                     )
                     ?.map((el) => {
-                      console.log(el)
+                      console.log(el);
                       return (
                         <div className="card border-1 surface-border p-3 mb-2">
                           <div
@@ -2276,108 +2276,110 @@ const Page = (props: Props) => {
                                 variant="medium"
                                 label={`QR Type : ${el.qr_type}`}
                               />
-                              {isShowPackageDetail && (
+                            </div>
+                            <div style={{ flexDirection: "column" }}>
+                              <div style={{ flexDirection: "row" }}>
+                                {isShowPackageDetail ? (
+                                  <div>
+                                    <Button
+                                      label="Close"
+                                      severity="danger"
+                                      style={{
+                                        width: 120,
+                                        height: 40,
+                                      }}
+                                      onClick={() => {
+                                        formik.resetForm();
+                                        setIsShowPackageDetail(false);
+                                      }}
+                                      className="button"
+                                    />
+                                  </div>
+                                ) : (
+                                  <Button
+                                    severity={
+                                      formik.values.id === el.id &&
+                                      isModifyPackaging
+                                        ? "warning"
+                                        : "info"
+                                    }
+                                    label={
+                                      formik.values.id === el.id &&
+                                      isModifyPackaging
+                                        ? "Cancel Update"
+                                        : "Update"
+                                    }
+                                    className="button"
+                                    style={{
+                                      width:
+                                        formik.values.id === el.id &&
+                                        isModifyPackaging
+                                          ? 160
+                                          : 120,
+                                      height: 40,
+                                    }}
+                                    onClick={() => {
+                                      if (
+                                        formik.values.id === el.id &&
+                                        isModifyPackaging
+                                      ) {
+                                        formik.resetForm();
+                                        setIsModifyPackaging(false);
+                                      } else {
+                                        setIsModifyPackaging(true);
+                                        formik.setFieldValue("id", el.id);
+                                        formik.setFieldValue("name", el.name);
+                                        formik.setFieldValue(
+                                          "qr_type",
+                                          el.qr_type
+                                        );
+                                      }
+                                    }}
+                                  />
+                                )}
+
+                                {!isShowPackageDetail && (
+                                  <Button
+                                    onClick={() => {
+                                      if (el.item_count === 0) {
+                                        onDeletePackaging(el.id);
+                                      } else {
+                                        formik.setFieldValue("id", el.id);
+                                        setTimeout(() => {
+                                          refetchEventPackaging();
+                                        }, 500);
+                                      }
+                                    }}
+                                    severity={
+                                      el.item_count === 0 ? "danger" : "success"
+                                    }
+                                    label={
+                                      el.item_count === 0 ? "Delete" : "Detail"
+                                    }
+                                    style={{
+                                      width: 120,
+                                      height: 40,
+                                      marginLeft: 16,
+                                    }}
+                                    className="button"
+                                  />
+                                )}
+                              </div>
+                              <div style={{paddingTop: 8, textAlign: 'right'}}>
                                 <Canvas
                                   text={`packaging/${el.id}`}
                                   options={{
                                     errorCorrectionLevel: "M",
                                     margin: 3,
                                     scale: 4,
-                                    width: 200,
+                                    width: 120,
                                     color: {
                                       dark: "#000",
                                       light: "#FFBF60FF",
                                     },
                                   }}
                                 />
-                              )}
-                            </div>
-                            <div style={{ flexDirection: "column" }}>
-                              {isShowPackageDetail ? (
-                                <div>
-                                  <Button
-                                    label="Close"
-                                    severity="danger"
-                                    style={{
-                                      width: 120,
-                                      height: 40,
-                                    }}
-                                    onClick={() => {
-                                      formik.resetForm();
-                                      setIsShowPackageDetail(false);
-                                    }}
-                                    className="button"
-                                  />
-                                </div>
-                              ) : (
-                                <Button
-                                  severity={
-                                    formik.values.id === el.id &&
-                                    isModifyPackaging
-                                      ? "warning"
-                                      : "info"
-                                  }
-                                  label={
-                                    formik.values.id === el.id &&
-                                    isModifyPackaging
-                                      ? "Cancel Update"
-                                      : "Update"
-                                  }
-                                  className="button"
-                                  style={{
-                                    width:
-                                      formik.values.id === el.id &&
-                                      isModifyPackaging
-                                        ? 160
-                                        : 120,
-                                    height: 40,
-                                  }}
-                                  onClick={() => {
-                                    if (
-                                      formik.values.id === el.id &&
-                                      isModifyPackaging
-                                    ) {
-                                      formik.resetForm();
-                                      setIsModifyPackaging(false);
-                                    } else {
-                                      setIsModifyPackaging(true);
-                                      formik.setFieldValue("id", el.id);
-                                      formik.setFieldValue("name", el.name);
-                                      formik.setFieldValue(
-                                        "qr_type",
-                                        el.qr_type
-                                      );
-                                    }
-                                  }}
-                                />
-                              )}
-
-                              {!isShowPackageDetail && (
-                                <Button
-                                  onClick={() => {
-                                    if (el.item_count === 0) {
-                                      onDeletePackaging(el.id);
-                                    } else {
-                                      formik.setFieldValue("id", el.id);
-                                      setTimeout(() => {
-                                        refetchEventPackaging();
-                                      }, 500);
-                                    }
-                                  }}
-                                  severity={
-                                    el.item_count === 0 ? "danger" : "success"
-                                  }
-                                  label={
-                                    el.item_count === 0 ? "Delete" : "Detail"
-                                  }
-                                  style={{
-                                    width: 120,
-                                    height: 40,
-                                    marginLeft: 16,
-                                  }}
-                                  className="button"
-                                />
-                              )}
+                              </div>
                             </div>
                           </div>
                           <div
