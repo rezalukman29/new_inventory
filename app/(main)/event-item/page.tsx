@@ -132,6 +132,7 @@ const Page = (props: Props) => {
   const pdfHeader = `            ${eventDetail?.name} | ${
     STATUS_EVENT.find((el) => el.id === eventDetail?.status)?.status ?? ""
   }`;
+  const pdfHeaderPackaging = `            ${eventDetail?.name} | Packaging`;
 
   const formik = useFormik<any>({
     initialValues: {
@@ -258,6 +259,59 @@ const Page = (props: Props) => {
     doc.save(`${eventDetail.name}.pdf`);
   }
 
+  const handlePrintPackaging = async () => {
+    try {
+      setIsShowPackaging(false);
+      setLoadingGet(true);
+      const items = await convertPackagingBase64(packages?.data);
+      setBase64(items?.map((el: any) => el?.base64));
+      setLoadingGet(false);
+      setTimeout(() => {
+        handleGeneratePdfPackaging(items?.map((el: any) => el?.base64));
+      }, 200);
+    } catch (error: any) {
+      setLoadingGet(false);
+    }
+  };
+
+  function handleGeneratePdfPackaging(base64Data: string[]) {
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+    });
+
+    autoTable(doc, {
+      html: "#table2",
+      showHead: "everyPage",
+
+      columnStyles: {
+        0: { minCellHeight: 30, cellWidth: "auto" },
+      },
+      didDrawCell: (data) => {
+        if (
+          data.section === "body" &&
+          data.column.index === 3 &&
+          data.row.index > 0
+        ) {
+          const base64Img = base64Data[data.row.index - 1];
+          if (base64Img) {
+            doc.addImage(
+              base64Img,
+              "JPEG",
+              data.cell.x + 2,
+              data.cell.y + 2,
+              56,
+              56
+            );
+          }
+        }
+      },
+    });
+    doc.setPage(1);
+    doc.text(pdfHeaderPackaging, 10, 18);
+    doc.save(`${eventDetail.name}_Packaging.pdf`);
+  }
+
   const handleScroll = useCallback(
     (e: any) => {
       // console.log("scroll :", e.target.scrollHeight, e.target.scrollTop,e.target.scrollHeight- e.target.scrollTop, e.target.clientHeight + 200, e.target.clientHeight)
@@ -372,6 +426,29 @@ const Page = (props: Props) => {
                 : item.photo
                 ? `https://democreation.site/home/public/${item.photo}`
                 : noImage
+            );
+            finalData.push({ ...item, base64: base64 });
+            if (finalData.length == arr.length) resolve();
+          });
+      });
+      await Promise.all([mappingBase64]); //.then((response) => { });
+      return Promise.resolve(finalData);
+    } catch (error: any) {}
+  };
+
+  const convertPackagingBase64 = async (arr: any) => {
+    try {
+      const finalData: any = [];
+      const mappingBase64 = new Promise<void>((resolve) => {
+        arr
+          // .sort(function (a: any, b: any) {
+          //   if (a.area_name > b.area_name) return 1;
+          //   if (a.area_name < b.area_name) return -1;
+          //   return 0;
+          // })
+          .forEach(async (item: any, index: number) => {
+            const base64: any = await toDataURL(
+              `https://quickchart.io/qr?text=packaging/${item.id}`
             );
             finalData.push({ ...item, base64: base64 });
             if (finalData.length == arr.length) resolve();
@@ -1315,7 +1392,16 @@ const Page = (props: Props) => {
   );
 
   const dialogPackagingFooter = (
-    <>
+    <div style={{ paddingTop: 16 }}>
+      {!isShowPackageDetail && packages?.data?.length && (
+        <Button
+          label="Print"
+          severity="warning"
+          icon="pi pi-print"
+          onClick={handlePrintPackaging}
+          className="button"
+        />
+      )}
       <Button
         label="Cancel"
         icon="pi pi-times"
@@ -1338,7 +1424,7 @@ const Page = (props: Props) => {
           className="button"
         />
       )}
-    </>
+    </div>
   );
 
   const cartFooter = (
@@ -1598,6 +1684,38 @@ const Page = (props: Props) => {
               </tr>
             );
           })}
+      </table>
+      <table id="table2" style={{ color: "#000", display: "none" }}>
+        <tr>
+          <th style={{ width: 60, textAlign: "left" }}>No</th>
+          <th style={{ width: 200, textAlign: "left" }}>Name</th>
+          <th style={{ width: 90, textAlign: "left" }}>Items</th>
+          <th>QR</th>
+        </tr>
+        {packages?.data?.map((item: any, idx: number) => {
+          return (
+            <tr>
+              <td>{idx + 1}</td>
+              <td>{item.name}</td>
+              <td>{item.item_count} Items</td>
+              <td>
+                <Canvas
+                  text={`packaging/${item.id}`}
+                  options={{
+                    errorCorrectionLevel: "M",
+                    margin: 3,
+                    scale: 4,
+                    width: 120,
+                    color: {
+                      dark: "#000",
+                      light: "#fff",
+                    },
+                  }}
+                />
+              </td>
+            </tr>
+          );
+        })}
       </table>
       <div className="col-12">
         <div className="card">
@@ -2256,7 +2374,6 @@ const Page = (props: Props) => {
                         : el
                     )
                     ?.map((el) => {
-                      console.log(el);
                       return (
                         <div className="card border-1 surface-border p-3 mb-2">
                           <div
@@ -2365,7 +2482,9 @@ const Page = (props: Props) => {
                                   />
                                 )}
                               </div>
-                              <div style={{paddingTop: 8, textAlign: 'right'}}>
+                              <div
+                                style={{ paddingTop: 8, textAlign: "right" }}
+                              >
                                 <Canvas
                                   text={`packaging/${el.id}`}
                                   options={{
@@ -2375,7 +2494,7 @@ const Page = (props: Props) => {
                                     width: 120,
                                     color: {
                                       dark: "#000",
-                                      light: "#FFBF60FF",
+                                      light: "#fff",
                                     },
                                   }}
                                 />
