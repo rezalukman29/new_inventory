@@ -557,6 +557,14 @@ const TableDemo = () => {
               bodyStyle={{ textAlign: "center" }}
             />
             <Column
+              field="gudang_name"
+              header="Warehouse Name"
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              headerStyle={{ justifyItems: "center" }}
+              bodyStyle={{ textAlign: "center" }}
+            />
+            <Column
               field="stok_barang"
               header="Item Stock"
               headerStyle={{ justifyItems: "center" }}
@@ -614,6 +622,46 @@ const TableDemo = () => {
             <Column
               field="flag_2"
               header="Flag 2"
+              headerStyle={{ justifyItems: "center" }}
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              bodyStyle={{ textAlign: "center" }}
+            />
+            <Column
+              field="asile"
+              header="Asile"
+              headerStyle={{ justifyItems: "center" }}
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              bodyStyle={{ textAlign: "center" }}
+            />
+            <Column
+              field="rack"
+              header="Rack"
+              headerStyle={{ justifyItems: "center" }}
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              bodyStyle={{ textAlign: "center" }}
+            />
+            <Column
+              field="level"
+              header="Level"
+              headerStyle={{ justifyItems: "center" }}
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              bodyStyle={{ textAlign: "center" }}
+            />
+            <Column
+              field="lantai"
+              header="Lantai"
+              headerStyle={{ justifyItems: "center" }}
+              filterPlaceholder="Search by name"
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              bodyStyle={{ textAlign: "center" }}
+            />
+            <Column
+              field="lorong"
+              header="Lorong"
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
