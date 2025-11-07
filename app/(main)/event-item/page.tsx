@@ -276,24 +276,25 @@ const Page = (props: Props) => {
 
   function handleGeneratePdfPackaging(base64Data: string[]) {
     const doc = new jsPDF({
-      orientation: "landscape",
+      orientation: "portrait",
       unit: "px",
     });
 
     autoTable(doc, {
       html: "#table2",
-      showHead: "everyPage",
-
+      showHead: "never",
+      // styles: {
+      //   halign: 'center'
+      // },
       columnStyles: {
-        0: { minCellHeight: 30, cellWidth: "auto" },
+        0: { minCellHeight: 60, cellWidth: 30 },
+        1: { minCellHeight: 60, cellWidth: 120 },
+        2: { minCellHeight: 60, cellWidth: 80 },
+        3: { minCellHeight: 60, cellWidth: 60 },
       },
       didDrawCell: (data) => {
-        if (
-          data.section === "body" &&
-          data.column.index === 3 &&
-          data.row.index > 0
-        ) {
-          const base64Img = base64Data[data.row.index - 1];
+        if (data.section === "body" && data.column.index === 3) {
+          const base64Img = base64Data[data.row.index];
           if (base64Img) {
             doc.addImage(
               base64Img,
@@ -1687,10 +1688,10 @@ const Page = (props: Props) => {
       </table>
       <table id="table2" style={{ color: "#000", display: "none" }}>
         <tr>
-          <th style={{ width: 60, textAlign: "left" }}>No</th>
+          {/* <th style={{ width: 60, textAlign: "left" }}>No</th>
           <th style={{ width: 200, textAlign: "left" }}>Name</th>
           <th style={{ width: 90, textAlign: "left" }}>Items</th>
-          <th>QR</th>
+          <th>QR</th> */}
         </tr>
         {packages?.data?.map((item: any, idx: number) => {
           return (
