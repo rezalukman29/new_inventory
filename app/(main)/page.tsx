@@ -25,7 +25,8 @@ import { localStorageService } from "../service/localStorage";
 import { SCAN_TYPE } from "../util/data";
 import { Text } from "@/app/components/atoms/Text";
 import { Icon } from "@iconify/react";
-import "./index.css"
+import "./index.css";
+import Loading from "../components/atoms/loading";
 
 interface ISelect {
   label: string;
@@ -248,17 +249,34 @@ const TableDemo = () => {
 
   const onGlobalFilterChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {};
 
+  const handleKeyDown = (event: any) => {
+    if (event.key === "Enter") {
+      if (page === 1) {
+        getListEvent();
+      } else {
+        setPage(1);
+      }
+    }
+  };
+
   const renderHeader1 = () => {
     return (
       <div className="flex justify-content-between">
         <div className="flex">
-          <span className="p-input-icon-left mr-4">
+          <span className="p-input-icon-left p-input-icon-right mr-4">
             <i className="pi pi-search" />
             <InputText
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder="Keyword Search"
+              onKeyDown={handleKeyDown}
             />
+            {searchValue && (
+              <i
+                onClick={() => setSearchValue("")}
+                className="pi pi-times cursor-pointer"
+              />
+            )}
           </span>
           <Button
             label="Search"
@@ -317,181 +335,183 @@ const TableDemo = () => {
   };
 
   return (
-    <div className="grid">
-      <Toast ref={toast} />
-      <div className="col-12">
-        <div className="card">
-          <h5>Event</h5>
-          <ConfirmDialog
-            visible={deleteConfirmation}
-            onHide={() => {
-              setDeleteConfirmation(false);
-              setEvent(null);
-              setIsModify(false);
-            }}
-            message={`Are you sure you want to delete event ${event?.name}?`}
-            header="Delete Confirmation"
-            icon="pi pi-exclamation-triangle"
-            accept={() => onDeleteEvent(event.id)}
-            reject={() => {
-              setDeleteConfirmation(false);
-              setEvent(null);
-            }}
-          />
-          <div style={{ flex: 1, overflowX: "auto", width: width * 0.73 }}>
-            <DataTable
-              value={listEvent}
-              paginator
-              className="p-datatable-gridlines"
-              onPage={(e) => {
-                setFirst(e.first);
-                setPage(Number(e.page) + 1);
+    <>
+      {isLoading && <Loading />}
+      <div className="grid">
+        <Toast ref={toast} />
+        <div className="col-12">
+          <div className="card">
+            <h5>Event</h5>
+            <ConfirmDialog
+              visible={deleteConfirmation}
+              onHide={() => {
+                setDeleteConfirmation(false);
+                setEvent(null);
+                setIsModify(false);
               }}
-              tableStyle={{ width: 1800, fontSize: 13 }}
-              rows={pageSize}
-              dataKey="id"
-              totalRecords={total}
-              lazy
-              first={first}
-              alwaysShowPaginator
-              loading={isLoading}
-              responsiveLayout="scroll"
-              emptyMessage="No customers found."
-              header={header1}
-              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-              currentPageReportTemplate="{first} to {last} of {totalRecords} events"
-              onSort={(e) => onSort(e.sortField)}
-              sortField={sortBy}
-              sortOrder={sort === "ASC" ? 1 : -1}
-              selectionMode={"single"}
-            >
-              <Column
-                field="id"
-                header="ID"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem" }}
-                sortable
-                sortField="id"
-              />
-              <Column
-                field="name"
-                header="Name"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
-                sortable
-                sortField="name"
-              />
-              <Column
-                field="description"
-                header="Description"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
-              />
-              <Column
-                field="event_start"
-                header="Start"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
-                body={(data: any) => (
-                  <p>{moment(data.event_start as any).format("LLL")}</p>
-                )}
-                sortable
-                sortField="event_start"
-              />
-              <Column
-                field="event_end"
-                header="Finish"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
-                body={(data: any) => (
-                  <p>{moment(data.event_end as any).format("LLL")}</p>
-                )}
-                sortable
-                sortField="event_end"
-              />
-              <Column
-                field="event_code"
-                header="Code"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-                sortable
-                sortField="event_code"
-              />
-              <Column
-                field="address"
-                header="Location"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-                sortable
-                sortField="address"
-              />
-              <Column
-                field="scan_type"
-                header="QR Type"
-                filterPlaceholder="Search by name"
-                style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-                sortable
-                sortField="scan_type"
-              />
-              <Column
-                field="address"
-                header="Action"
-                filterPlaceholder="Search by name"
-                style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
-                body={(data) => (
-                  <div
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      flex: 1,
-                    }}
-                  >
+              message={`Are you sure you want to delete event ${event?.name}?`}
+              header="Delete Confirmation"
+              icon="pi pi-exclamation-triangle"
+              accept={() => onDeleteEvent(event.id)}
+              reject={() => {
+                setDeleteConfirmation(false);
+                setEvent(null);
+              }}
+            />
+            <div style={{ flex: 1, overflowX: "auto", width: width * 0.73 }}>
+              <DataTable
+                value={listEvent}
+                paginator
+                className="p-datatable-gridlines"
+                onPage={(e) => {
+                  setFirst(e.first);
+                  setPage(Number(e.page) + 1);
+                }}
+                tableStyle={{ width: 1800, fontSize: 13 }}
+                rows={pageSize}
+                dataKey="id"
+                totalRecords={total}
+                lazy
+                first={first}
+                alwaysShowPaginator
+                loading={false}
+                responsiveLayout="scroll"
+                emptyMessage="No customers found."
+                header={header1}
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} to {last} of {totalRecords} events"
+                onSort={(e) => onSort(e.sortField)}
+                sortField={sortBy}
+                sortOrder={sort === "ASC" ? 1 : -1}
+                selectionMode={"single"}
+              >
+                <Column
+                  field="id"
+                  header="ID"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem" }}
+                  sortable
+                  sortField="id"
+                />
+                <Column
+                  field="name"
+                  header="Name"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
+                  sortable
+                  sortField="name"
+                />
+                <Column
+                  field="description"
+                  header="Description"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
+                />
+                <Column
+                  field="event_start"
+                  header="Start"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
+                  body={(data: any) => (
+                    <p>{moment(data.event_start as any).format("LLL")}</p>
+                  )}
+                  sortable
+                  sortField="event_start"
+                />
+                <Column
+                  field="event_end"
+                  header="Finish"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
+                  body={(data: any) => (
+                    <p>{moment(data.event_end as any).format("LLL")}</p>
+                  )}
+                  sortable
+                  sortField="event_end"
+                />
+                <Column
+                  field="event_code"
+                  header="Code"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  sortable
+                  sortField="event_code"
+                />
+                <Column
+                  field="address"
+                  header="Location"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  sortable
+                  sortField="address"
+                />
+                <Column
+                  field="scan_type"
+                  header="QR Type"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  sortable
+                  sortField="scan_type"
+                />
+                <Column
+                  field="address"
+                  header="Action"
+                  filterPlaceholder="Search by name"
+                  style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
+                  body={(data) => (
                     <div
-                      onClick={(e) => {
-                        localStorageService.clearCart("cart");
-                        router.push(`/event-item?event=${data.id}`);
-                      }}
-                      className="pi pi-folder"
-                      style={{ fontSize: 18, cursor: "pointer" }}
-                    ></div>
-                    <div
-                      className="pi pi-file-edit"
                       style={{
-                        fontSize: 18,
-                        marginLeft: 20,
-                        cursor: "pointer",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flex: 1,
                       }}
-                      onClick={() => {
-                        setIsModify(true);
-                        setEvent(data);
-                        setProductDialog(true);
-                      }}
-                    ></div>
+                    >
+                      <div
+                        onClick={(e) => {
+                          localStorageService.clearCart("cart");
+                          router.push(`/event-item?event=${data.id}`);
+                        }}
+                        className="pi pi-folder"
+                        style={{ fontSize: 18, cursor: "pointer" }}
+                      ></div>
+                      <div
+                        className="pi pi-file-edit"
+                        style={{
+                          fontSize: 18,
+                          marginLeft: 20,
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          setIsModify(true);
+                          setEvent(data);
+                          setProductDialog(true);
+                        }}
+                      ></div>
 
-                    <div
-                      className="pi pi-trash"
-                      onClick={() => {
-                        setEvent(data);
-                        setDeleteConfirmation(true);
-                      }}
-                      style={{
-                        fontSize: 18,
-                        marginLeft: 20,
-                        cursor: "pointer",
-                      }}
-                    ></div>
-                  </div>
-                )}
-              />
-              {/* <Column
+                      <div
+                        className="pi pi-trash"
+                        onClick={() => {
+                          setEvent(data);
+                          setDeleteConfirmation(true);
+                        }}
+                        style={{
+                          fontSize: 18,
+                          marginLeft: 20,
+                          cursor: "pointer",
+                        }}
+                      ></div>
+                    </div>
+                  )}
+                />
+                {/* <Column
               field="event_end"
               header="Satuan"
               filterPlaceholder="Search by name"
               style={{ minWidth: "3rem" }}
               body={inventoryImage}
             /> */}
-              {/* <Column
+                {/* <Column
               field="satuan.name"
               header="Category"
               filterPlaceholder="Search by name"
@@ -505,342 +525,348 @@ const TableDemo = () => {
               style={{ minWidth: "4rem" }}
               body={inventoryWarehouse}
             /> */}
-            </DataTable>
-          </div>
-          <Dialog
-            visible={productDialog}
-            style={{ width: "800px" }}
-            header={isModify ? "Modify Event" : "Add Event"}
-            modal
-            className="p-fluid"
-            footer={productDialogFooter}
-            onHide={hideDialog}
-          >
-            <div className="flex flex-row items-center">
-              <div className="field flex-1">
-                <label htmlFor="name">Name</label>
-                <InputText
-                  id="name"
-                  value={formik.values.name}
-                  onChange={(e) => formik.setFieldValue("name", e.target.value)}
-                  autoFocus
-                  className={`text-black border w-full py-2 px-4 ${
-                    formik.errors.name ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
-                  style={{ height: 44 }}
-                />
-              </div>
-              <div style={{ width: 16 }} />
-              <div className="field flex-1">
-                <label htmlFor="name"> Event Code</label>
-                <InputText
-                  id="name"
-                  value={formik.values.event_code}
-                  onChange={(e) =>
-                    formik.setFieldValue("event_code", e.target.value)
-                  }
-                  autoFocus
-                  className={`text-black border w-full py-2 px-4 ${
-                    formik.errors.event_code
-                      ? "border-red-600"
-                      : "border-gray-300"
-                  } rounded-lg bg-transparent`}
-                  style={{ height: 44 }}
-                />
-              </div>
+              </DataTable>
             </div>
-            <div className="flex flex-row items-center">
-              <div className="field flex-1">
-                <label htmlFor="name">Description</label>
-                <InputText
-                  id="name"
-                  value={formik.values.description}
-                  onChange={(e) =>
-                    formik.setFieldValue("description", e.target.value)
-                  }
-                  autoFocus
-                  className={`text-black border w-full py-2 px-4 ${
-                    formik.errors.description
-                      ? "border-red-600"
-                      : "border-gray-300"
-                  } rounded-lg bg-transparent`}
-                  style={{ height: 44 }}
-                />
-              </div>
-              <div style={{ width: 16 }} />
-              <div className="field flex-1">
-                <label htmlFor="name">PIC</label>
-                <InputText
-                  id="name"
-                  value={formik.values.PIC as string}
-                  onChange={(e) => formik.setFieldValue("PIC", e.target.value)}
-                  autoFocus
-                  className={`text-black border w-full py-2 px-4 ${
-                    formik.errors.PIC ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
-                  style={{ height: 44 }}
-                />
-              </div>
-            </div>
-            <div className="flex flex-row items-center">
-              <div className="field flex-1">
-                <label htmlFor="name"> Event Start</label>
-                {isModify ? (
-                  <Text
-                    fontWeight="regular"
-                    color="black"
-                    label={`${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`}
-                    textAlign="left"
-                    variant="base"
-                  />
-                ) : (
+            <Dialog
+              visible={productDialog}
+              style={{ width: "800px" }}
+              header={isModify ? "Modify Event" : "Add Event"}
+              modal
+              className="p-fluid"
+              footer={productDialogFooter}
+              onHide={hideDialog}
+            >
+              <div className="flex flex-row items-center">
+                <div className="field flex-1">
+                  <label htmlFor="name">Name</label>
                   <InputText
                     id="name"
-                    value={`${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`}
-                    onFocus={() => {
-                      setShowEnd(false);
-                      setShowStart(true);
-                    }}
+                    value={formik.values.name}
+                    onChange={(e) =>
+                      formik.setFieldValue("name", e.target.value)
+                    }
+                    autoFocus
                     className={`text-black border w-full py-2 px-4 ${
-                      formik.errors.event_start
+                      formik.errors.name ? "border-red-600" : "border-gray-300"
+                    } rounded-lg bg-transparent`}
+                    style={{ height: 44 }}
+                  />
+                </div>
+                <div style={{ width: 16 }} />
+                <div className="field flex-1">
+                  <label htmlFor="name"> Event Code</label>
+                  <InputText
+                    id="name"
+                    value={formik.values.event_code}
+                    onChange={(e) =>
+                      formik.setFieldValue("event_code", e.target.value)
+                    }
+                    autoFocus
+                    className={`text-black border w-full py-2 px-4 ${
+                      formik.errors.event_code
                         ? "border-red-600"
                         : "border-gray-300"
                     } rounded-lg bg-transparent`}
                     style={{ height: 44 }}
                   />
-                )}
-                {showStart && (
-                  <div className="absolute">
-                    <div className="relative mt-2" style={{ width: 320 }}>
-                      <Calendar
-                        locale={"en"}
-                        value={formik.values.event_start}
-                        minimumDate={utils("en").getToday()}
-                        onChange={(date) => {
-                          setShowStart(false);
-                          formik.setFieldValue("event_start", date);
-                          formik.setFieldValue("event_end", undefined);
-                        }}
-                        onDisabledDayError={(value) => console.log(value)}
-                        colorPrimary="#AB5CFA" // added this
-                        calendarClassName="custom-calendar" // and this
-                        calendarTodayClassName="custom-today-day" // also this
-                        shouldHighlightWeekends
-                      />
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
-              <div style={{ width: 16 }} />
-              <div className="field flex-1">
-                <label htmlFor="name"> Event End</label>
-                {isModify ? (
-                  <Text
-                    fontWeight="regular"
-                    color="black"
-                    label={`${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`}
-                    textAlign="left"
-                    variant="base"
-                  />
-                ) : (
+              <div className="flex flex-row items-center">
+                <div className="field flex-1">
+                  <label htmlFor="name">Description</label>
                   <InputText
                     id="name"
-                    value={
-                      formik.values.event_end
-                        ? `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
-                        : ""
+                    value={formik.values.description}
+                    onChange={(e) =>
+                      formik.setFieldValue("description", e.target.value)
                     }
-                    onFocus={() => {
-                      setShowEnd(true);
-                      setShowStart(false);
-                    }}
+                    autoFocus
                     className={`text-black border w-full py-2 px-4 ${
-                      formik.errors.event_end
+                      formik.errors.description
                         ? "border-red-600"
                         : "border-gray-300"
                     } rounded-lg bg-transparent`}
                     style={{ height: 44 }}
                   />
-                )}
-                {showEnd && (
-                  <div className="absolute">
-                    <div className="relative mt-2" style={{ width: 320 }}>
-                      <Calendar
-                        locale={"en"}
-                        value={formik.values.event_end}
-                        minimumDate={formik.values.event_start as Day}
-                        onChange={(date) => {
-                          setShowEnd(false);
-                          formik.setFieldValue("event_end", date);
-                        }}
-                        onDisabledDayError={(value) => console.log(value)}
-                        colorPrimary="#AB5CFA" // added this
-                        calendarClassName="custom-calendar" // and this
-                        calendarTodayClassName="custom-today-day" // also this
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="flex flex-row items-center">
-              <div className="field flex-1">
-                <label htmlFor="name">Address</label>
-                <InputText
-                  id="name"
-                  value={formik.values.address}
-                  onChange={(e) =>
-                    formik.setFieldValue("address", e.target.value)
-                  }
-                  autoFocus
-                  className={`text-black border w-full py-2 px-4 ${
-                    formik.errors.address ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
-                  style={{ height: 44 }}
-                />
-              </div>
-              <div style={{ width: 16 }} />
-              <div className="field flex-1">
-                <label htmlFor="name">Status</label>
-                {isModify ? (
-                  <Text
-                    fontWeight="regular"
-                    color="black"
-                    label={
-                      eventStatus?.data?.find(
-                        (el) => el.id === formik.values.status
-                      )?.name as string
+                </div>
+                <div style={{ width: 16 }} />
+                <div className="field flex-1">
+                  <label htmlFor="name">PIC</label>
+                  <InputText
+                    id="name"
+                    value={formik.values.PIC as string}
+                    onChange={(e) =>
+                      formik.setFieldValue("PIC", e.target.value)
                     }
-                    textAlign="left"
+                    autoFocus
+                    className={`text-black border w-full py-2 px-4 ${
+                      formik.errors.PIC ? "border-red-600" : "border-gray-300"
+                    } rounded-lg bg-transparent`}
+                    style={{ height: 44 }}
                   />
-                ) : (
+                </div>
+              </div>
+              <div className="flex flex-row items-center">
+                <div className="field flex-1">
+                  <label htmlFor="name"> Event Start</label>
+                  {isModify ? (
+                    <Text
+                      fontWeight="regular"
+                      color="black"
+                      label={`${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`}
+                      textAlign="left"
+                      variant="base"
+                    />
+                  ) : (
+                    <InputText
+                      id="name"
+                      value={`${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`}
+                      onFocus={() => {
+                        setShowEnd(false);
+                        setShowStart(true);
+                      }}
+                      className={`text-black border w-full py-2 px-4 ${
+                        formik.errors.event_start
+                          ? "border-red-600"
+                          : "border-gray-300"
+                      } rounded-lg bg-transparent`}
+                      style={{ height: 44 }}
+                    />
+                  )}
+                  {showStart && (
+                    <div className="absolute">
+                      <div className="relative mt-2" style={{ width: 320 }}>
+                        <Calendar
+                          locale={"en"}
+                          value={formik.values.event_start}
+                          minimumDate={utils("en").getToday()}
+                          onChange={(date) => {
+                            setShowStart(false);
+                            formik.setFieldValue("event_start", date);
+                            formik.setFieldValue("event_end", undefined);
+                          }}
+                          onDisabledDayError={(value) => console.log(value)}
+                          colorPrimary="#AB5CFA" // added this
+                          calendarClassName="custom-calendar" // and this
+                          calendarTodayClassName="custom-today-day" // also this
+                          shouldHighlightWeekends
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div style={{ width: 16 }} />
+                <div className="field flex-1">
+                  <label htmlFor="name"> Event End</label>
+                  {isModify ? (
+                    <Text
+                      fontWeight="regular"
+                      color="black"
+                      label={`${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`}
+                      textAlign="left"
+                      variant="base"
+                    />
+                  ) : (
+                    <InputText
+                      id="name"
+                      value={
+                        formik.values.event_end
+                          ? `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
+                          : ""
+                      }
+                      onFocus={() => {
+                        setShowEnd(true);
+                        setShowStart(false);
+                      }}
+                      className={`text-black border w-full py-2 px-4 ${
+                        formik.errors.event_end
+                          ? "border-red-600"
+                          : "border-gray-300"
+                      } rounded-lg bg-transparent`}
+                      style={{ height: 44 }}
+                    />
+                  )}
+                  {showEnd && (
+                    <div className="absolute">
+                      <div className="relative mt-2" style={{ width: 320 }}>
+                        <Calendar
+                          locale={"en"}
+                          value={formik.values.event_end}
+                          minimumDate={formik.values.event_start as Day}
+                          onChange={(date) => {
+                            setShowEnd(false);
+                            formik.setFieldValue("event_end", date);
+                          }}
+                          onDisabledDayError={(value) => console.log(value)}
+                          colorPrimary="#AB5CFA" // added this
+                          calendarClassName="custom-calendar" // and this
+                          calendarTodayClassName="custom-today-day" // also this
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-row items-center">
+                <div className="field flex-1">
+                  <label htmlFor="name">Address</label>
+                  <InputText
+                    id="name"
+                    value={formik.values.address}
+                    onChange={(e) =>
+                      formik.setFieldValue("address", e.target.value)
+                    }
+                    autoFocus
+                    className={`text-black border w-full py-2 px-4 ${
+                      formik.errors.address
+                        ? "border-red-600"
+                        : "border-gray-300"
+                    } rounded-lg bg-transparent`}
+                    style={{ height: 44 }}
+                  />
+                </div>
+                <div style={{ width: 16 }} />
+                <div className="field flex-1">
+                  <label htmlFor="name">Status</label>
+                  {isModify ? (
+                    <Text
+                      fontWeight="regular"
+                      color="black"
+                      label={
+                        eventStatus?.data?.find(
+                          (el) => el.id === formik.values.status
+                        )?.name as string
+                      }
+                      textAlign="left"
+                    />
+                  ) : (
+                    <Dropdown
+                      onChange={(e) =>
+                        formik.setFieldValue("status", e.target.value)
+                      }
+                      value={formik.values.status}
+                      options={eventStatus?.data?.map?.((el: any) => {
+                        return {
+                          label: el.name,
+                          value: el.id,
+                        };
+                      })}
+                      optionLabel="label"
+                      placeholder="Select status"
+                      className={`flex-1 rounded ${
+                        formik.errors.status
+                          ? "border-red-600"
+                          : "border-gray-300"
+                      }`}
+                      // style={{ width: "100%" }}
+                    />
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-row items-center">
+                <div className="field flex-1">
+                  <label htmlFor="notes">Note</label>
+                  <InputText
+                    id="notes"
+                    value={formik.values.notes}
+                    onChange={(e) =>
+                      formik.setFieldValue("notes", e.target.value)
+                    }
+                    autoFocus
+                    className={`text-black border w-full py-2 px-4 ${
+                      formik.errors.notes ? "border-red-600" : "border-gray-300"
+                    } rounded-lg bg-transparent`}
+                    style={{ height: 44 }}
+                  />
+                </div>
+                <div style={{ width: 16 }} />
+                <div className="field flex-1">
+                  <label htmlFor="notes">QR Type</label>
                   <Dropdown
                     onChange={(e) =>
-                      formik.setFieldValue("status", e.target.value)
+                      formik.setFieldValue("scan_type", e.target.value)
                     }
-                    value={formik.values.status}
-                    options={eventStatus?.data?.map?.((el: any) => {
-                      return {
-                        label: el.name,
-                        value: el.id,
-                      };
-                    })}
+                    value={formik.values.scan_type}
+                    options={SCAN_TYPE}
                     optionLabel="label"
-                    placeholder="Select status"
+                    placeholder="Select QR Type"
                     className={`flex-1 rounded ${
-                      formik.errors.status
-                        ? "border-red-600"
-                        : "border-gray-300"
+                      formik.errors.notes ? "border-red-600" : "border-gray-300"
                     }`}
-                    // style={{ width: "100%" }}
                   />
-                )}
+                </div>
               </div>
-            </div>
-            <div className="flex flex-row items-center">
-              <div className="field flex-1">
-                <label htmlFor="notes">Note</label>
-                <InputText
-                  id="notes"
-                  value={formik.values.notes}
-                  onChange={(e) =>
-                    formik.setFieldValue("notes", e.target.value)
-                  }
-                  autoFocus
-                  className={`text-black border w-full py-2 px-4 ${
-                    formik.errors.notes ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
-                  style={{ height: 44 }}
-                />
-              </div>
-              <div style={{ width: 16 }} />
-              <div className="field flex-1">
-                <label htmlFor="notes">QR Type</label>
-                <Dropdown
-                  onChange={(e) =>
-                    formik.setFieldValue("scan_type", e.target.value)
-                  }
-                  value={formik.values.scan_type}
-                  options={SCAN_TYPE}
-                  optionLabel="label"
-                  placeholder="Select QR Type"
-                  className={`flex-1 rounded ${
-                    formik.errors.notes ? "border-red-600" : "border-gray-300"
-                  }`}
-                />
-              </div>
-            </div>
-            <div className="flex flex-row items-center">
-              <div className="field flex-1">
-                <label htmlFor="notes">Image</label>
-                {base64 ? (
-                  <div className="flex flex-row gap-x-4 items-center">
-                    <img
-                      src={base64}
-                      style={{
-                        height: 100,
-                        width: 180,
-                        objectFit: "cover",
-                      }}
-                    />
+              <div className="flex flex-row items-center">
+                <div className="field flex-1">
+                  <label htmlFor="notes">Image</label>
+                  {base64 ? (
+                    <div className="flex flex-row gap-x-4 items-center">
+                      <img
+                        src={base64}
+                        style={{
+                          height: 100,
+                          width: 180,
+                          objectFit: "cover",
+                        }}
+                      />
 
-                    <Icon
-                      icon="entypo:trash"
-                      className="cursor-pointer"
-                      fontSize={24}
-                      color="#000"
-                      onClick={() => setBase64("")}
-                    />
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex flex-row items-center gap-x-4">
-                      {isModify && event?.images ? (
-                        <>
-                          {base64 ? (
-                            <img
-                              src={base64}
-                              style={{
-                                height: 100,
-                                width: 180,
-                                objectFit: "cover",
-                              }}
+                      <Icon
+                        icon="entypo:trash"
+                        className="cursor-pointer"
+                        fontSize={24}
+                        color="#000"
+                        onClick={() => setBase64("")}
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex flex-row items-center gap-x-4">
+                        {isModify && event?.images ? (
+                          <>
+                            {base64 ? (
+                              <img
+                                src={base64}
+                                style={{
+                                  height: 100,
+                                  width: 180,
+                                  objectFit: "cover",
+                                }}
+                              />
+                            ) : (
+                              <img
+                                src={
+                                  event?.images?.includes("66.42.48.163")
+                                    ? event?.images?.replace(
+                                        "http://66.42.48.163:9000/booqable/",
+                                        "https://storage-booqable.emi-project.my.id/booqable/"
+                                      )
+                                    : event.images
+                                    ? `https://democreation.site/home/public/${event?.images}`
+                                    : event
+                                }
+                                style={{
+                                  width: 86,
+                                  height: 86,
+                                  borderRadius: 8,
+                                }}
+                              />
+                            )}
+                            <input
+                              type="file"
+                              style={{ color: "#000" }}
+                              className="form-control"
+                              onChange={(e) => handleProfile(e)}
                             />
-                          ) : (
-                            <img
-                              src={
-                                event?.images?.includes("66.42.48.163")
-                                  ? event?.images?.replace(
-                                      "http://66.42.48.163:9000/booqable/",
-                                      "https://storage-booqable.emi-project.my.id/booqable/"
-                                    )
-                                  : event.images
-                                  ? `https://democreation.site/home/public/${event?.images}`
-                                  : event
-                              }
-                              style={{
-                                width: 86,
-                                height: 86,
-                                borderRadius: 8,
-                              }}
-                            />
-                          )}
+                          </>
+                        ) : (
                           <input
                             type="file"
                             style={{ color: "#000" }}
                             className="form-control"
                             onChange={(e) => handleProfile(e)}
                           />
-                        </>
-                      ) : (
-                        <input
-                          type="file"
-                          style={{ color: "#000" }}
-                          className="form-control"
-                          onChange={(e) => handleProfile(e)}
-                        />
-                      )}
-                      {/* {isModify && barang.photo && (
+                        )}
+                        {/* {isModify && barang.photo && (
                           <Icon
                             icon="entypo:trash"
                             className="cursor-pointer"
@@ -849,15 +875,16 @@ const TableDemo = () => {
                             onClick={() => setBase64("")}
                           />
                         )} */}
-                    </div>
-                  </>
-                )}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          </Dialog>
+            </Dialog>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

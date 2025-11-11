@@ -185,13 +185,19 @@ const TableDemo = () => {
   const renderHeader1 = () => {
     return (
       <div className="flex justify-content-between">
-        <span className="p-input-icon-left">
+        <span className="p-input-icon-left p-input-icon-right mr-4">
           <i className="pi pi-search" />
           <InputText
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Keyword Search"
           />
+          {searchValue && (
+            <i
+              onClick={() => setSearchValue("")}
+              className="pi pi-times cursor-pointer"
+            />
+          )}
         </span>
         <Button
           label="New"
@@ -224,14 +230,14 @@ const TableDemo = () => {
       <Button
         label="Cancel"
         icon="pi pi-times"
-        text
+        severity="danger"
         onClick={hideDialog}
         className="button"
       />
       <Button
         label="Save"
         icon="pi pi-check"
-        text
+        severity="success"
         onClick={() => formik.handleSubmit()}
         className="button"
       />

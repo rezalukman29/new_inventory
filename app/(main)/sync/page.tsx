@@ -66,13 +66,19 @@ const TableDemo = () => {
   const renderHeader1 = () => {
     return (
       <div className="flex justify-content-between">
-        <span className="p-input-icon-left">
+        <span className="p-input-icon-left p-input-icon-right mr-4">
           <i className="pi pi-search" />
           <InputText
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Keyword Search"
           />
+          {searchValue && (
+            <i
+              onClick={() => setSearchValue("")}
+              className="pi pi-times cursor-pointer"
+            />
+          )}
         </span>
       </div>
     );
@@ -109,7 +115,7 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={listArea.length}
             lazy
-            tableStyle={{fontSize: 13 }}
+            tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -123,19 +129,24 @@ const TableDemo = () => {
               field="nama_barang"
               header="Name"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
             <Column
               field="stok"
               header="Stok"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem", textAlign: "center" , paddingTop: 8, paddingBottom: 8 }}
+              style={{
+                minWidth: "4rem",
+                textAlign: "center",
+                paddingTop: 8,
+                paddingBottom: 8,
+              }}
             />
             <Column
               field="created_at"
               header="Warehouse Stok"
               filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" , paddingTop: 8, paddingBottom: 8 }}
+              style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p style={{ textAlign: "center" }}>
                   {data.barang_gudang?.reduce(
@@ -151,7 +162,7 @@ const TableDemo = () => {
               field="created_at"
               header="Detail"
               filterPlaceholder="Search by name"
-              style={{ width: 600 , paddingTop: 8, paddingBottom: 8 }}
+              style={{ width: 600, paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>
                   {data.barang_gudang
@@ -164,7 +175,7 @@ const TableDemo = () => {
               field="created_at"
               header="Detail"
               filterPlaceholder="Search by name"
-              style={{ width: 100 , paddingTop: 8, paddingBottom: 8 }}
+              style={{ width: 100, paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
               body={(data: any) => (
                 <Button
