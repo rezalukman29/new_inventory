@@ -5,7 +5,7 @@ type Props = {}
 
 export default function Loading({}: Props) {
   return (
-    <div style={{position: 'absolute', height: '100%', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', opacity: 0.6}}>
+    <div style={{position: 'absolute', height: '100%', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', opacity: 0.6, zIndex: 999}}>
       <ProgressSpinner />
     </div>
   //   <div className="absolute bg-white bg-opacity-60 z-10 h-full w-full flex items-center justify-center">

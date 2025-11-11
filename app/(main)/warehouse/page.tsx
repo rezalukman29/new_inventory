@@ -14,6 +14,7 @@ import * as Yup from "yup";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import "../index.css";
+import { SortType } from "@/app/interfaces/interfaces";
 
 interface ISelect {
   label: string;
@@ -39,6 +40,8 @@ const TableDemo = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   let [over, setOver] = React.useState("");
+  const [sort, setSort] = useState<SortType>("ASC");
+  const [sortBy, setSortBy] = useState<string>("nama");
 
   const formik = useFormik<any>({
     initialValues: {
@@ -132,16 +135,27 @@ const TableDemo = () => {
 
   const onGlobalFilterChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {};
 
+  const onSort = (field: string) => {
+    setSortBy(field);
+    setSort(sort === "ASC" ? "DESC" : "ASC");
+  };
+
   const renderHeader1 = () => {
     return (
       <div className="flex justify-content-between">
-        <span className="p-input-icon-left">
+        <span className="p-input-icon-left p-input-icon-right mr-4">
           <i className="pi pi-search" />
           <InputText
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="Keyword Search"
           />
+          {searchValue && (
+            <i
+              onClick={() => setSearchValue("")}
+              className="pi pi-times cursor-pointer"
+            />
+          )}
         </span>
         <Button
           label="New"
@@ -166,14 +180,14 @@ const TableDemo = () => {
       <Button
         label="Cancel"
         icon="pi pi-times"
-        text
+        severity="danger"
         onClick={hideDialog}
         className="button"
       />
       <Button
         label="Save"
         icon="pi pi-check"
-        text
+        severity="success"
         onClick={() => formik.handleSubmit()}
         className="button"
       />
@@ -215,7 +229,6 @@ const TableDemo = () => {
             rows={pageSize}
             dataKey="id"
             totalRecords={gudangs.length}
-            lazy
             tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
@@ -225,24 +238,33 @@ const TableDemo = () => {
             header={header1}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="{first} to {last} of {totalRecords} warehouse"
+            onSort={(e) => onSort(e.sortField)}
+            sortField={sortBy}
+            sortOrder={sort === "ASC" ? 1 : -1}
           >
             <Column
               field="nama"
               header="Name"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              sortable
+              sortField="nama"
             />
             <Column
               field="lokasi"
               header="Location"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              sortable
+              sortField="lokasi"
             />
             <Column
               field="pic"
               header="PIC"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              sortable
+              sortField="pic"
             />
             <Column
               field="created_at"
@@ -252,6 +274,8 @@ const TableDemo = () => {
               body={(data: any) => (
                 <p>{moment(data.created_at as any).format("LLL")}</p>
               )}
+              sortable
+              sortField="created_at"
             />
             <Column
               field="address"
@@ -260,6 +284,7 @@ const TableDemo = () => {
               bodyStyle={{ textAlign: "center" }}
               filterPlaceholder="Search by name"
               style={{ width: 100, paddingTop: 8, paddingBottom: 8 }}
+              
               body={(data) => (
                 <div
                   style={{
@@ -352,7 +377,6 @@ const TableDemo = () => {
                 id="name"
                 value={formik.values.lokasi}
                 onChange={(e) => formik.setFieldValue("lokasi", e.target.value)}
-                autoFocus
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.lokasi ? "border-red-600" : "border-gray-300"
                 } rounded-lg bg-transparent`}
@@ -364,7 +388,6 @@ const TableDemo = () => {
                 id="name"
                 value={formik.values.pic}
                 onChange={(e) => formik.setFieldValue("pic", e.target.value)}
-                autoFocus
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.pic ? "border-red-600" : "border-gray-300"
                 } rounded-lg bg-transparent`}
