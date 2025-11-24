@@ -13,6 +13,8 @@ import { Toast } from "primereact/toast";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { InventoryService } from "@/app/service/InventoryService";
+import { useDispatch } from "react-redux";
+import { setProfile } from "@/app/store/profile";
 
 const LoginPage = () => {
   const toast = useRef<any>(null);
@@ -20,6 +22,7 @@ const LoginPage = () => {
   const [checked, setChecked] = useState(false);
   const { layoutConfig } = useContext(LayoutContext);
   const router = useRouter();
+  const dispatch = useDispatch()
   //   const { data, status } = useSession();
 
   const formik = useFormik<any>({
@@ -40,6 +43,12 @@ const LoginPage = () => {
     try {
       const response = await InventoryService.loginFetch(payload);
       if (response.success) {
+        dispatch(setProfile({
+          id: response?.data?.id,
+          fullname: response?.data?.fullname,
+          email: response?.data?.email,
+          user_type: response?.data?.user_type
+        }))
         localStorage.setItem("auth", JSON.stringify(response.data));
         toast?.current?.show({
           severity: "success",

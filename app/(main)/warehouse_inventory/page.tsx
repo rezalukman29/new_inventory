@@ -19,6 +19,8 @@ import useGetEmiUser from "@/app/hooks/api/useGetEmiUser";
 import { OverlayPanel } from "primereact/overlaypanel";
 import moment from "moment";
 import "../index.css";
+import useAccountController from "../useAccountController";
+import { classNames } from "primereact/utils";
 
 interface ISelect {
   label: string;
@@ -27,6 +29,7 @@ interface ISelect {
 
 const TableDemo = () => {
   const opMenu = useRef<any>(null);
+  const { isAdmin } = useAccountController();
   const toast = useRef<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModify, setIsModify] = useState<boolean>(false);
@@ -284,7 +287,7 @@ const TableDemo = () => {
     return (
       <div className="flex justify-content-between">
         <div className="flex">
-        <span className="p-input-icon-left p-input-icon-right mr-4">
+          <span className="p-input-icon-left p-input-icon-right mr-4">
             <i className="pi pi-search" />
             <InputText
               value={searchValue}
@@ -292,7 +295,12 @@ const TableDemo = () => {
               placeholder="Keyword Search"
               onKeyDown={handleKeyDown}
             />
-            {searchValue && <i onClick={() => setSearchValue('')} className="pi pi-times cursor-pointer" />}
+            {searchValue && (
+              <i
+                onClick={() => setSearchValue("")}
+                className="pi pi-times cursor-pointer"
+              />
+            )}
           </span>
           <Dropdown
             value={selectedGudang?.value}
@@ -314,13 +322,15 @@ const TableDemo = () => {
             className="button"
           />
         </div>
-        <Button
-          label="New"
-          icon="pi pi-plus"
-          severity="success"
-          className="button mr-2"
-          onClick={() => setProductDialog(true)}
-        />
+        {isAdmin && (
+          <Button
+            label="New"
+            icon="pi pi-plus"
+            severity="success"
+            className="button mr-2"
+            onClick={() => setProductDialog(true)}
+          />
+        )}
       </div>
     );
   };
@@ -547,6 +557,7 @@ const TableDemo = () => {
             first={first}
             alwaysShowPaginator
             loading={isLoading}
+            scrollable
             responsiveLayout="scroll"
             emptyMessage="No customers found."
             header={header1}
@@ -559,6 +570,8 @@ const TableDemo = () => {
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              bodyClassName={classNames({ 'font-bold': true })}
+              frozen
             />
             <Column
               field="stok_gudang"
@@ -688,99 +701,101 @@ const TableDemo = () => {
               body={inventoryImage}
               bodyStyle={{ padding: 4, textAlign: "center" }}
             />
-            <Column
-              field="address"
-              header="Action"
-              headerStyle={{ justifyItems: "center" }}
-              style={{ width: 120, paddingTop: 8, paddingBottom: 8 }}
-              bodyStyle={{ textAlign: "center" }}
-              body={(data) => {
-                return (
-                  <div
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      flex: 1,
-                    }}
-                  >
+            {isAdmin && (
+              <Column
+                field="address"
+                header="Action"
+                headerStyle={{ justifyItems: "center" }}
+                style={{ width: 120, paddingTop: 8, paddingBottom: 8 }}
+                bodyStyle={{ textAlign: "center" }}
+                body={(data) => {
+                  return (
                     <div
-                      onClick={() => {
-                        setIsModify(true);
-                        setBarang(data);
-                        setProductDialog(true);
-                        setInventory({ id: data.barang_id });
-                      }}
-                      onMouseOver={() =>
-                        setOver(data.barang_gudang_id + "edit")
-                      }
-                      onMouseOut={() => setOver("")}
-                      className="pi pi-file-edit"
                       style={{
-                        fontSize: 18,
-                        cursor: "pointer",
-                        color:
-                          over === data.barang_gudang_id + "edit"
-                            ? "blue"
-                            : undefined,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flex: 1,
                       }}
-                    ></div>
-
-                    <div
-                      className="pi pi-trash"
-                      onClick={() => onDeleteItem(data.barang_gudang_id)}
-                      onMouseOver={() =>
-                        setOver(data.barang_gudang_id + "delete")
-                      }
-                      onMouseOut={() => setOver("")}
-                      style={{
-                        fontSize: 18,
-                        marginLeft: 8,
-                        cursor: "pointer",
-                        color:
-                          over === data.barang_gudang_id + "delete"
-                            ? "blue"
-                            : undefined,
-                      }}
-                    ></div>
-                    <OverlayPanel ref={opMenu}>
+                    >
                       <div
-                        style={{
-                          paddingLeft: 12,
-                          paddingRight: 12,
-                          cursor: "pointer",
+                        onClick={() => {
+                          setIsModify(true);
+                          setBarang(data);
+                          setProductDialog(true);
+                          setInventory({ id: data.barang_id });
                         }}
-                        onClick={getLogs}
-                      >
-                        <p className="text-lg">Log</p>
-                      </div>
-                    </OverlayPanel>
-                    <div
-                      className="pi pi-ellipsis-v"
-                      onClick={(e) => {
-                        opMenu.current.toggle(e);
-                        setBarang(data);
-                        setFirstLog(0);
-                        setPageLog(1);
-                      }}
-                      onMouseOver={() =>
-                        setOver(data.barang_gudang_id + "more")
-                      }
-                      onMouseOut={() => setOver("")}
-                      style={{
-                        fontSize: 18,
-                        marginLeft: 12,
-                        cursor: "pointer",
-                        color:
-                          over === data.barang_gudang_id + "more"
-                            ? "blue"
-                            : undefined,
-                      }}
-                    ></div>
-                  </div>
-                );
-              }}
-            />
+                        onMouseOver={() =>
+                          setOver(data.barang_gudang_id + "edit")
+                        }
+                        onMouseOut={() => setOver("")}
+                        className="pi pi-file-edit"
+                        style={{
+                          fontSize: 18,
+                          cursor: "pointer",
+                          color:
+                            over === data.barang_gudang_id + "edit"
+                              ? "blue"
+                              : undefined,
+                        }}
+                      ></div>
+
+                      <div
+                        className="pi pi-trash"
+                        onClick={() => onDeleteItem(data.barang_gudang_id)}
+                        onMouseOver={() =>
+                          setOver(data.barang_gudang_id + "delete")
+                        }
+                        onMouseOut={() => setOver("")}
+                        style={{
+                          fontSize: 18,
+                          marginLeft: 8,
+                          cursor: "pointer",
+                          color:
+                            over === data.barang_gudang_id + "delete"
+                              ? "blue"
+                              : undefined,
+                        }}
+                      ></div>
+                      <OverlayPanel ref={opMenu}>
+                        <div
+                          style={{
+                            paddingLeft: 12,
+                            paddingRight: 12,
+                            cursor: "pointer",
+                          }}
+                          onClick={getLogs}
+                        >
+                          <p className="text-lg">Log</p>
+                        </div>
+                      </OverlayPanel>
+                      <div
+                        className="pi pi-ellipsis-v"
+                        onClick={(e) => {
+                          opMenu.current.toggle(e);
+                          setBarang(data);
+                          setFirstLog(0);
+                          setPageLog(1);
+                        }}
+                        onMouseOver={() =>
+                          setOver(data.barang_gudang_id + "more")
+                        }
+                        onMouseOut={() => setOver("")}
+                        style={{
+                          fontSize: 18,
+                          marginLeft: 12,
+                          cursor: "pointer",
+                          color:
+                            over === data.barang_gudang_id + "more"
+                              ? "blue"
+                              : undefined,
+                        }}
+                      ></div>
+                    </div>
+                  );
+                }}
+              />
+            )}
             {/* <Column
               field="event_end"
               header="Satuan"

@@ -41,6 +41,7 @@ import { Dialog } from "primereact/dialog";
 import { useSearchParams } from "next/navigation";
 import { SortType } from "@/app/interfaces/interfaces";
 import "../index.css";
+import useAccountController from "../useAccountController";
 
 interface ISelect {
   label: string;
@@ -49,6 +50,7 @@ interface ISelect {
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
+  const { isAdmin } = useAccountController();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModify, setIsModify] = useState<boolean>(false);
   const [listEvent, setListEvent] = useState<any[]>([]);
@@ -199,13 +201,15 @@ const TableDemo = () => {
             />
           )}
         </span>
-        <Button
-          label="New"
-          icon="pi pi-plus"
-          severity="success"
-          className="button mr-2"
-          onClick={() => setProductDialog(true)}
-        />
+        {isAdmin && (
+          <Button
+            label="New"
+            icon="pi pi-plus"
+            severity="success"
+            className="button mr-2"
+            onClick={() => setProductDialog(true)}
+          />
+        )}
       </div>
     );
   };
@@ -286,7 +290,11 @@ const TableDemo = () => {
               (el) =>
                 el.sub_area_name &&
                 el.sub_area_name.match(new RegExp(searchValue, "i"))
-            )}
+            ).sort(function(a,b){
+              // Turn your strings into dates, and then subtract them
+              // to get a value that is either negative, positive, or zero.
+              return new Date(b.created_at) as any - (new Date(a.created_at) as any);
+            })}
             paginator
             className="p-datatable-gridlines"
             onPage={(e) => {
@@ -342,56 +350,58 @@ const TableDemo = () => {
               sortable
               sortField="created_at"
             />
-            <Column
-              field="address"
-              header="Action"
-              headerStyle={{ justifyItems: "center" }}
-              bodyStyle={{ textAlign: "center" }}
-              filterPlaceholder="Search by name"
-              style={{ width: 100, paddingTop: 8, paddingBottom: 8 }}
-              body={(data) => (
-                <div
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flex: 1,
-                  }}
-                >
+            {isAdmin && (
+              <Column
+                field="address"
+                header="Action"
+                headerStyle={{ justifyItems: "center" }}
+                bodyStyle={{ textAlign: "center" }}
+                filterPlaceholder="Search by name"
+                style={{ width: 100, paddingTop: 8, paddingBottom: 8 }}
+                body={(data) => (
                   <div
-                    className="pi pi-file-edit"
-                    onClick={() => {
-                      setIsModify(true);
-                      setSelecetd(data);
-                      setProductDialog(true);
-                    }}
-                    onMouseOver={() => setOver(data.id + "edit")}
-                    onMouseOut={() => setOver("")}
                     style={{
-                      fontSize: 18,
-                      cursor: "pointer",
-                      color: over === data.id + "edit" ? "blue" : undefined,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flex: 1,
                     }}
-                  ></div>
+                  >
+                    <div
+                      className="pi pi-file-edit"
+                      onClick={() => {
+                        setIsModify(true);
+                        setSelecetd(data);
+                        setProductDialog(true);
+                      }}
+                      onMouseOver={() => setOver(data.id + "edit")}
+                      onMouseOut={() => setOver("")}
+                      style={{
+                        fontSize: 18,
+                        cursor: "pointer",
+                        color: over === data.id + "edit" ? "blue" : undefined,
+                      }}
+                    ></div>
 
-                  <div
-                    className="pi pi-trash"
-                    onClick={() => {
-                      setSelecetd(data);
-                      setDeleteConfirmation(true);
-                    }}
-                    onMouseOver={() => setOver(data.id + "delete")}
-                    onMouseOut={() => setOver("")}
-                    style={{
-                      fontSize: 18,
-                      marginLeft: 20,
-                      cursor: "pointer",
-                      color: over === data.id + "delete" ? "blue" : undefined,
-                    }}
-                  ></div>
-                </div>
-              )}
-            />
+                    <div
+                      className="pi pi-trash"
+                      onClick={() => {
+                        setSelecetd(data);
+                        setDeleteConfirmation(true);
+                      }}
+                      onMouseOver={() => setOver(data.id + "delete")}
+                      onMouseOut={() => setOver("")}
+                      style={{
+                        fontSize: 18,
+                        marginLeft: 20,
+                        cursor: "pointer",
+                        color: over === data.id + "delete" ? "blue" : undefined,
+                      }}
+                    ></div>
+                  </div>
+                )}
+              />
+            )}
             {/* <Column
               field="event_end"
               header="Satuan"

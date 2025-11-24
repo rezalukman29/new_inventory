@@ -15,6 +15,7 @@ import { InputSwitch } from "primereact/inputswitch";
 import { ConfirmDialog } from "primereact/confirmdialog";
 
 import "../index.css";
+import useAccountController from "../useAccountController";
 
 interface ISelect {
   label: string;
@@ -23,6 +24,7 @@ interface ISelect {
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
+  const { isAdmin } = useAccountController();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModify, setIsModify] = useState<boolean>(false);
   const [listEvent, setListEvent] = useState<any[]>([]);
@@ -151,13 +153,15 @@ const TableDemo = () => {
             />
           )}
         </span>
-        <Button
-          label="New"
-          icon="pi pi-plus"
-          severity="success"
-          className="button mr-2"
-          onClick={() => setProductDialog(true)}
-        />
+        {isAdmin && (
+          <Button
+            label="New"
+            icon="pi pi-plus"
+            severity="success"
+            className="button mr-2"
+            onClick={() => setProductDialog(true)}
+          />
+        )}
       </div>
     );
   };
@@ -274,57 +278,60 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
             />
-            <Column
-              field="address"
-              header="Action"
-              headerStyle={{ justifyItems: "center" }}
-              bodyStyle={{ textAlign: "center" }}
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-              body={(data) => (
-                <div
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flex: 1,
-                  }}
-                >
+            {isAdmin && (
+              <Column
+                field="address"
+                header="Action"
+                headerStyle={{ justifyItems: "center" }}
+                bodyStyle={{ textAlign: "center" }}
+                filterPlaceholder="Search by name"
+                style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                body={(data) => (
                   <div
-                    onClick={() => {
-                      setIsModify(true);
-                      setStatus(data);
-                      setProductDialog(true);
-                    }}
-                    onMouseOver={() => setOver(data.id + "edit")}
-                    onMouseOut={() => setOver("")}
-                    className="pi pi-file-edit"
                     style={{
-                      fontSize: 18,
-                      cursor: "pointer",
-                      color: over === data.id + "edit" ? "blue" : undefined,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flex: 1,
                     }}
-                  ></div>
-                  {data.active_event === 0 ? (
+                  >
                     <div
-                      className="pi pi-trash"
                       onClick={() => {
-                        setSelecetd(data);
-                        setDeleteConfirmation(true);
+                        setIsModify(true);
+                        setStatus(data);
+                        setProductDialog(true);
                       }}
-                      onMouseOver={() => setOver(data.id + "delete")}
+                      onMouseOver={() => setOver(data.id + "edit")}
                       onMouseOut={() => setOver("")}
+                      className="pi pi-file-edit"
                       style={{
                         fontSize: 18,
-                        marginLeft: 20,
                         cursor: "pointer",
-                        color: over === data.id + "delete" ? "blue" : undefined,
+                        color: over === data.id + "edit" ? "blue" : undefined,
                       }}
                     ></div>
-                  ) : null}
-                </div>
-              )}
-            />
+                    {data.active_event === 0 ? (
+                      <div
+                        className="pi pi-trash"
+                        onClick={() => {
+                          setSelecetd(data);
+                          setDeleteConfirmation(true);
+                        }}
+                        onMouseOver={() => setOver(data.id + "delete")}
+                        onMouseOut={() => setOver("")}
+                        style={{
+                          fontSize: 18,
+                          marginLeft: 20,
+                          cursor: "pointer",
+                          color:
+                            over === data.id + "delete" ? "blue" : undefined,
+                        }}
+                      ></div>
+                    ) : null}
+                  </div>
+                )}
+              />
+            )}
             {/* <Column
               field="event_end"
               header="Satuan"
