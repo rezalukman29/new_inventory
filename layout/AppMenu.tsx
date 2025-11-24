@@ -75,6 +75,11 @@ const AppMenu = () => {
           icon: "pi pi-book",
           to: "/log",
         },
+        {
+          label: "Users",
+          icon: "pi pi-user",
+          to: "/users",
+        },
       ],
     },
    

@@ -8,9 +8,11 @@ import { InventoryService } from "@/app/service/InventoryService";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import { Toast } from "primereact/toast";
 import "../index.css";
+import useAccountController from "../useAccountController";
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
+  const { isAdmin } = useAccountController();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModify, setIsModify] = useState<boolean>(false);
   const [listArea, setListArea] = useState<any[]>([]);
@@ -171,22 +173,24 @@ const TableDemo = () => {
                 </p>
               )}
             />
-            <Column
-              field="created_at"
-              header="Detail"
-              filterPlaceholder="Search by name"
-              style={{ width: 100, paddingTop: 8, paddingBottom: 8 }}
-              bodyStyle={{ textAlign: "center" }}
-              body={(data: any) => (
-                <Button
-                  label="Sync"
-                  icon="pi pi-sync"
-                  severity="secondary"
-                  onClick={() => onSync(data.id_barang)}
-                  className="button"
-                />
-              )}
-            />
+            {isAdmin && (
+              <Column
+                field="created_at"
+                header="Detail"
+                filterPlaceholder="Search by name"
+                style={{ width: 100, paddingTop: 8, paddingBottom: 8 }}
+                bodyStyle={{ textAlign: "center" }}
+                body={(data: any) => (
+                  <Button
+                    label="Sync"
+                    icon="pi pi-sync"
+                    severity="secondary"
+                    onClick={() => onSync(data.id_barang)}
+                    className="button"
+                  />
+                )}
+              />
+            )}
           </DataTable>
         </div>
       </div>

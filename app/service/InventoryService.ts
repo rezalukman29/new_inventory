@@ -13,6 +13,7 @@ import {
 } from "../interfaces/InventoryInterface";
 
 import ax from "./axios";
+import axEmi from "./axiosEmi";
 
 const URL = "barang";
 const URL_WAREHOUSE = "barang-with-gudang";
@@ -365,6 +366,18 @@ export const InventoryService = {
         package_id: params.package_id,
       },
     });
+    return response.data;
+  },
+  addUser: async (data: PayloadAddEventI): Promise<APIResponse<any>> => {
+    const response = await axEmi.post(`/v1/register`, data);
+    return response.data;
+  },
+  editUser: async (data: PayloadAddEventI): Promise<APIResponse<any>> => {
+    const response = await axEmi.put(`/v1/user/info/update`, data);
+    return response.data;
+  },
+  deleteUser: async ({ id }: { id: string }): Promise<any> => {
+    const response = await axEmi.delete(`/v1/user/${id}`);
     return response.data;
   },
 };

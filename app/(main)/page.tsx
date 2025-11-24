@@ -27,6 +27,10 @@ import { Text } from "@/app/components/atoms/Text";
 import { Icon } from "@iconify/react";
 import "./index.css";
 import Loading from "../components/atoms/loading";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import useAccountController from "./useAccountController";
+import { classNames } from "primereact/utils";
 
 interface ISelect {
   label: string;
@@ -34,6 +38,7 @@ interface ISelect {
 }
 
 const TableDemo = () => {
+  const { isAdmin } = useAccountController();
   const toast = useRef<any>(null);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -53,7 +58,7 @@ const TableDemo = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState("");
   const [sort, setSort] = useState<SortType>("DESC");
-  const [sortBy, setSortBy] = useState<string>("event_start");
+  const [sortBy, setSortBy] = useState<string>("created_at");
   const [base64, setBase64] = useState<string>();
 
   const datepickerFormat = (value: Date) => {
@@ -290,13 +295,15 @@ const TableDemo = () => {
             className="button"
           />
         </div>
-        <Button
-          label="New"
-          icon="pi pi-plus"
-          severity="success"
-          className="button mr-2"
-          onClick={() => setProductDialog(true)}
-        />
+        {isAdmin && (
+          <Button
+            label="New"
+            icon="pi pi-plus"
+            severity="success"
+            className="button mr-2"
+            onClick={() => setProductDialog(true)}
+          />
+        )}
       </div>
     );
   };
@@ -372,6 +379,7 @@ const TableDemo = () => {
                 dataKey="id"
                 totalRecords={total}
                 lazy
+                scrollable
                 first={first}
                 alwaysShowPaginator
                 loading={false}
@@ -389,9 +397,11 @@ const TableDemo = () => {
                   field="id"
                   header="ID"
                   filterPlaceholder="Search by name"
-                  style={{ minWidth: "4rem" }}
+                  style={{ minWidth: "2rem" }}
                   sortable
                   sortField="id"
+                  frozen
+                  bodyClassName={classNames({ 'font-bold': true })}
                 />
                 <Column
                   field="name"
@@ -400,6 +410,8 @@ const TableDemo = () => {
                   style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
                   sortable
                   sortField="name"
+                  frozen
+                  bodyClassName={classNames({ 'font-bold': true })}
                 />
                 <Column
                   field="description"
@@ -453,57 +465,59 @@ const TableDemo = () => {
                   sortable
                   sortField="scan_type"
                 />
-                <Column
-                  field="address"
-                  header="Action"
-                  filterPlaceholder="Search by name"
-                  style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
-                  body={(data) => (
-                    <div
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        flex: 1,
-                      }}
-                    >
+                {isAdmin && (
+                  <Column
+                    field="address"
+                    header="Action"
+                    filterPlaceholder="Search by name"
+                    style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
+                    body={(data) => (
                       <div
-                        onClick={(e) => {
-                          localStorageService.clearCart("cart");
-                          router.push(`/event-item?event=${data.id}`);
-                        }}
-                        className="pi pi-folder"
-                        style={{ fontSize: 18, cursor: "pointer" }}
-                      ></div>
-                      <div
-                        className="pi pi-file-edit"
                         style={{
-                          fontSize: 18,
-                          marginLeft: 20,
-                          cursor: "pointer",
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          flex: 1,
                         }}
-                        onClick={() => {
-                          setIsModify(true);
-                          setEvent(data);
-                          setProductDialog(true);
-                        }}
-                      ></div>
+                      >
+                        <div
+                          onClick={(e) => {
+                            localStorageService.clearCart("cart");
+                            router.push(`/event-item?event=${data.id}`);
+                          }}
+                          className="pi pi-folder"
+                          style={{ fontSize: 18, cursor: "pointer" }}
+                        ></div>
+                        <div
+                          className="pi pi-file-edit"
+                          style={{
+                            fontSize: 18,
+                            marginLeft: 20,
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            setIsModify(true);
+                            setEvent(data);
+                            setProductDialog(true);
+                          }}
+                        ></div>
 
-                      <div
-                        className="pi pi-trash"
-                        onClick={() => {
-                          setEvent(data);
-                          setDeleteConfirmation(true);
-                        }}
-                        style={{
-                          fontSize: 18,
-                          marginLeft: 20,
-                          cursor: "pointer",
-                        }}
-                      ></div>
-                    </div>
-                  )}
-                />
+                        <div
+                          className="pi pi-trash"
+                          onClick={() => {
+                            setEvent(data);
+                            setDeleteConfirmation(true);
+                          }}
+                          style={{
+                            fontSize: 18,
+                            marginLeft: 20,
+                            cursor: "pointer",
+                          }}
+                        ></div>
+                      </div>
+                    )}
+                  />
+                )}
                 {/* <Column
               field="event_end"
               header="Satuan"

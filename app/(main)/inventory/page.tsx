@@ -44,6 +44,7 @@ import moment from "moment";
 import { SortType } from "@/app/interfaces/interfaces";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import "../index.css";
+import useAccountController from "../useAccountController";
 
 export interface ISelect {
   label: string;
@@ -52,6 +53,7 @@ export interface ISelect {
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
+  const { isAdmin } = useAccountController();
   const op = useRef<any>(null);
   const opMenu = useRef<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -380,13 +382,15 @@ const TableDemo = () => {
             className="button"
           />
         </div>
-        <Button
-          label="New"
-          icon="pi pi-plus"
-          severity="success"
-          className="button mr-2"
-          onClick={() => setProductDialog(true)}
-        />
+        {isAdmin && (
+          <Button
+            label="New"
+            icon="pi pi-plus"
+            severity="success"
+            className="button mr-2"
+            onClick={() => setProductDialog(true)}
+          />
+        )}
       </div>
     );
   };
@@ -1155,6 +1159,7 @@ const TableDemo = () => {
                 totalRecords={total}
                 lazy
                 first={first}
+                scrollable
                 alwaysShowPaginator
                 tableStyle={{ width: 1800, fontSize: 13 }}
                 loading={isLoading}
@@ -1173,6 +1178,9 @@ const TableDemo = () => {
                   style={{ minWidth: "12rem", paddingTop: 8, paddingBottom: 8 }}
                   sortable
                   sortField="name"
+                  frozen={true}
+                  alignFrozen="left"
+                  bodyClassName={classNames({ 'font-bold': true })}
                 />
                 <Column
                   field="stok_barang"
@@ -1235,90 +1243,94 @@ const TableDemo = () => {
                   sortable
                   sortField="warehouse"
                 />
-                <Column
-                  field="address"
-                  header="Action"
-                  headerStyle={{ justifyItems: "center" }}
-                  filterPlaceholder="Search by name"
-                  style={{ width: 120, paddingTop: 8, paddingBottom: 8 }}
-                  bodyStyle={{ textAlign: "center" }}
-                  body={(data) => {
-                    return (
-                      <div
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          flex: 1,
-                        }}
-                      >
+                {isAdmin && (
+                  <Column
+                    field="address"
+                    header="Action"
+                    headerStyle={{ justifyItems: "center" }}
+                    filterPlaceholder="Search by name"
+                    style={{ width: 120, paddingTop: 8, paddingBottom: 8 }}
+                    bodyStyle={{ textAlign: "center" }}
+                    body={(data) => {
+                      return (
                         <div
-                          onClick={() => {
-                            setIsModify(true);
-                            setBarang(data);
-                            setProductDialog(true);
-                          }}
-                          onMouseOver={() => setOver(data.id + "edit")}
-                          onMouseOut={() => setOver("")}
-                          className="pi pi-file-edit"
                           style={{
-                            fontSize: 18,
-                            cursor: "pointer",
-                            color:
-                              over === data.id + "edit" ? "blue" : undefined,
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            flex: 1,
                           }}
-                        ></div>
-                        <div
-                          className="pi pi-trash hover:bg-red"
-                          onClick={() => {
-                            setBarang(data);
-                            setDeleteConfirmation(true);
-                          }}
-                          onMouseOver={() => setOver(data.id + "delete")}
-                          onMouseOut={() => setOver("")}
-                          style={{
-                            fontSize: 18,
-                            marginLeft: 12,
-                            cursor: "pointer",
-                            color:
-                              over === data.id + "delete" ? "blue" : undefined,
-                          }}
-                        ></div>
-                        <OverlayPanel ref={opMenu}>
+                        >
                           <div
-                            style={{
-                              paddingLeft: 12,
-                              paddingRight: 12,
-                              cursor: "pointer",
+                            onClick={() => {
+                              setIsModify(true);
+                              setBarang(data);
+                              setProductDialog(true);
                             }}
-                            onClick={getLogs}
-                          >
-                            <p className="text-lg">Log</p>
-                          </div>
-                        </OverlayPanel>
-                        <div
-                          className="pi pi-ellipsis-v"
-                          onMouseOver={() => setOver(data.id + "more")}
-                          onMouseOut={() => setOver("")}
-                          onClick={(e) => {
-                            opMenu.current.toggle(e);
-                            setBarang(data);
-                            setFirstLog(0);
-                            setPageLog(1);
-                          }}
-                          style={{
-                            fontSize: 18,
-                            marginLeft: 12,
-                            cursor: "pointer",
-                            color:
-                              over === data.id + "more" ? "blue" : undefined,
-                            // ...buttonstyle
-                          }}
-                        ></div>
-                      </div>
-                    );
-                  }}
-                />
+                            onMouseOver={() => setOver(data.id + "edit")}
+                            onMouseOut={() => setOver("")}
+                            className="pi pi-file-edit"
+                            style={{
+                              fontSize: 18,
+                              cursor: "pointer",
+                              color:
+                                over === data.id + "edit" ? "blue" : undefined,
+                            }}
+                          ></div>
+                          <div
+                            className="pi pi-trash hover:bg-red"
+                            onClick={() => {
+                              setBarang(data);
+                              setDeleteConfirmation(true);
+                            }}
+                            onMouseOver={() => setOver(data.id + "delete")}
+                            onMouseOut={() => setOver("")}
+                            style={{
+                              fontSize: 18,
+                              marginLeft: 12,
+                              cursor: "pointer",
+                              color:
+                                over === data.id + "delete"
+                                  ? "blue"
+                                  : undefined,
+                            }}
+                          ></div>
+                          <OverlayPanel ref={opMenu}>
+                            <div
+                              style={{
+                                paddingLeft: 12,
+                                paddingRight: 12,
+                                cursor: "pointer",
+                              }}
+                              onClick={getLogs}
+                            >
+                              <p className="text-lg">Log</p>
+                            </div>
+                          </OverlayPanel>
+                          <div
+                            className="pi pi-ellipsis-v"
+                            onMouseOver={() => setOver(data.id + "more")}
+                            onMouseOut={() => setOver("")}
+                            onClick={(e) => {
+                              opMenu.current.toggle(e);
+                              setBarang(data);
+                              setFirstLog(0);
+                              setPageLog(1);
+                            }}
+                            style={{
+                              fontSize: 18,
+                              marginLeft: 12,
+                              cursor: "pointer",
+                              color:
+                                over === data.id + "more" ? "blue" : undefined,
+                              // ...buttonstyle
+                            }}
+                          ></div>
+                        </div>
+                      );
+                    }}
+                  />
+                )}
               </DataTable>
             )}
           </div>

@@ -14,6 +14,8 @@ import { LayoutContext } from "./context/layoutcontext";
 import { localStorageService } from "@/app/service/localStorage";
 import { useRouter } from "next/navigation";
 import { Toast } from "primereact/toast";
+import { useDispatch } from "react-redux";
+import { setProfile } from "@/app/store/profile";
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
   const { layoutConfig, layoutState, onMenuToggle, showProfileSidebar } =
@@ -27,11 +29,20 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     topbarmenu: topbarmenuRef.current,
     topbarmenubutton: topbarmenubuttonRef.current,
   }));
-
+  const dispatch = useDispatch();
   const router = useRouter();
   const checkAuth = () => {
     const auth = localStorageService.getAuth("auth");
     if (auth) {
+      const data = JSON.parse(auth);
+      dispatch(
+        setProfile({
+          id: data?.id,
+          fullname: data?.fullname,
+          email: data?.email,
+          user_type: data?.user_type,
+        })
+      );
       return;
     } else {
       router.push("/auth/login");
