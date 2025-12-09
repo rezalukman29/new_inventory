@@ -1,4 +1,5 @@
 /* eslint-disable no-extra-boolean-cast */
+import moment from "moment";
 import {
   APIResponse,
   BaseResponsePagination,
@@ -47,6 +48,12 @@ export const InventoryService = {
         sort: filter.sort,
         sort_by: filter.sortBy,
         ...(filter.search && { search: filter.search }),
+        ...(filter.isUpcoming && {event_start: moment().format(
+          'YYYY-MM-DD',
+        )}),
+        ...(!filter.isUpcoming && {event_end: moment().format(
+          'YYYY-MM-DD',
+        )})
       },
     });
     return response.data.data;
@@ -111,7 +118,7 @@ export const InventoryService = {
     const response = await ax.get(
       `v1/barang-gudang/detail?${
         gudangId === "All" || gudangId === null ? "" : `gudang_id=${gudangId}&`
-      }page=${page}&limit=${20}${search ? `&search=${search}` : ""}`
+      }page=${page}&limit=${10}${search ? `&search=${search}` : ""}`
     );
     return response.data.data;
   },
