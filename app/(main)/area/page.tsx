@@ -242,7 +242,6 @@ const TableDemo = () => {
             onSort={(e) => onSort(e.sortField)}
             sortField={sortBy}
             sortOrder={sort === "ASC" ? 1 : -1}
-            onRowClick={(e) => router.push(`/event-item?event=${e.data.id}`)}
           >
             <Column
               field="name"

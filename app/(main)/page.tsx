@@ -31,6 +31,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import useAccountController from "./useAccountController";
 import { classNames } from "primereact/utils";
+import { TabMenu } from "primereact/tabmenu";
 
 interface ISelect {
   label: string;
@@ -60,6 +61,12 @@ const TableDemo = () => {
   const [sort, setSort] = useState<SortType>("DESC");
   const [sortBy, setSortBy] = useState<string>("created_at");
   const [base64, setBase64] = useState<string>();
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+
+  const items = [
+    { label: "Upcoming Event", icon: "pi pi-home" },
+    { label: "Past Event", icon: "pi pi-chart-line" },
+  ];
 
   const datepickerFormat = (value: Date) => {
     return {
@@ -181,6 +188,7 @@ const TableDemo = () => {
         search: searchValue,
         sort,
         sortBy,
+        isUpcoming: activeIndex === 0
       });
       setListEvent(response.data);
       setTotal(response.total_records);
@@ -250,7 +258,7 @@ const TableDemo = () => {
 
   useEffect(() => {
     getListEvent();
-  }, [page, sort, sortBy]);
+  }, [page, sort, sortBy, activeIndex]);
 
   const onGlobalFilterChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {};
 
@@ -349,6 +357,11 @@ const TableDemo = () => {
         <div className="col-12">
           <div className="card">
             <h5>Event</h5>
+            <TabMenu
+              model={items}
+              activeIndex={activeIndex}
+              onTabChange={(e) => setActiveIndex(e.index)}
+            />
             <ConfirmDialog
               visible={deleteConfirmation}
               onHide={() => {
@@ -365,7 +378,14 @@ const TableDemo = () => {
                 setEvent(null);
               }}
             />
-            <div style={{ flex: 1, overflowX: "auto", width: width * 0.73 }}>
+            <div
+              style={{
+                flex: 1,
+                overflowX: "auto",
+                width: width * 0.73,
+                marginTop: 24,
+              }}
+            >
               <DataTable
                 value={listEvent}
                 paginator
@@ -401,7 +421,7 @@ const TableDemo = () => {
                   sortable
                   sortField="id"
                   frozen
-                  bodyClassName={classNames({ 'font-bold': true })}
+                  bodyClassName={classNames({ "font-bold": true })}
                 />
                 <Column
                   field="name"
@@ -411,7 +431,7 @@ const TableDemo = () => {
                   sortable
                   sortField="name"
                   frozen
-                  bodyClassName={classNames({ 'font-bold': true })}
+                  bodyClassName={classNames({ "font-bold": true })}
                 />
                 <Column
                   field="description"

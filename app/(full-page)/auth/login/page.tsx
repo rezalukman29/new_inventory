@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { useRouter } from "next/navigation";
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Checkbox } from "primereact/checkbox";
 import { Button } from "primereact/button";
 import { Password } from "primereact/password";
@@ -15,6 +15,7 @@ import * as Yup from "yup";
 import { InventoryService } from "@/app/service/InventoryService";
 import { useDispatch } from "react-redux";
 import { setProfile } from "@/app/store/profile";
+import useDeviceSize from "@/app/hooks/getWindowsDimension";
 
 const LoginPage = () => {
   const toast = useRef<any>(null);
@@ -24,7 +25,20 @@ const LoginPage = () => {
   const router = useRouter();
   const dispatch = useDispatch()
   //   const { data, status } = useSession();
+  const [width] = useDeviceSize();
+  const [widthScreen, setWidth] = useState<number>(width);
 
+  function handleWindowSizeChange() {
+      setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+      window.addEventListener('resize', handleWindowSizeChange);
+      return () => {
+          window.removeEventListener('resize', handleWindowSizeChange);
+      }
+  }, []);
+  
+  const isMobile = widthScreen <= 768;
   const formik = useFormik<any>({
     initialValues: {
       email: "",
@@ -87,15 +101,17 @@ const LoginPage = () => {
       <div className="flex flex-column align-items-center justify-content-center">
         <Toast ref={toast} />
         <div
+        
           style={{
             borderRadius: "56px",
             padding: "0.3rem",
+            ...(isMobile && {width: width - 32}),
             background:
               "linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)",
           }}
         >
           <div
-            className="w-full surface-card py-8 px-5 sm:px-8"
+            className="w-full surface-card py-8 px-4 sm:px-5"
             style={{ borderRadius: "53px" }}
           >
             <div className="text-center mb-5">

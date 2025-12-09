@@ -20,6 +20,8 @@ import { Calendar } from "@hassanmojab/react-modern-calendar-datepicker";
 import "./DatePicker.css";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import "../index.css";
+import { localStorageService } from "@/app/service/localStorage";
+import { useRouter } from "next/navigation";
 
 interface ISelect {
   label: string;
@@ -28,6 +30,7 @@ interface ISelect {
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModify, setIsModify] = useState<boolean>(false);
   const [listEvent, setListEvent] = useState<any[]>([]);
@@ -267,6 +270,17 @@ const TableDemo = () => {
               header="Event"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              body={(data: any) => (
+                <p
+                  style={{ cursor: "pointer", fontWeight: 'bold' }}
+                  onClick={(e) => {
+                    localStorageService.clearCart("cart");
+                    router.push(`/event-item?event=${data.id}`);
+                  }}
+                >
+                  {data.event_name}
+                </p>
+              )}
             />
             <Column
               field="event_location"

@@ -16,6 +16,7 @@ import { ConfirmDialog } from "primereact/confirmdialog";
 
 import "../index.css";
 import useAccountController from "../useAccountController";
+import { Dropdown } from "primereact/dropdown";
 
 interface ISelect {
   label: string;
@@ -235,7 +236,6 @@ const TableDemo = () => {
             dataKey="id"
             tableStyle={{ fontSize: 13 }}
             totalRecords={statusList.length}
-            lazy
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -250,12 +250,16 @@ const TableDemo = () => {
               header="Order"
               filterPlaceholder="Search by name"
               style={{ minWidth: "1rem", paddingTop: 8, paddingBottom: 8 }}
+              sortable
+              sortField="order_data"
             />
             <Column
               field="name"
               header="Status"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              sortable
+              sortField="name"
             />
             <Column
               field="Show Scan"
@@ -265,18 +269,24 @@ const TableDemo = () => {
               body={(data) => {
                 return <p>{data.is_show_scan_result === 0 ? "No" : "Yes"}</p>;
               }}
+              sortable
+              sortField="is_show_scan_result"
             />
             <Column
               field="action"
               header="Action"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              sortable
+              sortField="action"
             />
             <Column
               field="active_event"
               header="Event Running"
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+              sortable
+              sortField="active_event"
             />
             {isAdmin && (
               <Column
@@ -394,14 +404,30 @@ const TableDemo = () => {
             </div>
             <div className="field">
               <label htmlFor="action">Action</label>
-              <InputText
-                id="action"
-                value={formik.values.action}
+
+              <Dropdown
                 onChange={(e) => formik.setFieldValue("action", e.target.value)}
-                autoFocus
-                className={`text-black border w-full py-2 px-4 ${
+                value={formik.values.action}
+                options={[
+                  {
+                    label: "Nothing",
+                    value: "",
+                  },
+                  {
+                    label: "Scan In",
+                    value: "SCAN IN",
+                  },
+                  {
+                    label: "Scan Out",
+                    value: "SCAN OUT",
+                  },
+                ]}
+                optionLabel="label"
+                placeholder="Select status"
+                className={`flex-1 rounded ${
                   formik.errors.action ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
+                }`}
+
               />
             </div>
             <div className="field" style={{ flexDirection: "column" }}>
