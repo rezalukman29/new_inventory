@@ -111,7 +111,7 @@ const TableDemo = () => {
     try {
       setIsLoading(true);
       const response = await InventoryService.getEventStatus();
-      setStatusList(response.data);
+      setStatusList(response.data.data);
       setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);

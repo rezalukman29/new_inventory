@@ -55,6 +55,7 @@ const TableDemo = () => {
   const [productDialog, setProductDialog] = useState(false);
   const [showStart, setShowStart] = useState<boolean>(false);
   const [showEnd, setShowEnd] = useState<boolean>(false);
+  const [showDate, setShowDate] = useState<boolean>(false);
   const [event, setEvent] = useState<any | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState("");
@@ -98,6 +99,9 @@ const TableDemo = () => {
       longitude: "",
       event_running: "",
       scan_type: isModify ? event?.scan_type : "",
+      date_event: isModify
+        ? datepickerFormat(event?.date_event)
+        : null,
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Required"),
@@ -128,6 +132,7 @@ const TableDemo = () => {
         event_running: "",
         notes: values.notes,
         scan_type: values.scan_type,
+        date_event: `${formik.values.date_event?.year}-${formik.values.date_event?.month}-${formik.values.date_event?.day}`,
       };
       if (isModify) {
         const result: APIResponse<any> = await InventoryService.editEvent({
@@ -188,7 +193,7 @@ const TableDemo = () => {
         search: searchValue,
         sort,
         sortBy,
-        isUpcoming: activeIndex === 0
+        isUpcoming: activeIndex === 0,
       });
       setListEvent(response.data);
       setTotal(response.total_records);
@@ -462,6 +467,21 @@ const TableDemo = () => {
                   sortField="event_end"
                 />
                 <Column
+                  field="date_event"
+                  header="Date"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
+                  body={(data: any) => (
+                    <p>
+                      {data.date_event
+                        ? moment(data.date_event as any).format("LLL")
+                        : "No Data"}
+                    </p>
+                  )}
+                  sortable
+                  sortField="date_event"
+                />
+                <Column
                   field="event_code"
                   header="Code"
                   filterPlaceholder="Search by name"
@@ -658,6 +678,7 @@ const TableDemo = () => {
                       onFocus={() => {
                         setShowEnd(false);
                         setShowStart(true);
+                        setShowDate(false)
                       }}
                       className={`text-black border w-full py-2 px-4 ${
                         formik.errors.event_start
@@ -711,6 +732,7 @@ const TableDemo = () => {
                       onFocus={() => {
                         setShowEnd(true);
                         setShowStart(false);
+                        setShowDate(false)
                       }}
                       className={`text-black border w-full py-2 px-4 ${
                         formik.errors.event_end
@@ -743,6 +765,62 @@ const TableDemo = () => {
               </div>
               <div className="flex flex-row items-center">
                 <div className="field flex-1">
+                  <label htmlFor="name"> Date Event</label>
+                  {isModify ? (
+                    <Text
+                      fontWeight="regular"
+                      color="black"
+                      label={formik.values.date_event && formik.values.date_event.day ? `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}` : "No Data"}
+                      textAlign="left"
+                      variant="base"
+                    />
+                  ) : (
+                    <InputText
+                      id="name"
+                      value={
+                        formik.values.date_event
+                          ? `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`
+                          : ""
+                      }
+                      onFocus={() => {
+                        setShowEnd(false);
+                        setShowStart(false);
+                        setShowDate(true)
+                      }}
+                      className={`text-black border w-full py-2 px-4 ${
+                        formik.errors.date_event
+                          ? "border-red-600"
+                          : "border-gray-300"
+                      } rounded-lg bg-transparent`}
+                      style={{ height: 44 }}
+                    />
+                  )}
+                  {showDate && (
+                    <div className="absolute">
+                      <div className="relative mt-2" style={{ width: 320 }}>
+                        <Calendar
+                          locale={"en"}
+                          value={formik.values.date_event}
+                          minimumDate={formik.values.event_start as Day}
+                          maximumDate={formik.values.event_end as Day}
+                          onChange={(date) => {
+                            setShowDate(false);
+                            formik.setFieldValue("date_event", date);
+                          }}
+                          onDisabledDayError={(value) => console.log(value)}
+                          colorPrimary="#AB5CFA" // added this
+                          calendarClassName="custom-calendar" // and this
+                          calendarTodayClassName="custom-today-day" // also this
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div style={{ width: 16 }} />
+                <div className="field flex-1"></div>
+              </div>
+              <div className="flex flex-row items-center">
+                <div className="field flex-1">
                   <label htmlFor="name">Address</label>
                   <InputText
                     id="name"
@@ -767,8 +845,8 @@ const TableDemo = () => {
                       fontWeight="regular"
                       color="black"
                       label={
-                        eventStatus?.data?.find(
-                          (el) => el.id === formik.values.status
+                        eventStatus?.data?.data?.find(
+                          (el: any) => el.id === formik.values.status
                         )?.name as string
                       }
                       textAlign="left"
@@ -779,7 +857,7 @@ const TableDemo = () => {
                         formik.setFieldValue("status", e.target.value)
                       }
                       value={formik.values.status}
-                      options={eventStatus?.data?.map?.((el: any) => {
+                      options={eventStatus?.data?.data?.map?.((el: any) => {
                         return {
                           label: el.name,
                           value: el.id,
@@ -825,7 +903,7 @@ const TableDemo = () => {
                     optionLabel="label"
                     placeholder="Select QR Type"
                     className={`flex-1 rounded ${
-                      formik.errors.notes ? "border-red-600" : "border-gray-300"
+                      formik.errors.scan_type ? "border-red-600" : "border-gray-300"
                     }`}
                   />
                 </div>
