@@ -275,7 +275,7 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "3rem" }}
               body={(data: any) => (
-                <p>{eventStatus?.data?.find(el => el.id === (data.event_status_id.Int64) + 1)?.name ?? ""}</p>
+                <p>{eventStatus?.data?.data?.find((el: any) => el.id === (data.event_status_id.Int64) + 1)?.name ?? ""}</p>
               )}
             />
             <Column

@@ -355,7 +355,7 @@ const Page = (props: Props) => {
     options: {
       enabled: true,
       onSuccess: ({ data }) => {
-        setSelectedStatus(data?.find((el) => el.order_data === 1)?.id);
+        setSelectedStatus(data?.data?.find((el: any) => el.order_data === 1)?.id);
         setTimeout(() => {
           refetchEventItem();
         }, 500);
@@ -538,7 +538,7 @@ const Page = (props: Props) => {
   };
 
   const isShowScan =
-    eventStatus?.data?.find((el) => el.id === eventDetail?.status)
+    eventStatus?.data?.data?.find((el: any) => el.id === eventDetail?.status)
       ?.is_show_scan_result === 1
       ? true
       : false;

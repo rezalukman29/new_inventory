@@ -128,4 +128,5 @@ export interface PayloadAddEventI {
   notes: string;
   scan_type?:  string
   packaging?: string;
+  date_event?: Day | null;
 }

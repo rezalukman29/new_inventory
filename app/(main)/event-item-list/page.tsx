@@ -295,8 +295,8 @@ const TableDemo = () => {
               style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>
-                  {eventStatus?.data?.find(
-                    (el) => el.id === data.event_status_id.Int64 + 1
+                  {eventStatus?.data?.data?.find(
+                    (el: any) => el.id === data.event_status_id.Int64 + 1
                   )?.name ?? ""}
                 </p>
               )}
