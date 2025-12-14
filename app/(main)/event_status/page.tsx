@@ -17,6 +17,7 @@ import { ConfirmDialog } from "primereact/confirmdialog";
 import "../index.css";
 import useAccountController from "../useAccountController";
 import { Dropdown } from "primereact/dropdown";
+import moment from "moment";
 
 interface ISelect {
   label: string;
@@ -288,6 +289,21 @@ const TableDemo = () => {
               sortable
               sortField="active_event"
             />
+            <Column
+              field="updated_at"
+              header="Updated At"
+              filterPlaceholder="Search by name"
+              style={{ maxWidth: "9rem" }}
+              body={(data: any) => (
+                <p>
+                  {data.updated_at
+                    ? moment(data.updated_at as any).format("LLL")
+                    : "-"}
+                </p>
+              )}
+              sortable
+              sortField="updated_at"
+            />
             {isAdmin && (
               <Column
                 field="address"
@@ -427,7 +443,6 @@ const TableDemo = () => {
                 className={`flex-1 rounded ${
                   formik.errors.action ? "border-red-600" : "border-gray-300"
                 }`}
-
               />
             </div>
             <div className="field" style={{ flexDirection: "column" }}>

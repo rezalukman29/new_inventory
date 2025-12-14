@@ -100,7 +100,7 @@ const TableDemo = () => {
     try {
       setIsLoading(true);
       const response = await InventoryService.getArea({ sort, sortBy });
-      setListArea(response.data);
+      setListArea(response.data.data);
       setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);
@@ -275,6 +275,21 @@ const TableDemo = () => {
               body={(data: any) => (
                 <p>{moment(data.created_at as any).format("LLL")}</p>
               )}
+            />
+            <Column
+              field="updated_at"
+              header="Updated At"
+              filterPlaceholder="Search by name"
+              style={{ maxWidth: "9rem" }}
+              body={(data: any) => (
+                <p>
+                  {data.updated_at
+                    ? moment(data.updated_at as any).format("LLL")
+                    : "-"}
+                </p>
+              )}
+              sortable
+              sortField="updated_at"
             />
             {isAdmin && (
               <Column

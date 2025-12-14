@@ -99,9 +99,7 @@ const TableDemo = () => {
       longitude: "",
       event_running: "",
       scan_type: isModify ? event?.scan_type : "",
-      date_event: isModify
-        ? datepickerFormat(event?.date_event)
-        : null,
+      date_event: isModify ? datepickerFormat(event?.date_event) : null,
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Required"),
@@ -505,6 +503,21 @@ const TableDemo = () => {
                   sortable
                   sortField="scan_type"
                 />
+                <Column
+                  field="updated_at"
+                  header="Updated At"
+                  filterPlaceholder="Search by name"
+                  style={{ maxWidth: "9rem" }}
+                  body={(data: any) => (
+                    <p>
+                      {data.updated_at
+                        ? moment(data.updated_at as any).format("LLL")
+                        : "-"}
+                    </p>
+                  )}
+                  sortable
+                  sortField="updated_at"
+                />
                 {isAdmin && (
                   <Column
                     field="address"
@@ -678,7 +691,7 @@ const TableDemo = () => {
                       onFocus={() => {
                         setShowEnd(false);
                         setShowStart(true);
-                        setShowDate(false)
+                        setShowDate(false);
                       }}
                       className={`text-black border w-full py-2 px-4 ${
                         formik.errors.event_start
@@ -732,7 +745,7 @@ const TableDemo = () => {
                       onFocus={() => {
                         setShowEnd(true);
                         setShowStart(false);
-                        setShowDate(false)
+                        setShowDate(false);
                       }}
                       className={`text-black border w-full py-2 px-4 ${
                         formik.errors.event_end
@@ -770,7 +783,11 @@ const TableDemo = () => {
                     <Text
                       fontWeight="regular"
                       color="black"
-                      label={formik.values.date_event && formik.values.date_event.day ? `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}` : "No Data"}
+                      label={
+                        formik.values.date_event && formik.values.date_event.day
+                          ? `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`
+                          : "No Data"
+                      }
                       textAlign="left"
                       variant="base"
                     />
@@ -785,7 +802,7 @@ const TableDemo = () => {
                       onFocus={() => {
                         setShowEnd(false);
                         setShowStart(false);
-                        setShowDate(true)
+                        setShowDate(true);
                       }}
                       className={`text-black border w-full py-2 px-4 ${
                         formik.errors.date_event
@@ -903,7 +920,9 @@ const TableDemo = () => {
                     optionLabel="label"
                     placeholder="Select QR Type"
                     className={`flex-1 rounded ${
-                      formik.errors.scan_type ? "border-red-600" : "border-gray-300"
+                      formik.errors.scan_type
+                        ? "border-red-600"
+                        : "border-gray-300"
                     }`}
                   />
                 </div>

@@ -102,7 +102,7 @@ const TableDemo = () => {
         sort,
         sort_by,
       });
-      setListCategory(response.data);
+      setListCategory(response.data.data);
       setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);
@@ -273,6 +273,21 @@ const TableDemo = () => {
               )}
               sortable
               sortField="created_at"
+            />
+            <Column
+              field="updated_at"
+              header="Updated At"
+              filterPlaceholder="Search by name"
+              style={{ maxWidth: "9rem" }}
+              body={(data: any) => (
+                <p>
+                  {data.updated_at
+                    ? moment(data.updated_at as any).format("LLL")
+                    : "-"}
+                </p>
+              )}
+              sortable
+              sortField="updated_at"
             />
             {isAdmin && (
               <Column
