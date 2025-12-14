@@ -113,13 +113,20 @@ export const InventoryService = {
     gudangId: number | string,
     page: number,
     search: string,
-    limit: number
+    limit: number,
+    sort?: string,
+    sortBy?: string,
   ): Promise<BaseResponsePagination<BarangGudangI[]>> => {
     const response = await ax.get(
       `v1/barang-gudang/detail?${
         gudangId === "All" || gudangId === null ? "" : `gudang_id=${gudangId}&`
-      }page=${page}&limit=${10}${search ? `&search=${search}` : ""}`
-    );
+      }page=${page}&limit=${limit}${search ? `&search=${search}` : ""}`
+    , {
+      params: {
+        ...(sort && {sort: sort}),
+        ...(sortBy && {sort_by: sortBy}),
+      }
+    });
     return response.data.data;
   },
   getItemInventory: async ({
@@ -201,7 +208,7 @@ export const InventoryService = {
     const response = await ax.put(`/v1/barang-gudang`, data);
     return response.data;
   },
-  getArea: async (filter: any): Promise<APIResponse<Array<any>>> => {
+  getArea: async (filter: any): Promise<APIResponse<any>> => {
     const response = await ax.get(`/v1/area`, {
       params: {
         sort: filter.sort,
@@ -226,7 +233,7 @@ export const InventoryService = {
     const response = await ax.delete(`/v1/fix-list-item/${id}`);
     return response.data;
   },
-  getSubArea: async (filter: any): Promise<APIResponse<Array<any>>> => {
+  getSubArea: async (filter: any): Promise<APIResponse<any>> => {
     const response = await ax.get(`/v1/sub-area`, {
       params: {
         sort: filter.sort,
@@ -328,7 +335,7 @@ export const InventoryService = {
     });
     return response.data;
   },
-  getSyncInventory: async (): Promise<APIResponse<Array<any>>> => {
+  getSyncInventory: async (): Promise<APIResponse<any>> => {
     const response = await ax.get(`/v1/barang/get-sync`);
     return response.data;
   },
@@ -338,6 +345,8 @@ export const InventoryService = {
         page: filter.page,
         limit: filter.limit,
         ...(filter.search && { search: filter.search }),
+        sort: filter.sort,
+        sort_by: filter.sortBy,
       },
     });
     return response.data.data;

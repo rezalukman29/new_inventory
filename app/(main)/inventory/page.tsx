@@ -251,7 +251,7 @@ const TableDemo = () => {
         sort_by: "name",
       });
       setListCategory(
-        response.data.map((item: any) => {
+        response.data.data.map((item: any) => {
           return {
             label: item.name,
             value: item.id.toString(),
@@ -1180,7 +1180,7 @@ const TableDemo = () => {
                   sortField="name"
                   frozen={true}
                   alignFrozen="left"
-                  bodyClassName={classNames({ 'font-bold': true })}
+                  bodyClassName={classNames({ "font-bold": true })}
                 />
                 <Column
                   field="stok_barang"
@@ -1242,6 +1242,21 @@ const TableDemo = () => {
                   body={inventoryWarehouse}
                   sortable
                   sortField="warehouse"
+                />
+                <Column
+                  field="updated_at"
+                  header="Updated At"
+                  filterPlaceholder="Search by name"
+                  style={{ maxWidth: "9rem" }}
+                  body={(data: any) => (
+                    <p>
+                      {data.updated_at
+                        ? moment(data.updated_at as any).format("LLL")
+                        : "-"}
+                    </p>
+                  )}
+                  sortable
+                  sortField="updated_at"
                 />
                 {isAdmin && (
                   <Column

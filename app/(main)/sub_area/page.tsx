@@ -140,7 +140,7 @@ const TableDemo = () => {
         sort: "ASC",
         sortBy: "name",
       });
-      setListArea(response.data);
+      setListArea(response.data.data);
       setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);
@@ -153,10 +153,10 @@ const TableDemo = () => {
       const response = await InventoryService.getSubArea({ sort, sortBy });
       if (areaId) {
         setListSubArea(
-          response.data?.filter((el) => Number(el.area_id) === Number(areaId))
+          response.data?.data?.filter((el: any) => Number(el.area_id) === Number(areaId))
         );
       } else {
-        setListSubArea(response.data);
+        setListSubArea(response.data.data);
       }
       setIsLoading(false);
     } catch (error: any) {
@@ -349,6 +349,21 @@ const TableDemo = () => {
               )}
               sortable
               sortField="created_at"
+            />
+                        <Column
+              field="updated_at"
+              header="Updated At"
+              filterPlaceholder="Search by name"
+              style={{ maxWidth: "9rem" }}
+              body={(data: any) => (
+                <p>
+                  {data.updated_at
+                    ? moment(data.updated_at as any).format("LLL")
+                    : "-"}
+                </p>
+              )}
+              sortable
+              sortField="updated_at"
             />
             {isAdmin && (
               <Column

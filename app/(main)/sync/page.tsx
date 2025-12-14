@@ -34,7 +34,7 @@ const TableDemo = () => {
     try {
       setIsLoading(true);
       const response = await InventoryService.getSyncInventory();
-      setListArea(response.data);
+      setListArea(response.data.data);
       setIsLoading(false);
     } catch (error: any) {
       setIsLoading(false);

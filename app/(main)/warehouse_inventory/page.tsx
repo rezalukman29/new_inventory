@@ -21,6 +21,7 @@ import moment from "moment";
 import "../index.css";
 import useAccountController from "../useAccountController";
 import { classNames } from "primereact/utils";
+import { SortType } from "@/app/interfaces/interfaces";
 
 interface ISelect {
   label: string;
@@ -59,6 +60,8 @@ const TableDemo = () => {
   const [pageLog, setPageLog] = useState<number>(1);
   const [totalLog, setTotalLog] = useState<number>(10);
   const [firstLog, setFirstLog] = useState<number>(0);
+  const [sort, setSort] = useState<SortType>("ASC");
+  const [sortBy, setSortBy] = useState<string>("nama_barang");
 
   const formik = useFormik<any>({
     initialValues: {
@@ -183,7 +186,9 @@ const TableDemo = () => {
         selectedGudang.value,
         page,
         searchValue,
-        size ?? pageSize
+        size ?? pageSize,
+        sort,
+        sortBy,
       );
       setListBarang(response.data);
       setTotal(response.total_records);
@@ -254,7 +259,7 @@ const TableDemo = () => {
       setIsLoading(true);
       const response: any = await InventoryService.getGudang();
       setGudang(
-        response.data.map((item: any) => {
+        response.data.data.map((item: any) => {
           return {
             label: item.nama,
             value: item.id.toString(),
@@ -269,7 +274,7 @@ const TableDemo = () => {
 
   useEffect(() => {
     getInventoryList();
-  }, [page]);
+  }, [page, sort, sortBy]);
 
   const onGlobalFilterChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {};
 
@@ -535,6 +540,11 @@ const TableDemo = () => {
 
   let [over, setOver] = React.useState("");
 
+  const onSort = (field: string) => {
+    setSortBy(field);
+    setSort(sort === "ASC" ? "DESC" : "ASC");
+  };
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -551,8 +561,8 @@ const TableDemo = () => {
             }}
             rows={pageSize}
             dataKey="id"
-            totalRecords={total}
             lazy
+            totalRecords={total}
             tableStyle={{ width: 1800, fontSize: 13 }}
             first={first}
             alwaysShowPaginator
@@ -563,6 +573,9 @@ const TableDemo = () => {
             header={header1}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="{first} to {last} of {totalRecords} warehouse inventory"
+            onSort={(e) => onSort(e.sortField)}
+            sortField={sortBy}
+            sortOrder={sort === "ASC" ? 1 : -1}
           >
             <Column
               field="nama_barang"
@@ -570,8 +583,10 @@ const TableDemo = () => {
               headerStyle={{ justifyItems: "center" }}
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-              bodyClassName={classNames({ 'font-bold': true })}
+              bodyClassName={classNames({ "font-bold": true })}
               frozen
+              sortable
+              sortField="nama_barang"
             />
             <Column
               field="stok_gudang"
@@ -580,6 +595,8 @@ const TableDemo = () => {
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="stok_gudang"
             />
             <Column
               field="gudang_name"
@@ -588,6 +605,8 @@ const TableDemo = () => {
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               headerStyle={{ justifyItems: "center" }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="gudang_name"
             />
             <Column
               field="stok_barang"
@@ -596,6 +615,8 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="stok_barang"
             />
             <Column
               field="stok_minimum"
@@ -604,6 +625,8 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="stok_minimum"
             />
             <Column
               field="stock_used"
@@ -612,6 +635,8 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="stock_used"
             />
             <Column
               field="stock_used"
@@ -643,6 +668,8 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="flag_1"
             />
             <Column
               field="flag_2"
@@ -651,6 +678,8 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="flag_2"
             />
             <Column
               field="asile"
@@ -659,6 +688,8 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="asile"
             />
             <Column
               field="rack"
@@ -667,6 +698,8 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="rack"
             />
             <Column
               field="level"
@@ -675,6 +708,8 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="level"
             />
             <Column
               field="lantai"
@@ -683,6 +718,8 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="lantai"
             />
             <Column
               field="lorong"
@@ -691,6 +728,8 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               bodyStyle={{ textAlign: "center" }}
+              sortable
+              sortField="lorong"
             />
             <Column
               field="stok_minimum"
@@ -700,6 +739,23 @@ const TableDemo = () => {
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               body={inventoryImage}
               bodyStyle={{ padding: 4, textAlign: "center" }}
+              sortable
+              sortField="stok_minimum"
+            />
+            <Column
+              field="updated_at"
+              header="Updated At"
+              filterPlaceholder="Search by name"
+              style={{ maxWidth: "9rem" }}
+              body={(data: any) => (
+                <p>
+                  {data.updated_at
+                    ? moment(data.updated_at as any).format("LLL")
+                    : "-"}
+                </p>
+              )}
+              sortable
+              sortField="updated_at"
             />
             {isAdmin && (
               <Column
