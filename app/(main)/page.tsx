@@ -416,6 +416,61 @@ const TableDemo = () => {
                 sortOrder={sort === "ASC" ? 1 : -1}
                 selectionMode={"single"}
               >
+                {isAdmin && (
+                  <Column
+                    field="address"
+                    header="Action"
+                    filterPlaceholder="Search by name"
+                    style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
+                    frozen
+                    bodyClassName={classNames({ "font-bold": true })}
+                    body={(data) => (
+                      <div
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          flex: 1,
+                        }}
+                      >
+                        <div
+                          onClick={(e) => {
+                            localStorageService.clearCart("cart");
+                            router.push(`/event-item?event=${data.id}`);
+                          }}
+                          className="pi pi-folder"
+                          style={{ fontSize: 18, cursor: "pointer" }}
+                        ></div>
+                        <div
+                          className="pi pi-file-edit"
+                          style={{
+                            fontSize: 18,
+                            marginLeft: 20,
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            setIsModify(true);
+                            setEvent(data);
+                            setProductDialog(true);
+                          }}
+                        ></div>
+
+                        <div
+                          className="pi pi-trash"
+                          onClick={() => {
+                            setEvent(data);
+                            setDeleteConfirmation(true);
+                          }}
+                          style={{
+                            fontSize: 18,
+                            marginLeft: 20,
+                            cursor: "pointer",
+                          }}
+                        ></div>
+                      </div>
+                    )}
+                  />
+                )}
                 <Column
                   field="id"
                   header="ID"
@@ -518,59 +573,7 @@ const TableDemo = () => {
                   sortable
                   sortField="updated_at"
                 />
-                {isAdmin && (
-                  <Column
-                    field="address"
-                    header="Action"
-                    filterPlaceholder="Search by name"
-                    style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
-                    body={(data) => (
-                      <div
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          flex: 1,
-                        }}
-                      >
-                        <div
-                          onClick={(e) => {
-                            localStorageService.clearCart("cart");
-                            router.push(`/event-item?event=${data.id}`);
-                          }}
-                          className="pi pi-folder"
-                          style={{ fontSize: 18, cursor: "pointer" }}
-                        ></div>
-                        <div
-                          className="pi pi-file-edit"
-                          style={{
-                            fontSize: 18,
-                            marginLeft: 20,
-                            cursor: "pointer",
-                          }}
-                          onClick={() => {
-                            setIsModify(true);
-                            setEvent(data);
-                            setProductDialog(true);
-                          }}
-                        ></div>
 
-                        <div
-                          className="pi pi-trash"
-                          onClick={() => {
-                            setEvent(data);
-                            setDeleteConfirmation(true);
-                          }}
-                          style={{
-                            fontSize: 18,
-                            marginLeft: 20,
-                            cursor: "pointer",
-                          }}
-                        ></div>
-                      </div>
-                    )}
-                  />
-                )}
                 {/* <Column
               field="event_end"
               header="Satuan"
