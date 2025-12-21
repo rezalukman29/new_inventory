@@ -438,7 +438,7 @@ const TableDemo = () => {
                             localStorageService.clearCart("cart");
                             router.push(`/event-item?event=${data.id}`);
                           }}
-                          className="pi pi-folder"
+                          className="pi pi-shopping-cart"
                           style={{ fontSize: 18, cursor: "pointer" }}
                         ></div>
                         <div

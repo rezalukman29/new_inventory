@@ -347,7 +347,7 @@ const Page = (props: Props) => {
         sort: "ASC",
         sortBy: "sub_area_name",
       });
-      setListSubArea(response.data);
+      setListSubArea(response.data.data);
     } catch (error: any) {}
   };
 
@@ -374,8 +374,8 @@ const Page = (props: Props) => {
       },
     });
 
-  const listEventStatus: ValueLabel[] = eventStatus?.data?.length
-    ? eventStatus?.data.map?.((el: any) => {
+  const listEventStatus: ValueLabel[] = eventStatus?.data?.data?.length
+    ? eventStatus?.data.data.map?.((el: any) => {
         return {
           label: el.name,
           value: el.id,
@@ -515,7 +515,7 @@ const Page = (props: Props) => {
     eventDetail = await eventDetail.json();
     setEventDetail(eventDetail.data);
     let gudang: any = await InventoryService.getGudang();
-    setGudang(gudang.data);
+    setGudang(gudang.data.data);
     if (eventDetail.data) {
       try {
         let listArea: any = await InventoryService.getListAreaByEvent(eventId);
@@ -724,7 +724,7 @@ const Page = (props: Props) => {
             subArea: dt.sub_list_name,
             gudang: dt.gudang?.length ? dt.gudang[0]?.nama : "",
             gudangStok: dt.gudang?.length ? dt.gudang[0]?.stock : "",
-            area: areas?.data.find((item: any) => item.id === dt.list_id)?.name,
+            area: areas?.data?.data.find((item: any) => item.id === dt.list_id)?.name,
             additionalCode: dt.AdditionalCode,
             notes: dt.notes,
             isChecking: dt.is_checking.Valid,
@@ -768,7 +768,7 @@ const Page = (props: Props) => {
           status: listEventStatus?.find(
             (el: any) => el.value === dt.event_status_id
           )?.label,
-          area: areas?.data.find((el: any) => el.id === dt.list_id)?.name,
+          area: areas?.data?.data.find((el: any) => el.id === dt.list_id)?.name,
           subArea:
             listSubArea?.find((el: any) => el.id === dt.sub_list_id)
               ?.sub_area_name ?? "",
@@ -1028,7 +1028,7 @@ const Page = (props: Props) => {
         gudang: dt.gudang?.length ? dt.gudang[0]?.nama : "",
         gudangStok: dt.gudang?.length ? dt.gudang[0]?.stock : "",
         area:
-          areas?.data.find((item: any) => item.id === dt.list_id)?.name ?? "",
+          areas?.data?.data.find((item: any) => item.id === dt.list_id)?.name ?? "",
         subArea: dt.sub_list_name,
         additionalCode: dt.AdditionalCode,
         notes: dt.notes,
@@ -1828,7 +1828,7 @@ const Page = (props: Props) => {
                 label={`"${
                   selectedArea === "all"
                     ? "All Place"
-                    : areas?.data.find(
+                    : areas?.data?.data.find(
                         (el: any) => Number(el.id) === Number(selectedArea)
                       )?.name
                 }"`}
@@ -2057,7 +2057,7 @@ const Page = (props: Props) => {
                   <Dropdown
                     onChange={onChangeArea}
                     value={selectedArea}
-                    options={areas?.data?.map((el) => {
+                    options={areas?.data?.data?.map((el: any) => {
                       return {
                         value: el.id,
                         label: el.name,
