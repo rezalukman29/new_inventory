@@ -78,7 +78,7 @@ const TableDemo = () => {
   const items = [
     { label: "Upcoming Event", icon: "pi pi-home" },
     { label: "Past Event", icon: "pi pi-chart-line" },
-    { label: "Admin Event", icon: "pi pi-users" },
+    { label: "Invite User", icon: "pi pi-users" },
   ];
 
   const datepickerFormat = (value: Date) => {
@@ -217,7 +217,7 @@ const TableDemo = () => {
         toast?.current?.show({
           severity: "success",
           summary: "Success",
-          detail: "Add Event User",
+          detail: "Invite user",
           life: 3000,
         });
       }
@@ -302,7 +302,7 @@ const TableDemo = () => {
       toast?.current?.show({
         severity: "success",
         summary: "Success",
-        detail: "Delete user event",
+        detail: "Delete invitation",
         life: 3000,
       });
       getListAdminEvent();
@@ -750,10 +750,10 @@ const TableDemo = () => {
                   alwaysShowPaginator
                   loading={false}
                   responsiveLayout="scroll"
-                  emptyMessage="No admin event found."
+                  emptyMessage="No invited user found."
                   header={header1}
                   paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                  currentPageReportTemplate="{first} to {last} of {totalRecords} admin event"
+                  currentPageReportTemplate="{first} to {last} of {totalRecords} invited user"
                   onSort={(e) => onSort(e.sortField)}
                   sortField={sortByAdmin}
                   sortOrder={sortAdmin === "ASC" ? 1 : -1}
@@ -1367,7 +1367,7 @@ const TableDemo = () => {
             <Dialog
               visible={adminDialog}
               style={{ width: "450px" }}
-              header={"Add Event User"}
+              header={"Invite User"}
               modal
               className="p-fluid"
               footer={productDialogFooter}
