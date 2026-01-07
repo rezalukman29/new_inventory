@@ -396,4 +396,24 @@ export const InventoryService = {
     const response = await axEmi.delete(`/v1/user/${id}`);
     return response.data;
   },
+  getAdminEvent: async (filter: any) => {
+    const response = await ax.get(`/v1/event-admin`, {
+      params: {
+        page: filter.page,
+        limit: filter.limit,
+        sort: filter.sort,
+        sort_by: filter.sortBy,
+        ...(filter.search && { search: filter.search }),
+      },
+    });
+    return response.data.data;
+  },
+  addAdminEvent: async (data: any): Promise<APIResponse<any>> => {
+    const response = await ax.post(`/v1/event-admin`, data);
+    return response.data;
+  },
+  deleteAdminEvent: async (id: string): Promise<APIResponse<any>> => {
+    const response = await ax.delete(`/v1/event-admin/${id}`);
+    return response.data;
+  },
 };

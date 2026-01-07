@@ -32,6 +32,7 @@ import { RootState } from "../store/store";
 import useAccountController from "./useAccountController";
 import { classNames } from "primereact/utils";
 import { TabMenu } from "primereact/tabmenu";
+import useGetUsers from "../hooks/api/useGetUsers";
 
 interface ISelect {
   label: string;
@@ -53,6 +54,7 @@ const TableDemo = () => {
   const [totalPages, setTotalPages] = useState<number>(10);
   const [total, setTotal] = useState<number>(10);
   const [productDialog, setProductDialog] = useState(false);
+  const [adminDialog, setAdminDialog] = useState(false);
   const [showStart, setShowStart] = useState<boolean>(false);
   const [showEnd, setShowEnd] = useState<boolean>(false);
   const [showDate, setShowDate] = useState<boolean>(false);
@@ -64,9 +66,19 @@ const TableDemo = () => {
   const [base64, setBase64] = useState<string>();
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
+  const [listAdminEvent, setListAdminEvent] = useState<any[]>([]);
+  const [pageAdmin, setPageAdmin] = useState<number>(1);
+  const [firstAdmin, setFirstAdmin] = useState<number>(0);
+  const [pageSizeAdmin, setPageSizeAdmin] = useState<number>(10);
+  const [totalPagesAdmin, setTotalPagesAdmin] = useState<number>(10);
+  const [totalAdmin, setTotalAdmin] = useState<number>(10);
+  const [sortAdmin, setSortAdmin] = useState<SortType>("DESC");
+  const [sortByAdmin, setSortByAdmin] = useState<string>("created_at");
+
   const items = [
     { label: "Upcoming Event", icon: "pi pi-home" },
     { label: "Past Event", icon: "pi pi-chart-line" },
+    { label: "Admin Event", icon: "pi pi-users" },
   ];
 
   const datepickerFormat = (value: Date) => {
@@ -179,6 +191,39 @@ const TableDemo = () => {
     },
   });
 
+  const formikAdmin = useFormik<any>({
+    initialValues: {
+      user_id: "",
+      event_id: "",
+    },
+    validationSchema: Yup.object({
+      user_id: Yup.string().required("Required"),
+      event_id: Yup.string().required("Required"),
+    }),
+    validateOnChange: false,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      setIsLoading(true);
+      const result: APIResponse<any> = await InventoryService.addAdminEvent({
+        event_id: values.event_id,
+        user_id: [values.user_id],
+      });
+      if (result.success) {
+        setIsLoading(false);
+        setTimeout(() => {
+          setAdminDialog(false);
+        }, 200);
+        getListAdminEvent();
+        toast?.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Add Event User",
+          life: 3000,
+        });
+      }
+    },
+  });
+
   const onChangeStatus = (e: any) => {
     setSelectedStatus(e.target.value);
   };
@@ -187,11 +232,11 @@ const TableDemo = () => {
       setIsLoading(true);
       const response = await InventoryService.getEvent({
         page,
-        limit: size ?? pageSize,
+        limit: activeIndex === 2 ? 1000 : size ?? pageSize,
         search: searchValue,
         sort,
         sortBy,
-        isUpcoming: activeIndex === 0,
+        ...(activeIndex !== 2 && { isUpcoming: activeIndex === 0 }),
       });
       setListEvent(response.data);
       setTotal(response.total_records);
@@ -204,6 +249,30 @@ const TableDemo = () => {
       setListEvent([]);
       setTotal(0);
       setTotalPages(0);
+    }
+  };
+
+  const getListAdminEvent = async (size?: number) => {
+    try {
+      setIsLoading(true);
+      const response = await InventoryService.getAdminEvent({
+        page,
+        limit: size ?? pageSize,
+        search: searchValue,
+        sort,
+        sortBy,
+      });
+      setListAdminEvent(response.data);
+      setTotalAdmin(response.total_records);
+      setTotalPagesAdmin(response.total_pages);
+      setIsLoading(false);
+    } catch (error: any) {
+      setIsLoading(false);
+      setPageAdmin(1);
+      setFirstAdmin(0);
+      setListAdminEvent([]);
+      setTotalAdmin(0);
+      setTotalPagesAdmin(0);
     }
   };
 
@@ -225,6 +294,24 @@ const TableDemo = () => {
     }
   };
 
+  const onDeleteAdminEvent = async (id: string) => {
+    try {
+      setDeleteConfirmation(false);
+      setIsLoading(true);
+      await InventoryService.deleteAdminEvent(id);
+      toast?.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Delete user event",
+        life: 3000,
+      });
+      getListAdminEvent();
+      setIsLoading(false);
+    } catch (error: any) {
+      setIsLoading(false);
+    }
+  };
+
   const convertToBase64 = (file: any) => {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
@@ -237,6 +324,18 @@ const TableDemo = () => {
       };
     });
   };
+
+  const { data: users } = useGetUsers({
+    params: {
+      page,
+      limit: 1000,
+      sort_dir: "ASC",
+      sort_by: "fullname",
+    },
+    options: {
+      enabled: true,
+    },
+  });
 
   const handleProfile = async (e: any) => {
     const file = e.target.files[0];
@@ -262,6 +361,10 @@ const TableDemo = () => {
   useEffect(() => {
     getListEvent();
   }, [page, sort, sortBy, activeIndex]);
+
+  useEffect(() => {
+    getListAdminEvent();
+  }, [pageAdmin, sortAdmin, sortByAdmin]);
 
   const onGlobalFilterChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {};
 
@@ -312,7 +415,9 @@ const TableDemo = () => {
             icon="pi pi-plus"
             severity="success"
             className="button mr-2"
-            onClick={() => setProductDialog(true)}
+            onClick={() => {
+              activeIndex === 2 ? setAdminDialog(true) : setProductDialog(true);
+            }}
           />
         )}
       </div>
@@ -322,6 +427,8 @@ const TableDemo = () => {
   const hideDialog = () => {
     setProductDialog(false);
     setIsModify(false);
+    setAdminDialog(false);
+    formikAdmin.resetForm();
   };
 
   const productDialogFooter = (
@@ -339,7 +446,9 @@ const TableDemo = () => {
         icon="pi pi-check"
         severity="success"
         style={{ width: 120 }}
-        onClick={() => formik.handleSubmit()}
+        onClick={() =>
+          activeIndex === 2 ? formikAdmin.handleSubmit() : formik.handleSubmit()
+        }
         className="button"
       />
     </>
@@ -351,6 +460,13 @@ const TableDemo = () => {
     setSortBy(field);
     setSort(sort === "ASC" ? "DESC" : "ASC");
   };
+
+  const userData = users?.data?.users?.map((el: any) => {
+    return {
+      value: el.id,
+      label: `${el.fullname} | ${el.user_type}`,
+    };
+  });
 
   return (
     <>
@@ -372,10 +488,18 @@ const TableDemo = () => {
                 setEvent(null);
                 setIsModify(false);
               }}
-              message={`Are you sure you want to delete event ${event?.name}?`}
+              message={
+                activeIndex === 2
+                  ? `Are you sure you want to delete user event ${event?.event?.name}?`
+                  : `Are you sure you want to delete event ${event?.name}?`
+              }
               header="Delete Confirmation"
               icon="pi pi-exclamation-triangle"
-              accept={() => onDeleteEvent(event.id)}
+              accept={() =>
+                activeIndex === 2
+                  ? onDeleteAdminEvent(event.id)
+                  : onDeleteEvent(event.id)
+              }
               reject={() => {
                 setDeleteConfirmation(false);
                 setEvent(null);
@@ -389,213 +513,438 @@ const TableDemo = () => {
                 marginTop: 24,
               }}
             >
-              <DataTable
-                value={listEvent}
-                paginator
-                className="p-datatable-gridlines"
-                onPage={(e) => {
-                  setFirst(e.first);
-                  setPage(Number(e.page) + 1);
-                }}
-                tableStyle={{ width: 1800, fontSize: 13 }}
-                rows={pageSize}
-                dataKey="id"
-                totalRecords={total}
-                lazy
-                scrollable
-                first={first}
-                alwaysShowPaginator
-                loading={false}
-                responsiveLayout="scroll"
-                emptyMessage="No customers found."
-                header={header1}
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} to {last} of {totalRecords} events"
-                onSort={(e) => onSort(e.sortField)}
-                sortField={sortBy}
-                sortOrder={sort === "ASC" ? 1 : -1}
-                selectionMode={"single"}
-              >
-                {isAdmin && (
+              {activeIndex !== 2 ? (
+                <DataTable
+                  value={listEvent}
+                  paginator
+                  className="p-datatable-gridlines"
+                  onPage={(e) => {
+                    setFirst(e.first);
+                    setPage(Number(e.page) + 1);
+                  }}
+                  tableStyle={{ width: 1800, fontSize: 13 }}
+                  rows={pageSize}
+                  dataKey="id"
+                  totalRecords={total}
+                  lazy
+                  scrollable
+                  first={first}
+                  alwaysShowPaginator
+                  loading={false}
+                  responsiveLayout="scroll"
+                  emptyMessage="No events found."
+                  header={header1}
+                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                  currentPageReportTemplate="{first} to {last} of {totalRecords} events"
+                  onSort={(e) => onSort(e.sortField)}
+                  sortField={sortBy}
+                  sortOrder={sort === "ASC" ? 1 : -1}
+                  selectionMode={"single"}
+                >
+                  {isAdmin && (
+                    <Column
+                      field="address"
+                      header="Action"
+                      filterPlaceholder="Search by name"
+                      style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
+                      frozen
+                      bodyClassName={classNames({ "font-bold": true })}
+                      body={(data) => (
+                        <div
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            flex: 1,
+                          }}
+                        >
+                          <div
+                            onClick={(e) => {
+                              localStorageService.clearCart("cart");
+                              router.push(`/event-item?event=${data.id}`);
+                            }}
+                            className="pi pi-shopping-cart"
+                            style={{ fontSize: 18, cursor: "pointer" }}
+                          ></div>
+                          <div
+                            className="pi pi-file-edit"
+                            style={{
+                              fontSize: 18,
+                              marginLeft: 20,
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              setIsModify(true);
+                              setEvent(data);
+                              setProductDialog(true);
+                            }}
+                          ></div>
+
+                          <div
+                            className="pi pi-trash"
+                            onClick={() => {
+                              setEvent(data);
+                              setDeleteConfirmation(true);
+                            }}
+                            style={{
+                              fontSize: 18,
+                              marginLeft: 20,
+                              cursor: "pointer",
+                            }}
+                          ></div>
+                        </div>
+                      )}
+                    />
+                  )}
                   <Column
-                    field="address"
-                    header="Action"
+                    field="id"
+                    header="ID"
                     filterPlaceholder="Search by name"
-                    style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
+                    style={{ minWidth: "2rem" }}
+                    sortable
+                    sortField="id"
                     frozen
                     bodyClassName={classNames({ "font-bold": true })}
-                    body={(data) => (
-                      <div
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          flex: 1,
-                        }}
-                      >
-                        <div
-                          onClick={(e) => {
-                            localStorageService.clearCart("cart");
-                            router.push(`/event-item?event=${data.id}`);
-                          }}
-                          className="pi pi-shopping-cart"
-                          style={{ fontSize: 18, cursor: "pointer" }}
-                        ></div>
-                        <div
-                          className="pi pi-file-edit"
-                          style={{
-                            fontSize: 18,
-                            marginLeft: 20,
-                            cursor: "pointer",
-                          }}
-                          onClick={() => {
-                            setIsModify(true);
-                            setEvent(data);
-                            setProductDialog(true);
-                          }}
-                        ></div>
-
-                        <div
-                          className="pi pi-trash"
-                          onClick={() => {
-                            setEvent(data);
-                            setDeleteConfirmation(true);
-                          }}
-                          style={{
-                            fontSize: 18,
-                            marginLeft: 20,
-                            cursor: "pointer",
-                          }}
-                        ></div>
-                      </div>
-                    )}
                   />
-                )}
-                <Column
-                  field="id"
-                  header="ID"
-                  filterPlaceholder="Search by name"
-                  style={{ minWidth: "2rem" }}
-                  sortable
-                  sortField="id"
-                  frozen
-                  bodyClassName={classNames({ "font-bold": true })}
-                />
-                <Column
-                  field="name"
-                  header="Name"
-                  filterPlaceholder="Search by name"
-                  style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
-                  sortable
-                  sortField="name"
-                  frozen
-                  bodyClassName={classNames({ "font-bold": true })}
-                />
-                <Column
-                  field="description"
-                  header="Description"
-                  filterPlaceholder="Search by name"
-                  style={{ minWidth: "6rem", paddingTop: 8, paddingBottom: 8 }}
-                />
-                <Column
-                  field="event_start"
-                  header="Start"
-                  filterPlaceholder="Search by name"
-                  style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
-                  body={(data: any) => (
-                    <p>{moment(data.event_start as any).format("LLL")}</p>
+                  <Column
+                    field="name"
+                    header="Name"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "6rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    sortable
+                    sortField="name"
+                    frozen
+                    bodyClassName={classNames({ "font-bold": true })}
+                  />
+                  <Column
+                    field="description"
+                    header="Description"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "6rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                  />
+                  <Column
+                    field="event_start"
+                    header="Start"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "3rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    body={(data: any) => (
+                      <p>{moment(data.event_start as any).format("LLL")}</p>
+                    )}
+                    sortable
+                    sortField="event_start"
+                  />
+                  <Column
+                    field="event_end"
+                    header="Finish"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "3rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    body={(data: any) => (
+                      <p>{moment(data.event_end as any).format("LLL")}</p>
+                    )}
+                    sortable
+                    sortField="event_end"
+                  />
+                  <Column
+                    field="date_event"
+                    header="Date"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "3rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    body={(data: any) => (
+                      <p>
+                        {data.date_event
+                          ? moment(data.date_event as any).format("LLL")
+                          : "No Data"}
+                      </p>
+                    )}
+                    sortable
+                    sortField="date_event"
+                  />
+                  <Column
+                    field="event_code"
+                    header="Code"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "4rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    sortable
+                    sortField="event_code"
+                  />
+                  <Column
+                    field="address"
+                    header="Location"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "4rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    sortable
+                    sortField="address"
+                  />
+                  <Column
+                    field="scan_type"
+                    header="QR Type"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "4rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    sortable
+                    sortField="scan_type"
+                  />
+                  <Column
+                    field="updated_at"
+                    header="Updated At"
+                    filterPlaceholder="Search by name"
+                    style={{ maxWidth: "9rem" }}
+                    body={(data: any) => (
+                      <p>
+                        {data.updated_at
+                          ? moment(data.updated_at as any).format("LLL")
+                          : "-"}
+                      </p>
+                    )}
+                    sortable
+                    sortField="updated_at"
+                  />
+                </DataTable>
+              ) : (
+                <DataTable
+                  value={listAdminEvent}
+                  paginator
+                  className="p-datatable-gridlines"
+                  onPage={(e) => {
+                    setFirstAdmin(e.first);
+                    setPageAdmin(Number(e.page) + 1);
+                  }}
+                  tableStyle={{ width: 1800, fontSize: 13 }}
+                  rows={pageSizeAdmin}
+                  dataKey="id"
+                  totalRecords={totalAdmin}
+                  lazy
+                  scrollable
+                  first={firstAdmin}
+                  alwaysShowPaginator
+                  loading={false}
+                  responsiveLayout="scroll"
+                  emptyMessage="No admin event found."
+                  header={header1}
+                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                  currentPageReportTemplate="{first} to {last} of {totalRecords} admin event"
+                  onSort={(e) => onSort(e.sortField)}
+                  sortField={sortByAdmin}
+                  sortOrder={sortAdmin === "ASC" ? 1 : -1}
+                  selectionMode={"single"}
+                >
+                  {isAdmin && (
+                    <Column
+                      field="address"
+                      header="Action"
+                      filterPlaceholder="Search by name"
+                      style={{ width: 90, paddingTop: 8, paddingBottom: 8 }}
+                      frozen
+                      bodyClassName={classNames({ "font-bold": true })}
+                      body={(data) => (
+                        <div
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            flex: 1,
+                          }}
+                        >
+                          <div
+                            onClick={(e) => {
+                              localStorageService.clearCart("cart");
+                              router.push(`/event-item?event=${data.event.id}`);
+                            }}
+                            className="pi pi-shopping-cart"
+                            style={{ fontSize: 18, cursor: "pointer" }}
+                          ></div>
+                          <div
+                            className="pi pi-trash"
+                            onClick={() => {
+                              setEvent(data);
+                              setDeleteConfirmation(true);
+                            }}
+                            style={{
+                              fontSize: 18,
+                              marginLeft: 20,
+                              cursor: "pointer",
+                            }}
+                          ></div>
+                        </div>
+                      )}
+                    />
                   )}
-                  sortable
-                  sortField="event_start"
-                />
-                <Column
-                  field="event_end"
-                  header="Finish"
-                  filterPlaceholder="Search by name"
-                  style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
-                  body={(data: any) => (
-                    <p>{moment(data.event_end as any).format("LLL")}</p>
-                  )}
-                  sortable
-                  sortField="event_end"
-                />
-                <Column
-                  field="date_event"
-                  header="Date"
-                  filterPlaceholder="Search by name"
-                  style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
-                  body={(data: any) => (
-                    <p>
-                      {data.date_event
-                        ? moment(data.date_event as any).format("LLL")
-                        : "No Data"}
-                    </p>
-                  )}
-                  sortable
-                  sortField="date_event"
-                />
-                <Column
-                  field="event_code"
-                  header="Code"
-                  filterPlaceholder="Search by name"
-                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-                  sortable
-                  sortField="event_code"
-                />
-                <Column
-                  field="address"
-                  header="Location"
-                  filterPlaceholder="Search by name"
-                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-                  sortable
-                  sortField="address"
-                />
-                <Column
-                  field="scan_type"
-                  header="QR Type"
-                  filterPlaceholder="Search by name"
-                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
-                  sortable
-                  sortField="scan_type"
-                />
-                <Column
-                  field="updated_at"
-                  header="Updated At"
-                  filterPlaceholder="Search by name"
-                  style={{ maxWidth: "9rem" }}
-                  body={(data: any) => (
-                    <p>
-                      {data.updated_at
-                        ? moment(data.updated_at as any).format("LLL")
-                        : "-"}
-                    </p>
-                  )}
-                  sortable
-                  sortField="updated_at"
-                />
-
-                {/* <Column
-              field="event_end"
-              header="Satuan"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "3rem" }}
-              body={inventoryImage}
-            /> */}
-                {/* <Column
-              field="satuan.name"
-              header="Category"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
-              body={inventoryCategory}
-            />
-            <Column
-              field="satuan.name"
-              header="Category"
-              filterPlaceholder="Search by name"
-              style={{ minWidth: "4rem" }}
-              body={inventoryWarehouse}
-            /> */}
-              </DataTable>
+                  <Column
+                    field="id"
+                    header="User"
+                    filterPlaceholder="Search by name"
+                    style={{ minWidth: "2rem" }}
+                    frozen
+                    body={(data: any) => (
+                      <p>
+                        {Array.isArray(users?.data?.users)
+                          ? users?.data?.users?.find(
+                              (el: any) => Number(el.id) === Number(data.user_id)
+                            )?.fullname ?? "-"
+                          : "-"}
+                      </p>
+                    )}
+                    bodyClassName={classNames({ "font-bold": true })}
+                  />
+                  <Column
+                    field="event.name"
+                    header="Name"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "6rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    sortable
+                    sortField="name"
+                    frozen
+                    bodyClassName={classNames({ "font-bold": true })}
+                  />
+                  <Column
+                    field="event.description"
+                    header="Description"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "6rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                  />
+                  <Column
+                    field="event_start"
+                    header="Start"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "3rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    body={(data: any) => (
+                      <p>
+                        {moment(data.event.event_start as any).format("LLL")}
+                      </p>
+                    )}
+                    sortable
+                    sortField="event_start"
+                  />
+                  <Column
+                    field="event_end"
+                    header="Finish"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "3rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    body={(data: any) => (
+                      <p>{moment(data.event.event_end as any).format("LLL")}</p>
+                    )}
+                    sortable
+                    sortField="event_end"
+                  />
+                  <Column
+                    field="date_event"
+                    header="Date"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "3rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    body={(data: any) => (
+                      <p>
+                        {data.date_event
+                          ? moment(data.event.date_event as any).format("LLL")
+                          : "No Data"}
+                      </p>
+                    )}
+                    sortable
+                    sortField="date_event"
+                  />
+                  <Column
+                    field="event.event_code"
+                    header="Code"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "4rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    sortable
+                    sortField="event_code"
+                  />
+                  <Column
+                    field="event.address"
+                    header="Location"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "4rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    sortable
+                    sortField="address"
+                  />
+                  <Column
+                    field="event.scan_type"
+                    header="QR Type"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "4rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    sortable
+                    sortField="scan_type"
+                  />
+                  <Column
+                    field="updated_at"
+                    header="Created At"
+                    filterPlaceholder="Search by name"
+                    style={{ maxWidth: "9rem" }}
+                    body={(data: any) => (
+                      <p>
+                        {data.updated_at
+                          ? moment(data.created_at_at as any).format("LLL")
+                          : "-"}
+                      </p>
+                    )}
+                    sortable
+                    sortField="updated_at"
+                  />
+                </DataTable>
+              )}
             </div>
             <Dialog
               visible={productDialog}
@@ -1013,6 +1362,62 @@ const TableDemo = () => {
                     </>
                   )}
                 </div>
+              </div>
+            </Dialog>
+            <Dialog
+              visible={adminDialog}
+              style={{ width: "450px" }}
+              header={"Add Event User"}
+              modal
+              className="p-fluid"
+              footer={productDialogFooter}
+              onHide={() => {
+                setAdminDialog(false);
+                formikAdmin.resetForm();
+              }}
+            >
+              <div className="field">
+                <label htmlFor="name">User</label>
+                {users?.data?.users?.length ? (
+                  <Dropdown
+                    onChange={(e) =>
+                      formikAdmin.setFieldValue("user_id", e.target.value)
+                    }
+                    value={formikAdmin.values.user_id}
+                    options={[...userData]}
+                    filter
+                    optionLabel="label"
+                    placeholder="Select user"
+                    className={`flex-1 rounded ${
+                      formikAdmin.errors.user_id
+                        ? "border-red-600"
+                        : "border-gray-300"
+                    }`}
+                  />
+                ) : null}
+              </div>
+              <div className="field">
+                <label htmlFor="name">Event</label>
+                <Dropdown
+                  onChange={(e) =>
+                    formikAdmin.setFieldValue("event_id", e.target.value)
+                  }
+                  value={formikAdmin.values.event_id}
+                  options={listEvent?.map((el) => {
+                    return {
+                      value: el.id,
+                      label: el.name,
+                    };
+                  })}
+                  filter
+                  optionLabel="label"
+                  placeholder="Select event"
+                  className={`flex-1 rounded ${
+                    formikAdmin.errors.event_id
+                      ? "border-red-600"
+                      : "border-gray-300"
+                  }`}
+                />
               </div>
             </Dialog>
           </div>
