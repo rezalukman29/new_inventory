@@ -220,6 +220,7 @@ const TableDemo = () => {
           detail: "Invite user",
           life: 3000,
         });
+        formikAdmin.resetForm();
       }
     },
   });
@@ -716,6 +717,30 @@ const TableDemo = () => {
                     sortField="scan_type"
                   />
                   <Column
+                    field="event.scan_type"
+                    header="User"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "4rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    body={(data: any) => (
+                      <p>
+                        {users?.data?.users?.length && data.admins?.length
+                          ? data.admins
+                              ?.map(
+                                (el: any) =>
+                                  users?.data?.users?.find(
+                                    (item: any) => item.id === el
+                                  )?.fullname
+                              )
+                              ?.join(", ")
+                          : "-"}
+                      </p>
+                    )}
+                  />
+                  <Column
                     field="updated_at"
                     header="Updated At"
                     filterPlaceholder="Search by name"
@@ -810,7 +835,8 @@ const TableDemo = () => {
                       <p>
                         {Array.isArray(users?.data?.users)
                           ? users?.data?.users?.find(
-                              (el: any) => Number(el.id) === Number(data.user_id)
+                              (el: any) =>
+                                Number(el.id) === Number(data.user_id)
                             )?.fullname ?? "-"
                           : "-"}
                       </p>
