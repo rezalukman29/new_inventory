@@ -22,6 +22,7 @@ import "../index.css";
 import useAccountController from "../useAccountController";
 import { classNames } from "primereact/utils";
 import { SortType } from "@/app/interfaces/interfaces";
+import { STORAGE_BOOQABLE } from "@/app/util/config";
 
 interface ISelect {
   label: string;
@@ -350,7 +351,7 @@ const TableDemo = () => {
           item.photo.includes("http://66.42.48.163:9000")
             ? item?.photo?.replace(
                 "http://66.42.48.163:9000/booqable/",
-                "https://storage-booqable.emi-project.my.id/booqable/"
+                STORAGE_BOOQABLE
               )
             : item.photo
             ? `https://democreation.site/home/public/${item.photo}`
@@ -931,7 +932,7 @@ const TableDemo = () => {
                         item.photo.includes("http://66.42.48.163:9000")
                           ? item?.photo?.replace(
                               "http://66.42.48.163:9000/booqable/",
-                              "https://storage-booqable.emi-project.my.id/booqable/"
+                              STORAGE_BOOQABLE
                             )
                           : item.photo
                           ? `https://democreation.site/home/public/${item.photo}`

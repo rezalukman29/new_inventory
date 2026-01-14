@@ -24,7 +24,7 @@ import { isValidUrl, noImage } from "@/app/util/function";
 import { ISelect } from "../inventory/page";
 import { DataView } from "primereact/dataview";
 import { useQRCode } from "next-qrcode";
-import { WEB_URL } from "@/app/util/config";
+import { STORAGE_BOOQABLE, WEB_URL } from "@/app/util/config";
 import useGetEventItem from "@/app/hooks/api/useGetEventItem";
 import { Icon } from "@iconify/react";
 import { Text } from "@/app/components/atoms/Text";
@@ -453,7 +453,9 @@ const TableDemo = () => {
             {selected && !isGroup ? (
               <>
                 <Canvas
-                  text={`${WEB_URL}/pages/scan/${selectedEvent}-${item.barang_id}-${item + 1}`}
+                  text={`${WEB_URL}/pages/scan/${selectedEvent}-${
+                    item.barang_id
+                  }-${item + 1}`}
                   options={{
                     errorCorrectionLevel: "M",
                     margin: 3,
@@ -500,7 +502,7 @@ const TableDemo = () => {
             isValidUrl(item.photo)
               ? item.photo?.replace(
                   "http://66.42.48.163:9000/booqable/",
-                  "https://storage-booqable.emi-project.my.id/booqable/"
+                  STORAGE_BOOQABLE
                 )
               : item.photo
               ? `https://democreation.site/home/public/${item.photo}`

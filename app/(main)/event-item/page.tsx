@@ -42,7 +42,7 @@ import "./event.css";
 import "../index.css";
 import Loading from "@/app/components/atoms/loading";
 import { useQRCode } from "next-qrcode";
-import { WEB_URL } from "@/app/util/config";
+import { STORAGE_BOOQABLE, WEB_URL } from "@/app/util/config";
 import moment from "moment";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { ConfirmDialog } from "primereact/confirmdialog";
@@ -355,7 +355,9 @@ const Page = (props: Props) => {
     options: {
       enabled: true,
       onSuccess: ({ data }) => {
-        setSelectedStatus(data?.data?.find((el: any) => el.order_data === 1)?.id);
+        setSelectedStatus(
+          data?.data?.find((el: any) => el.order_data === 1)?.id
+        );
         setTimeout(() => {
           refetchEventItem();
         }, 500);
@@ -422,7 +424,7 @@ const Page = (props: Props) => {
                 item.photo.includes("http://66.42.48.163:9000")
                 ? item?.photo?.replace(
                     "http://66.42.48.163:9000/booqable/",
-                    "https://storage-booqable.emi-project.my.id/booqable/"
+                    STORAGE_BOOQABLE
                   )
                 : item.photo
                 ? `https://democreation.site/home/public/${item.photo}`
@@ -724,7 +726,8 @@ const Page = (props: Props) => {
             subArea: dt.sub_list_name,
             gudang: dt.gudang?.length ? dt.gudang[0]?.nama : "",
             gudangStok: dt.gudang?.length ? dt.gudang[0]?.stock : "",
-            area: areas?.data?.data.find((item: any) => item.id === dt.list_id)?.name,
+            area: areas?.data?.data.find((item: any) => item.id === dt.list_id)
+              ?.name,
             additionalCode: dt.AdditionalCode,
             notes: dt.notes,
             isChecking: dt.is_checking.Valid,
@@ -1028,7 +1031,8 @@ const Page = (props: Props) => {
         gudang: dt.gudang?.length ? dt.gudang[0]?.nama : "",
         gudangStok: dt.gudang?.length ? dt.gudang[0]?.stock : "",
         area:
-          areas?.data?.data.find((item: any) => item.id === dt.list_id)?.name ?? "",
+          areas?.data?.data.find((item: any) => item.id === dt.list_id)?.name ??
+          "",
         subArea: dt.sub_list_name,
         additionalCode: dt.AdditionalCode,
         notes: dt.notes,
