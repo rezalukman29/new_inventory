@@ -2,7 +2,7 @@ import axios from 'axios';
 import { localStorageService } from './localStorage';
 
 const axEmi = axios.create({
-  baseURL: 'http://45.77.245.18:8181',
+  baseURL: 'https://emi-staging.emi.web.id',
 });
 
 axEmi.interceptors.request.use(

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { localStorageService } from './localStorage';
 
 const ax = axios.create({
-  baseURL: 'http://66.42.48.163:8000',
+  baseURL: 'https://booqable-staging.emi.web.id',
 });
 
 ax.interceptors.request.use(
