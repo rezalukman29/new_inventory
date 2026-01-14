@@ -45,6 +45,7 @@ import { SortType } from "@/app/interfaces/interfaces";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import "../index.css";
 import useAccountController from "../useAccountController";
+import { STORAGE_BOOQABLE } from "@/app/util/config";
 
 export interface ISelect {
   label: string;
@@ -748,7 +749,7 @@ const TableDemo = () => {
             isValidUrl(item.photo)
               ? item.photo?.replace(
                   "http://66.42.48.163:9000/booqable/",
-                  "https://storage-booqable.emi-project.my.id/booqable/"
+                  STORAGE_BOOQABLE
                 )
               : item.photo
               ? `https://democreation.site/home/public/${item.photo}`
@@ -1124,7 +1125,7 @@ const TableDemo = () => {
                 isValidUrl(barang?.photo)
                   ? barang?.photo?.replace(
                       "http://66.42.48.163:9000/booqable/",
-                      "https://storage-booqable.emi-project.my.id/booqable/"
+                      STORAGE_BOOQABLE
                     )
                   : barang?.photo
                   ? `https://democreation.site/home/public/${barang?.photo}`
@@ -1416,7 +1417,7 @@ const TableDemo = () => {
                                 barang.photo?.includes("66.42.48.163")
                                   ? barang.photo?.replace(
                                       "http://66.42.48.163:9000/booqable/",
-                                      "https://storage-booqable.emi-project.my.id/booqable/"
+                                      STORAGE_BOOQABLE
                                     )
                                   : barang.photo
                                   ? `https://democreation.site/home/public/${barang.photo}`

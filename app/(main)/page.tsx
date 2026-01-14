@@ -33,6 +33,7 @@ import useAccountController from "./useAccountController";
 import { classNames } from "primereact/utils";
 import { TabMenu } from "primereact/tabmenu";
 import useGetUsers from "../hooks/api/useGetUsers";
+import { STORAGE_BOOQABLE } from "../util/config";
 
 interface ISelect {
   label: string;
@@ -1347,7 +1348,7 @@ const TableDemo = () => {
                                   event?.images?.includes("66.42.48.163")
                                     ? event?.images?.replace(
                                         "http://66.42.48.163:9000/booqable/",
-                                        "https://storage-booqable.emi-project.my.id/booqable/"
+                                        STORAGE_BOOQABLE
                                       )
                                     : event.images
                                     ? `https://democreation.site/home/public/${event?.images}`
