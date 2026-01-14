@@ -260,7 +260,7 @@ export const InventoryService = {
   },
   loginFetch: async (body: any): Promise<APIResponse<any>> => {
     const result = await fetch(
-      "http://45.77.245.18:8282",
+      "https://emi-production.emi.web.id",
       {
         method: "POST",
         body: JSON.stringify({
@@ -277,7 +277,7 @@ export const InventoryService = {
   },
   postRegister: async (body: any): Promise<APIResponse<any>> => {
     const result = await fetch(
-      "http://45.77.245.18:8282",
+      "https://emi-production.emi.web.id",
       {
         method: "POST",
         body: JSON.stringify({
