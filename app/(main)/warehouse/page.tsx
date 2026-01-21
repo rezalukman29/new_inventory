@@ -276,7 +276,7 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
-                <p>{moment(data.created_at as any).format("LLL")}</p>
+                <p>{moment(data.created_at as any).format("D MMM YYYY, HH:MM")}</p>
               )}
               sortable
               sortField="created_at"
@@ -289,7 +289,7 @@ const TableDemo = () => {
               body={(data: any) => (
                 <p>
                   {data.updated_at
-                    ? moment(data.updated_at as any).format("LLL")
+                    ? moment(data.updated_at as any).format("D MMM YYYY, HH:MM")
                     : "-"}
                 </p>
               )}

@@ -422,7 +422,7 @@ const TableDemo = () => {
                   sortable
                   sortField="created_at"
                   body={(data: any) => (
-                    <p>{moment(data.created_at as any).format("LLL")}</p>
+                    <p>{moment(data.created_at as any).format("D MMM YYYY, HH:MM")}</p>
                   )}
                 />
                 <Column

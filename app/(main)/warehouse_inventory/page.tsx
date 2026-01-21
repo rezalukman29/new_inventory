@@ -564,7 +564,7 @@ const TableDemo = () => {
             dataKey="id"
             lazy
             totalRecords={total}
-            tableStyle={{ width: 1800, fontSize: 13 }}
+            tableStyle={{ width: 2400, fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -751,7 +751,7 @@ const TableDemo = () => {
               body={(data: any) => (
                 <p>
                   {data.updated_at
-                    ? moment(data.updated_at as any).format("LLL")
+                    ? moment(data.updated_at as any).format("D MMM YYYY, HH:MM")
                     : "-"}
                 </p>
               )}
@@ -1171,7 +1171,7 @@ const TableDemo = () => {
                   filterPlaceholder="Search by name"
                   style={{ minWidth: "3rem" }}
                   body={(data: any) => (
-                    <p>{moment(data.created_at as any).format("LLL")}</p>
+                    <p>{moment(data.created_at as any).format("D MMM YYYY, HH:MM")}</p>
                   )}
                 />
                 {/* <Column

@@ -275,7 +275,7 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
-                <p>{moment(data.created_at as any).format("LLL")}</p>
+                <p>{moment(data.created_at as any).format("D MMM YYYY, HH:MM")}</p>
               )}
             />
             {/* <Column

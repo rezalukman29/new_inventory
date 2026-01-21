@@ -135,7 +135,7 @@ const TableDemo = () => {
             />
             <Column
               field="stok"
-              header="Stok"
+              header="Stock"
               filterPlaceholder="Search by name"
               style={{
                 minWidth: "4rem",
@@ -146,7 +146,7 @@ const TableDemo = () => {
             />
             <Column
               field="created_at"
-              header="Warehouse Stok"
+              header="Warehouse Stock"
               filterPlaceholder="Search by name"
               style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
@@ -164,7 +164,7 @@ const TableDemo = () => {
               field="created_at"
               header="Detail"
               filterPlaceholder="Search by name"
-              style={{ width: 600, paddingTop: 8, paddingBottom: 8 }}
+              style={{ width: 400, paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p>
                   {data.barang_gudang
