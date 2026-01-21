@@ -642,7 +642,7 @@ const TableDemo = () => {
                       paddingBottom: 8,
                     }}
                     body={(data: any) => (
-                      <p>{moment(data.event_start as any).format("LLL")}</p>
+                      <p>{moment(data.event_start as any).format("D MMM YYYY")}</p>
                     )}
                     sortable
                     sortField="event_start"
@@ -657,7 +657,7 @@ const TableDemo = () => {
                       paddingBottom: 8,
                     }}
                     body={(data: any) => (
-                      <p>{moment(data.event_end as any).format("LLL")}</p>
+                      <p>{moment(data.event_end as any).format("D MMM YYYY")}</p>
                     )}
                     sortable
                     sortField="event_end"
@@ -674,7 +674,7 @@ const TableDemo = () => {
                     body={(data: any) => (
                       <p>
                         {data.date_event
-                          ? moment(data.date_event as any).format("LLL")
+                          ? moment(data.date_event as any).format("D MMM YYYY")
                           : "No Data"}
                       </p>
                     )}
