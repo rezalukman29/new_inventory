@@ -398,7 +398,7 @@ const TableDemo = () => {
       didDrawCell: (data) => {
         if (
           data.section === "body" &&
-          data.column.index === 8 &&
+          data.column.index === 9 &&
           data.row.index > 0
         ) {
           const base64Img = base64Data[data.row.index - 1];
@@ -1535,6 +1535,7 @@ const TableDemo = () => {
                 <th style={{ width: 200 }}>Description</th>
                 <th>Location</th>
                 <th>PIC</th>
+                <th>User</th>
                 <th>Start</th>
                 <th>End</th>
                 <th>Date</th>
@@ -1554,6 +1555,16 @@ const TableDemo = () => {
                       <td>{item.description}</td>
                       <td style={{ textAlign: "left", width: 200 }}>{item.address}</td>
                       <td>{item.PIC}</td>
+                      <td>{users?.data?.users?.length && item.admins?.length
+                          ? item.admins
+                              ?.map(
+                                (el: any) =>
+                                  users?.data?.users?.find(
+                                    (item: any) => item.id === el
+                                  )?.fullname
+                              )
+                              ?.join(", ")
+                          : "-"}</td>
                       <td style={{ textAlign: "left", width: 70 }}>
                         {moment(item.event_start as any).format("D MMM YYYY")}
                       </td>
