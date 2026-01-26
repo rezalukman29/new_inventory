@@ -34,6 +34,9 @@ import { classNames } from "primereact/utils";
 import { TabMenu } from "primereact/tabmenu";
 import useGetUsers from "../hooks/api/useGetUsers";
 import { STORAGE_BOOQABLE } from "../util/config";
+import { convertBase64Event } from "../util/function";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface ISelect {
   label: string;
@@ -66,7 +69,7 @@ const TableDemo = () => {
   const [sortBy, setSortBy] = useState<string>("created_at");
   const [base64, setBase64] = useState<string>();
   const [activeIndex, setActiveIndex] = useState<number>(0);
-
+  const [isLoadingPrint, setIsLoadingPrint] = useState<boolean>(false);
   const [listAdminEvent, setListAdminEvent] = useState<any[]>([]);
   const [pageAdmin, setPageAdmin] = useState<number>(1);
   const [firstAdmin, setFirstAdmin] = useState<number>(0);
@@ -380,6 +383,65 @@ const TableDemo = () => {
     }
   };
 
+  function handleGeneratePdf(base64Data: string[]) {
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+    });
+
+    autoTable(doc, {
+      html: "#table1",
+      showHead: "everyPage",
+      columnStyles: {
+        0: { minCellHeight: 34, cellWidth: "auto" },
+      },
+      didDrawCell: (data) => {
+        if (
+          data.section === "body" &&
+          data.column.index === 8 &&
+          data.row.index > 0
+        ) {
+          const base64Img = base64Data[data.row.index - 1];
+          if (base64Img) {
+            doc.addImage(
+              base64Img,
+              "JPEG",
+              data.cell.x + 2,
+              data.cell.y + 2,
+              28,
+              28
+            );
+          }
+        }
+      },
+    });
+    doc.setPage(1);
+    doc.text("Event", 10, 18);
+    doc.save(`event.pdf`);
+  }
+
+  const handlePrint = async () => {
+    try {
+      setIsLoadingPrint(true);
+      const items = await convertBase64Event(listEvent);
+      setIsLoadingPrint(false);
+
+      setTimeout(() => {
+        handleGeneratePdf(
+          items
+            ?.sort(function (a: any, b: any) {
+              if (a.created_at > b.created_at) return 1;
+              if (a.created_at < b.created_at) return -1;
+              return 0;
+            })
+            .map((el: any) => el?.base64)
+        );
+      }, 200);
+    } catch (error: any) {
+      setIsLoadingPrint(false);
+    }
+  };
+
   const renderHeader1 = () => {
     return (
       <div className="flex justify-content-between">
@@ -411,17 +473,31 @@ const TableDemo = () => {
             className="button"
           />
         </div>
-        {isAdmin && (
-          <Button
-            label="New"
-            icon="pi pi-plus"
-            severity="success"
-            className="button mr-2"
-            onClick={() => {
-              activeIndex === 2 ? setAdminDialog(true) : setProductDialog(true);
-            }}
-          />
-        )}
+        <div>
+          {isAdmin && (
+            <Button
+              label="New"
+              icon="pi pi-plus"
+              severity="success"
+              className="button mr-2"
+              onClick={() => {
+                activeIndex === 2
+                  ? setAdminDialog(true)
+                  : setProductDialog(true);
+              }}
+            />
+          )}
+          {activeIndex !== 2 && (
+            <Button
+              label="Print"
+              icon="pi pi-print"
+              severity="help"
+              disabled={!listEvent?.length}
+              className="button mr-2"
+              onClick={handlePrint}
+            />
+          )}
+        </div>
       </div>
     );
   };
@@ -472,7 +548,7 @@ const TableDemo = () => {
 
   return (
     <>
-      {isLoading && <Loading />}
+      {isLoading || isLoadingPrint && <Loading />}
       <div className="grid">
         <Toast ref={toast} />
         <div className="col-12">
@@ -642,7 +718,9 @@ const TableDemo = () => {
                       paddingBottom: 8,
                     }}
                     body={(data: any) => (
-                      <p>{moment(data.event_start as any).format("D MMM YYYY")}</p>
+                      <p>
+                        {moment(data.event_start as any).format("D MMM YYYY")}
+                      </p>
                     )}
                     sortable
                     sortField="event_start"
@@ -657,7 +735,9 @@ const TableDemo = () => {
                       paddingBottom: 8,
                     }}
                     body={(data: any) => (
-                      <p>{moment(data.event_end as any).format("D MMM YYYY")}</p>
+                      <p>
+                        {moment(data.event_end as any).format("D MMM YYYY")}
+                      </p>
                     )}
                     sortable
                     sortField="event_end"
@@ -1447,6 +1527,51 @@ const TableDemo = () => {
                 />
               </div>
             </Dialog>
+
+            <table id="table1" style={{ color: "#000", display: "none" }}>
+              <tr>
+                <th>No</th>
+                <th>Nama</th>
+                <th style={{ width: 200 }}>Description</th>
+                <th>Location</th>
+                <th>PIC</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Date</th>
+                <th>Image</th>
+              </tr>
+              {listEvent
+                // .sort(function (a: any, b: any) {
+                //   if (a.area > b.area) return 1;
+                //   if (a.area < b.area) return -1;
+                //   return 0;
+                // })
+                .map((item: any, idx: number) => {
+                  return (
+                    <tr>
+                      <td>{idx + 1}</td>
+                      <td>{item.name}</td>
+                      <td>{item.description}</td>
+                      <td style={{ textAlign: "left", width: 200 }}>{item.address}</td>
+                      <td>{item.PIC}</td>
+                      <td style={{ textAlign: "left", width: 70 }}>
+                        {moment(item.event_start as any).format("D MMM YYYY")}
+                      </td>
+                      <td style={{ textAlign: "left", width: 150 }}>
+                        {moment(item.event_end as any).format("D MMM YYYY")}
+                      </td>
+                      <td style={{ textAlign: "left", width: 150 }}>
+                        {item.date_event
+                          ? moment(item.date_event as any).format("D MMM YYYY")
+                          : "No Data"}
+                      </td>
+                      <td>
+                        <img src={item.base64} />
+                      </td>
+                    </tr>
+                  );
+                })}
+            </table>
           </div>
         </div>
       </div>

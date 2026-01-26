@@ -298,7 +298,7 @@ export const InventoryService = {
     return response.data;
   },
   getGudang: async () => {
-    const response = await ax.get(`/v1/gudang`);
+    const response = await ax.get(`/v1/gudang?page=1&limit=1000`);
     return response.data;
   },
   addGudang: async (payload: any) => {
