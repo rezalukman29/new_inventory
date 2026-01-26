@@ -50,6 +50,7 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import useGetPackaging from "@/app/hooks/api/useGetPackaging";
 import useGetEventPackaging from "@/app/hooks/api/useGetEventPackaging";
+import { Accordion, AccordionTab } from "primereact/accordion";
 
 type Props = {};
 
@@ -1089,82 +1090,75 @@ const Page = (props: Props) => {
             />
             <div className="text mt-2 font-bold">{item.nama_barang}</div>
             <div className="text mt-1">Qty: {item.stok}</div>
-            <div className="flex flex-row items-center mt-1">
-              <Icon
-                icon="material-symbols:edit-location-alt-outline-sharp"
-                color="#000"
-                className="mr-2"
-              />
-              <Text
-                label={item?.subArea ? item?.subArea : "No Sub Area"}
-                color="gray"
-              />
-            </div>
-            {item.status && (
-              <div className="flex flex-rxow items-center mt-1">
-                <Icon
-                  icon="material-symbols-light:task-outline-sharp"
-                  color="#000"
-                  className="mr-2"
-                />
-                <Text label={item.status} color="gray" />
-              </div>
-            )}
-            <div className="flex flex-row" style={{ alignItems: "center" }}>
-              {item?.additionalCode && (
-                <div className="flex flex-row items-center mt-1">
-                  <Icon
-                    icon="material-symbols-light:code"
-                    color="#000"
-                    className="mr-2"
-                  />
-                  <Text label={item.additionalCode} color="gray" />
-                </div>
-              )}
-              {item?.inputBy && (
-                <div className="flex flex-row items-center mt-1 ml-2">
-                  <Icon
-                    icon="solar:user-bold-duotone"
-                    color="#000"
-                    className="mr-2"
-                  />
-                  <Text
-                    label={item.inputBy}
-                    color="gray"
-                    className="break-all"
-                  />
-                </div>
-              )}
-            </div>
-            {item?.notes && (
-              <div className="flex flex-row items-start mt-1 ">
-                <Icon
-                  icon="fluent-mdl2:edit-note"
-                  color="#000"
-                  className="mr-2"
-                />
-                <Text label={item.notes} color="gray" className="break-all" />
-              </div>
-            )}
-            {isCart && item?.packaging !== 0 && (
-              <div className="flex flex-row items-start mt-1 ">
-                <Icon icon="solar:box-linear" color="#000" className="mr-2" />
-                <Text
-                  label={
-                    packageList?.find(
-                      (el) => Number(el.value) === Number(item.packaging)
-                    )?.label ?? "No Packaging"
-                  }
-                  color="gray"
-                  className="break-all"
-                />
-              </div>
-            )}
-
-            {!isCart && item?.packaging?.length > 0 ? (
-              <>
-                {item.packaging.map((el: any) => {
-                  return (
+            <Accordion activeIndex={null} style={{ marginTop: 8, width: '100%' }}>
+              <AccordionTab header="Click More" style={{ width: "100%" }}>
+                <>
+      
+                  <div className="flex flex-row items-center mt-1">
+                    <Icon
+                      icon="material-symbols:edit-location-alt-outline-sharp"
+                      color="#000"
+                      className="mr-2"
+                    />
+                    <Text
+                      label={item?.subArea ? item?.subArea : "No Sub Area"}
+                      color="gray"
+                    />
+                  </div>
+                  {item.status && (
+                    <div className="flex flex-rxow items-center mt-1">
+                      <Icon
+                        icon="material-symbols-light:task-outline-sharp"
+                        color="#000"
+                        className="mr-2"
+                      />
+                      <Text label={item.status} color="gray" />
+                    </div>
+                  )}
+                  <div
+                    className="flex flex-row"
+                    style={{ alignItems: "center" }}
+                  >
+                    {item?.additionalCode && (
+                      <div className="flex flex-row items-center mt-1">
+                        <Icon
+                          icon="material-symbols-light:code"
+                          color="#000"
+                          className="mr-2"
+                        />
+                        <Text label={item.additionalCode} color="gray" />
+                      </div>
+                    )}
+                    {item?.inputBy && (
+                      <div className="flex flex-row items-center mt-1 ml-2">
+                        <Icon
+                          icon="solar:user-bold-duotone"
+                          color="#000"
+                          className="mr-2"
+                        />
+                        <Text
+                          label={item.inputBy}
+                          color="gray"
+                          className="break-all"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  {item?.notes && (
+                    <div className="flex flex-row items-start mt-1 ">
+                      <Icon
+                        icon="fluent-mdl2:edit-note"
+                        color="#000"
+                        className="mr-2"
+                      />
+                      <Text
+                        label={item.notes}
+                        color="gray"
+                        className="break-all"
+                      />
+                    </div>
+                  )}
+                  {isCart && item?.packaging !== 0 && (
                     <div className="flex flex-row items-start mt-1 ">
                       <Icon
                         icon="solar:box-linear"
@@ -1172,176 +1166,207 @@ const Page = (props: Props) => {
                         className="mr-2"
                       />
                       <Text
-                        label={`${el?.package_name} (${el.qty} pcs)`}
+                        label={
+                          packageList?.find(
+                            (el) => Number(el.value) === Number(item.packaging)
+                          )?.label ?? "No Packaging"
+                        }
                         color="gray"
                         className="break-all"
                       />
                     </div>
-                  );
-                })}
-              </>
-            ) : (
-              <div className="flex flex-row items-start mt-1 ">
-                <Icon icon="solar:box-linear" color="#000" className="mr-2" />
-                <Text
-                  label={"No Packaging"}
-                  color="gray"
-                  className="break-all"
-                />
-              </div>
-            )}
+                  )}
 
-            <div className="mt-3 flex flex-col gap-x-4">
-              <div className="flex flex-row">
-                <Checkbox checked={Boolean(item.isChecking)} disabled>
-                  Checking
-                </Checkbox>
-                <p className="ml-2"> Checking</p>
-              </div>
-              <div className="flex flex-row ml-4">
-                <Checkbox checked={Boolean(item.isWarehouseItem)} disabled>
-                  Warehouse Item
-                </Checkbox>
-                <p className="ml-2"> Warehouse Item</p>
-              </div>
-            </div>
-          </div>
-          {isShowScan ? (
-            <>
-              {item.scan_in === 0 || item.scan_in === 1 ? (
-                <div
-                  className="flex-row flex text-center"
-                  style={{ marginBottom: 16 }}
-                >
-                  <div className="flex-1">
-                    <p style={{ marginBottom: 0 }}>Scan In</p>
-                    <Icon
-                      icon={
-                        item?.scan_in === 1
-                          ? "mingcute:check-fill"
-                          : "ic:baseline-close"
-                      }
-                      color={item?.scan_in === 1 ? "green" : "red"}
-                      style={{ fontSize: 24 }}
-                    />
-                    <p style={{ marginTop: 8 }}> Scan In Date</p>
-                    <p style={{ marginTop: -8, color: "grey" }}>
-                      {item?.scan_in === 1
-                        ? moment(item.scan_in_date as any)
-                            .add(
-                              Number(
-                                item.scan_in_date
-                                  .split("+")
-                                  .reverse()[0]
-                                  .split(":")[0]
-                              ),
-                              "hours"
-                            )
-                            .format("LLL")
-                        : "-"}
-                    </p>
-                    {item?.scan_in === 1 && (
-                      <Button
-                        className="button"
-                        severity={"danger"}
-                        label="Cancel"
-                        style={{ padding: 6, fontSize: 10, top: -8 }}
-                        onClick={() => {
-                          setSelecetd({ ...item, type: "IN" });
-                          setIsCancelScan(true);
-                          setDeleteConfirmation(true);
-                        }}
+                  {!isCart && item?.packaging?.length > 0 ? (
+                    <>
+                      {item.packaging.map((el: any) => {
+                        return (
+                          <div className="flex flex-row items-start mt-1 ">
+                            <Icon
+                              icon="solar:box-linear"
+                              color="#000"
+                              className="mr-2"
+                            />
+                            <Text
+                              label={`${el?.package_name} (${el.qty} pcs)`}
+                              color="gray"
+                              className="break-all"
+                            />
+                          </div>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <div className="flex flex-row items-start mt-1 ">
+                      <Icon
+                        icon="solar:box-linear"
+                        color="#000"
+                        className="mr-2"
                       />
-                    )}
+                      <Text
+                        label={"No Packaging"}
+                        color="gray"
+                        className="break-all"
+                      />
+                    </div>
+                  )}
+
+                  <div className="mt-3 flex flex-col gap-x-4">
+                    <div className="flex flex-row">
+                      <Checkbox checked={Boolean(item.isChecking)} disabled>
+                        Checking
+                      </Checkbox>
+                      <p className="ml-2"> Checking</p>
+                    </div>
+                    <div className="flex flex-row ml-4">
+                      <Checkbox
+                        checked={Boolean(item.isWarehouseItem)}
+                        disabled
+                      >
+                        Warehouse Item
+                      </Checkbox>
+                      <p className="ml-2"> Warehouse Item</p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p style={{ marginBottom: 0 }}>Scan Out</p>
-                    <Icon
-                      icon={
-                        item?.scan_out === 1
-                          ? "mingcute:check-fill"
-                          : "ic:baseline-close"
-                      }
-                      color={item?.scan_out === 1 ? "green" : "red"}
-                      style={{ fontSize: 24, bottom: 18 }}
+                </>
+                {isShowScan ? (
+                  <>
+                    {item.scan_in === 0 || item.scan_in === 1 ? (
+                      <div
+                        className="flex-row flex text-center"
+                        style={{ marginBottom: 16 }}
+                      >
+                        <div className="flex-1">
+                          <p style={{ marginBottom: 0 }}>Scan In</p>
+                          <Icon
+                            icon={
+                              item?.scan_in === 1
+                                ? "mingcute:check-fill"
+                                : "ic:baseline-close"
+                            }
+                            color={item?.scan_in === 1 ? "green" : "red"}
+                            style={{ fontSize: 24 }}
+                          />
+                          <p style={{ marginTop: 8 }}> Scan In Date</p>
+                          <p style={{ marginTop: -8, color: "grey" }}>
+                            {item?.scan_in === 1
+                              ? moment(item.scan_in_date as any)
+                                  .add(
+                                    Number(
+                                      item.scan_in_date
+                                        .split("+")
+                                        .reverse()[0]
+                                        .split(":")[0]
+                                    ),
+                                    "hours"
+                                  )
+                                  .format("LLL")
+                              : "-"}
+                          </p>
+                          {item?.scan_in === 1 && (
+                            <Button
+                              className="button"
+                              severity={"danger"}
+                              label="Cancel"
+                              style={{ padding: 6, fontSize: 10, top: -8 }}
+                              onClick={() => {
+                                setSelecetd({ ...item, type: "IN" });
+                                setIsCancelScan(true);
+                                setDeleteConfirmation(true);
+                              }}
+                            />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p style={{ marginBottom: 0 }}>Scan Out</p>
+                          <Icon
+                            icon={
+                              item?.scan_out === 1
+                                ? "mingcute:check-fill"
+                                : "ic:baseline-close"
+                            }
+                            color={item?.scan_out === 1 ? "green" : "red"}
+                            style={{ fontSize: 24, bottom: 18 }}
+                          />
+                          <p style={{ marginTop: 8 }}> Scan Out Date</p>
+                          <p style={{ marginTop: -8, color: "grey" }}>
+                            {item?.scan_out === 1
+                              ? moment(item.scan_out_date as any)
+                                  .add(
+                                    Number(
+                                      item.scan_out_date
+                                        .split("+")
+                                        .reverse()[0]
+                                        .split(":")[0]
+                                    ),
+                                    "hours"
+                                  )
+                                  .format("LLL")
+                              : "-"}
+                          </p>
+                          {item?.scan_in === 1 && (
+                            <Button
+                              severity={"danger"}
+                              label="Cancel"
+                              style={{ padding: 6, fontSize: 10, top: -8 }}
+                              onClick={() => {
+                                setSelecetd({ ...item, type: "OUT" });
+                                setIsCancelScan(true);
+                                setDeleteConfirmation(true);
+                              }}
+                              className="button"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ) : null}
+                  </>
+                ) : null}
+                <div className="flex align-items-center justify-content-between">
+                  <span className="text-2xl font-semibold"></span>
+                  <div className="flex-row">
+                    <Button
+                      icon="pi pi-box"
+                      style={{ marginRight: 8 }}
+                      severity="warning"
+                      onClick={() => {
+                        setBarang(item);
+                        setTimeout(() => {
+                          setPackagingDialog(true);
+                        }, 500);
+                      }}
+                      className="button"
                     />
-                    <p style={{ marginTop: 8 }}> Scan Out Date</p>
-                    <p style={{ marginTop: -8, color: "grey" }}>
-                      {item?.scan_out === 1
-                        ? moment(item.scan_out_date as any)
-                            .add(
-                              Number(
-                                item.scan_out_date
-                                  .split("+")
-                                  .reverse()[0]
-                                  .split(":")[0]
-                              ),
-                              "hours"
-                            )
-                            .format("LLL")
-                        : "-"}
-                    </p>
-                    {item?.scan_in === 1 && (
+                    {!isCart && (
                       <Button
-                        severity={"danger"}
-                        label="Cancel"
-                        style={{ padding: 6, fontSize: 10, top: -8 }}
+                        icon="pi pi-qrcode"
+                        severity="secondary"
                         onClick={() => {
-                          setSelecetd({ ...item, type: "OUT" });
-                          setIsCancelScan(true);
-                          setDeleteConfirmation(true);
+                          setBarang(item);
+                          setTimeout(() => {
+                            setQrDialog(true);
+                          }, 500);
                         }}
                         className="button"
                       />
                     )}
+                    <Button
+                      icon="pi pi-trash"
+                      style={{ marginLeft: 8 }}
+                      onClick={() => {
+                        if (isCart) {
+                          handleDeleteCart(item.id);
+                        } else {
+                          setSelecetd(item);
+                          setDeleteConfirmation(item);
+                        }
+                      }}
+                      className="button"
+                    />
                   </div>
                 </div>
-              ) : null}
-            </>
-          ) : null}
-
-          <div className="flex align-items-center justify-content-between">
-            <span className="text-2xl font-semibold"></span>
-            <div className="flex-row">
-              <Button
-                icon="pi pi-box"
-                style={{ marginRight: 8 }}
-                severity="warning"
-                onClick={() => {
-                  setBarang(item);
-                  setTimeout(() => {
-                    setPackagingDialog(true);
-                  }, 500);
-                }}
-                className="button"
-              />
-              {!isCart && (
-                <Button
-                  icon="pi pi-qrcode"
-                  severity="secondary"
-                  onClick={() => {
-                    setBarang(item);
-                    setTimeout(() => {
-                      setQrDialog(true);
-                    }, 500);
-                  }}
-                  className="button"
-                />
-              )}
-              <Button
-                icon="pi pi-trash"
-                style={{ marginLeft: 8 }}
-                onClick={() => {
-                  if (isCart) {
-                    handleDeleteCart(item.id);
-                  } else {
-                    setSelecetd(item);
-                    setDeleteConfirmation(item);
-                  }
-                }}
-                className="button"
-              />
-            </div>
+              </AccordionTab>
+            </Accordion>
           </div>
         </div>
       </div>
@@ -1892,6 +1917,7 @@ const Page = (props: Props) => {
                     optionLabel="label"
                     placeholder="Select warehouse"
                     className="flex-1"
+                    filter
                     // style={{ width: "100%"}}
                   />
                 </div>

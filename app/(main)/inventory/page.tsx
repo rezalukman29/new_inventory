@@ -28,7 +28,11 @@ import { classNames } from "primereact/utils";
 import React, { useEffect, useRef, useState } from "react";
 import type { Demo } from "@/types";
 import { InventoryService } from "@/app/service/InventoryService";
-import { isValidUrl, noImage } from "@/app/util/function";
+import {
+  convertBase64Inventory,
+  isValidUrl,
+  noImage,
+} from "@/app/util/function";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
@@ -46,6 +50,8 @@ import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import "../index.css";
 import useAccountController from "../useAccountController";
 import { STORAGE_BOOQABLE } from "@/app/util/config";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export interface ISelect {
   label: string;
@@ -58,6 +64,7 @@ const TableDemo = () => {
   const op = useRef<any>(null);
   const opMenu = useRef<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingPrint, setIsLoadingPrint] = useState<boolean>(false);
   const [isModify, setIsModify] = useState<boolean>(false);
   const [listBarang, setListBarang] = useState<any[]>([]);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
@@ -226,6 +233,64 @@ const TableDemo = () => {
     }
   };
 
+  function handleGeneratePdf(base64Data: string[]) {
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+    });
+
+    autoTable(doc, {
+      html: "#table1",
+      showHead: "everyPage",
+      columnStyles: {
+        0: { minCellHeight: 34, cellWidth: "auto" },
+      },
+      didDrawCell: (data) => {
+        if (
+          data.section === "body" &&
+          data.column.index === 7 &&
+          data.row.index > 0
+        ) {
+          const base64Img = base64Data[data.row.index - 1];
+          if (base64Img) {
+            doc.addImage(
+              base64Img,
+              "JPEG",
+              data.cell.x + 2,
+              data.cell.y + 2,
+              28,
+              28
+            );
+          }
+        }
+      },
+    });
+    doc.setPage(1);
+    doc.text("Product", 10, 18);
+    doc.save(`product.pdf`);
+  }
+
+  const handlePrint = async () => {
+    try {
+      setIsLoadingPrint(true);
+      const items = await convertBase64Inventory(listBarang);
+      setIsLoadingPrint(false);
+
+      setTimeout(() => {
+        handleGeneratePdf(
+          items
+            ?.sort(function (a: any, b: any) {
+              if (a.nama > b.nama) return 1;
+              if (a.nama < b.nama
+                ) return -1;
+              return 0;
+            })
+            .map((el: any) => el?.base64)
+        );
+      }, 200);
+    } catch (error: any) {}
+  };
+
   const getSatuan = async () => {
     try {
       setIsLoading(true);
@@ -383,15 +448,24 @@ const TableDemo = () => {
             className="button"
           />
         </div>
-        {isAdmin && (
+        <div>
+          {isAdmin && (
+            <Button
+              label="New"
+              icon="pi pi-plus"
+              severity="success"
+              className="button mr-2"
+              onClick={() => setProductDialog(true)}
+            />
+          )}
           <Button
-            label="New"
-            icon="pi pi-plus"
-            severity="success"
+            label="Print"
+            icon="pi pi-print"
+            severity="help"
             className="button mr-2"
-            onClick={() => setProductDialog(true)}
+            onClick={handlePrint}
           />
-        )}
+        </div>
       </div>
     );
   };
@@ -1098,9 +1172,26 @@ const TableDemo = () => {
     setSort(sort === "ASC" ? "DESC" : "ASC");
   };
 
+  const pdfData = listBarang?.map((el) => {
+    return {
+      nama: el.nama,
+      stok: el.stok_barang,
+      stokAll: el.barang_gudang?.reduce((accumulator: any, object: any) => {
+        return accumulator + Number(object.stok);
+      }, 0),
+      satuan: el.satuan.name,
+      category:
+        el?.kategori_barang?.name ??
+        listCategory?.find((a) => Number(a.value) === el?.kategori_id)?.label ??
+        "",
+      warehouse: el?.barang_gudang?.map((a: any) => a.gudang.nama)?.join(", "),
+    };
+  });
+
   return (
     <div className="grid">
       <Toast ref={toast} />
+      {isLoadingPrint && <Loading />}
       <div className="col-12">
         <div className="card">
           <h5>Inventory</h5>
@@ -1252,7 +1343,9 @@ const TableDemo = () => {
                   body={(data: any) => (
                     <p>
                       {data.updated_at
-                        ? moment(data.updated_at as any).format("D MMM YYYY, HH:MM")
+                        ? moment(data.updated_at as any).format(
+                            "D MMM YYYY, HH:MM"
+                          )
                         : "-"}
                     </p>
                   )}
@@ -1728,7 +1821,11 @@ const TableDemo = () => {
                   filterPlaceholder="Search by name"
                   style={{ minWidth: "3rem" }}
                   body={(data: any) => (
-                    <p>{moment(data.created_at as any).format("D MMM YYYY, HH:MM")}</p>
+                    <p>
+                      {moment(data.created_at as any).format(
+                        "D MMM YYYY, HH:MM"
+                      )}
+                    </p>
                   )}
                 />
                 {/* <Column
@@ -1757,6 +1854,43 @@ const TableDemo = () => {
           </Dialog>
         </div>
       </div>
+
+      <table id="table1" style={{ color: "#000", display: "none" }}>
+        <tr>
+          <th>No</th>
+          <th>Nama</th>
+          <th>Stok</th>
+          <th>Stok All</th>
+          <th>Satuan</th>
+          <th>Category</th>
+          <th>Warehouse</th>
+          <th>Image</th>
+        </tr>
+        {pdfData
+          // .sort(function (a: any, b: any) {
+          //   if (a.area > b.area) return 1;
+          //   if (a.area < b.area) return -1;
+          //   return 0;
+          // })
+          .map((item: any, idx: number) => {
+            return (
+              <tr>
+                <td>{idx + 1}</td>
+                <td>{item.nama}</td>
+                <td>{item.stok}</td>
+                <td>{item.stokAll}</td>
+                <td style={{ textAlign: "left", width: 70 }}>{item.satuan}</td>
+                <td style={{ textAlign: "left", width: 150 }}>
+                  {item.category}
+                </td>
+                <td>{item.warehouse}</td>
+                <td>
+                  <img src={item.base64} />
+                </td>
+              </tr>
+            );
+          })}
+      </table>
 
       {/* <div className="col-12">
                 <div className="card">
