@@ -16,29 +16,20 @@ import { InventoryService } from "@/app/service/InventoryService";
 import { useDispatch } from "react-redux";
 import { setProfile } from "@/app/store/profile";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
+import Loading from "@/app/components/atoms/loading";
 
 const LoginPage = () => {
   const toast = useRef<any>(null);
   const [password, setPassword] = useState("");
-  const [checked, setChecked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { layoutConfig } = useContext(LayoutContext);
-  const router = useRouter();
-  const dispatch = useDispatch()
-  //   const { data, status } = useSession();
-  const [width] = useDeviceSize();
-  const [widthScreen, setWidth] = useState<number>(width);
 
-  function handleWindowSizeChange() {
-      setWidth(window.innerWidth);
-  }
-  useEffect(() => {
-      window.addEventListener('resize', handleWindowSizeChange);
-      return () => {
-          window.removeEventListener('resize', handleWindowSizeChange);
-      }
-  }, []);
-  
-  const isMobile = widthScreen <= 768;
+  const router = useRouter();
+  const containerClassName = classNames(
+    "surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden",
+    { "p-input-filled": layoutConfig.inputStyle === "filled" }
+  );
+  const dispatch = useDispatch();
   const formik = useFormik<any>({
     initialValues: {
       email: "",
@@ -52,17 +43,22 @@ const LoginPage = () => {
     enableReinitialize: true,
     onSubmit: (values) => onLogin(values),
   });
+  const [width] = useDeviceSize();
 
+  const isMobile = width <= 768;
   const onLogin = async (payload: any) => {
     try {
+      setIsLoading(true);
       const response = await InventoryService.loginFetch(payload);
       if (response.success) {
-        dispatch(setProfile({
-          id: response?.data?.id,
-          fullname: response?.data?.fullname,
-          email: response?.data?.email,
-          user_type: response?.data?.user_type
-        }))
+        dispatch(
+          setProfile({
+            id: response?.data?.id,
+            fullname: response?.data?.fullname,
+            email: response?.data?.email,
+            user_type: response?.data?.user_type,
+          })
+        );
         localStorage.setItem("auth", JSON.stringify(response.data));
         toast?.current?.show({
           severity: "success",
@@ -71,9 +67,11 @@ const LoginPage = () => {
           life: 3000,
         });
         setTimeout(() => {
+          setIsLoading(false);
           router.push("/");
         }, 1000);
       } else {
+        setIsLoading(false);
         toast?.current?.show({
           severity: "error",
           summary: "Error",
@@ -82,6 +80,7 @@ const LoginPage = () => {
         });
       }
     } catch (error: any) {
+      setIsLoading(false);
       toast?.current?.show({
         severity: "error",
         summary: "Error",
@@ -91,32 +90,26 @@ const LoginPage = () => {
     }
   };
 
-  const containerClassName = classNames(
-    "surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden",
-    { "p-input-filled": layoutConfig.inputStyle === "filled" }
-  );
-
   return (
     <div className={containerClassName}>
+      {isLoading && <Loading />}
       <div className="flex flex-column align-items-center justify-content-center">
-        <Toast ref={toast} />
         <div
-        
           style={{
             borderRadius: "56px",
             padding: "0.3rem",
-            ...(isMobile && {width: width - 32}),
+            ...(isMobile && { width: width - 32 }),
             background:
               "linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)",
           }}
         >
           <div
-            className="w-full surface-card py-8 px-4 sm:px-5"
+            className="w-full surface-card py-8 px-5 sm:px-8"
             style={{ borderRadius: "53px" }}
           >
             <div className="text-center mb-5">
               <div className="text-900 text-3xl font-medium mb-3">
-                EMI INVENTORY
+                EMI Inventory
               </div>
               <span className="text-600 font-medium">Sign in to continue</span>
             </div>
@@ -147,31 +140,43 @@ const LoginPage = () => {
                 Password
               </label>
               <Password
-              feedback={false}
                 inputId="password1"
                 value={formik.values.password}
                 onChange={(e) =>
                   formik.setFieldValue("password", e.target.value)
                 }
-                placeholder="Password"
+                feedback={false}
                 toggleMask
+                placeholder="Password"
                 className="w-full mb-5"
                 inputClassName={`w-full p-3 md:w-30rem ${
                   formik.errors.password ? "border-red-600" : "border-gray-300"
                 }`}
               ></Password>
 
-              <div className="flex align-items-center justify-content-between mb-1 gap-5">
-                <div className="flex align-items-center"></div>
-                <a
+              <div className="flex align-items-center justify-content-between mb-5 gap-5">
+                {/* <div className="flex align-items-center">
+                  <Checkbox
+                    inputId="rememberme1"
+                    checked={checked}
+                    onChange={(e) => setChecked(e.checked ?? false)}
+                    className="mr-2"
+                  ></Checkbox>
+                  <label htmlFor="rememberme1">Remember me</label>
+                </div> */}
+                {/* <a
                   className="font-medium no-underline ml-2 text-right cursor-pointer"
                   style={{ color: "var(--primary-color)" }}
-                ></a>
+                >
+                  Forgot password?
+                </a> */}
               </div>
               <Button
+                type="button"
                 label="Sign In"
+                disabled={!formik.values.email || !formik.values.password}
                 className="w-full p-3 text-xl"
-                onClick={() => formik.handleSubmit()}
+                onClick={onLogin}
               ></Button>
             </div>
           </div>
