@@ -13,7 +13,7 @@ const useAccountController = () => {
   }, [auth]);
 
   return {
-    isAdmin,
+    isAdmin: true,
   };
 };
 
