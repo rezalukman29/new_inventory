@@ -63,6 +63,8 @@ const TableDemo = () => {
   const [firstLog, setFirstLog] = useState<number>(0);
   const [sort, setSort] = useState<SortType>("ASC");
   const [sortBy, setSortBy] = useState<string>("nama_barang");
+  const [isShowStockOpname, setIsShowStockOpname] = useState<boolean>(false);
+  const [isStockOpname, setIsStockOpname] = useState<boolean>(false);
 
   const formik = useFormik<any>({
     initialValues: {
@@ -180,6 +182,28 @@ const TableDemo = () => {
     },
   });
 
+  const formOpname = useFormik<any>({
+    initialValues: {
+      period: "",
+      remark: "",
+    },
+    validationSchema: Yup.object({
+      period: Yup.string().required("Required"),
+      remark: Yup.string().required("Required"),
+    }),
+    validateOnChange: false,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      if (isStockOpname) {
+        setIsShowStockOpname(false);
+        setIsStockOpname(false);
+        formOpname.resetForm();
+      } else {
+        setIsStockOpname(true);
+      }
+    },
+  });
+
   const getInventoryList = async (size?: number) => {
     try {
       setIsLoading(true);
@@ -189,7 +213,7 @@ const TableDemo = () => {
         searchValue,
         size ?? pageSize,
         sort,
-        sortBy,
+        sortBy
       );
       setListBarang(response.data);
       setTotal(response.total_records);
@@ -328,15 +352,26 @@ const TableDemo = () => {
             className="button"
           />
         </div>
-        {isAdmin && (
-          <Button
-            label="New"
-            icon="pi pi-plus"
-            severity="success"
-            className="button mr-2"
-            onClick={() => setProductDialog(true)}
-          />
-        )}
+        <div>
+          {isAdmin && (
+            <Button
+              label="Stock Opname"
+              icon="pi pi-database"
+              severity="help"
+              className="button mr-2"
+              onClick={() => setIsShowStockOpname(true)}
+            />
+          )}
+          {isAdmin && (
+            <Button
+              label="New"
+              icon="pi pi-plus"
+              severity="success"
+              className="button mr-2"
+              onClick={() => setProductDialog(true)}
+            />
+          )}
+        </div>
       </div>
     );
   };
@@ -393,6 +428,30 @@ const TableDemo = () => {
         severity="success"
         type="submit"
         onClick={() => formik.handleSubmit()}
+        className="button"
+      />
+    </>
+  );
+
+  const stockOpnameFooter = (
+    <>
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        severity="danger"
+        onClick={() => {
+          setIsShowStockOpname(false);
+          setIsStockOpname(false);
+          formOpname.resetForm();
+        }}
+        className="button"
+      />
+      <Button
+        label="Submit"
+        icon="pi pi-check"
+        severity="success"
+        type="submit"
+        onClick={() => formOpname.handleSubmit()}
         className="button"
       />
     </>
@@ -1171,7 +1230,11 @@ const TableDemo = () => {
                   filterPlaceholder="Search by name"
                   style={{ minWidth: "3rem" }}
                   body={(data: any) => (
-                    <p>{moment(data.created_at as any).format("D MMM YYYY, HH:MM")}</p>
+                    <p>
+                      {moment(data.created_at as any).format(
+                        "D MMM YYYY, HH:MM"
+                      )}
+                    </p>
                   )}
                 />
                 {/* <Column
@@ -1197,6 +1260,157 @@ const TableDemo = () => {
             /> */}
               </DataTable>
             </p>
+          </Dialog>
+          <Dialog
+            visible={isShowStockOpname}
+            style={{ width: isStockOpname ? "900px" : "450px" }}
+            header={"Stock Opname"}
+            modal
+            className="p-fluid"
+            footer={stockOpnameFooter}
+            onHide={() => {
+              setIsShowStockOpname(false);
+              setIsStockOpname(false);
+              formOpname.resetForm();
+            }}
+          >
+            <div className="field">
+              <label htmlFor="name">Period</label>
+              <InputText
+                id="name"
+                value={formOpname.values.period}
+                onChange={(e) =>
+                  formOpname.setFieldValue("period", e.target.value)
+                }
+                autoFocus
+                className={`text-black border w-full py-2 px-4 ${
+                  formOpname.errors.period
+                    ? "border-red-600"
+                    : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="name">Remark</label>
+              <InputText
+                id="name"
+                value={formOpname.values.remark}
+                onChange={(e) =>
+                  formOpname.setFieldValue("remark", e.target.value)
+                }
+                className={`text-black border w-full py-2 px-4 ${
+                  formOpname.errors.remark
+                    ? "border-red-600"
+                    : "border-gray-300"
+                } rounded-lg bg-transparent`}
+              />
+            </div>
+            {isStockOpname && (
+              <DataTable
+                value={listBarang}
+                paginator
+                className="p-datatable-gridlines"
+                onPage={(e) => {
+                  setFirst(e.first);
+                  setPage(Number(e.page) + 1);
+                }}
+                rows={pageSize}
+                dataKey="id"
+                lazy
+                totalRecords={total}
+                tableStyle={{ width: "100%", fontSize: 13 }}
+                first={first}
+                alwaysShowPaginator
+                loading={isLoading}
+                scrollable
+                responsiveLayout="scroll"
+                emptyMessage="No customers found."
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} to {last} of {totalRecords} warehouse inventory"
+                onSort={(e) => onSort(e.sortField)}
+                sortField={sortBy}
+                sortOrder={sort === "ASC" ? 1 : -1}
+              >
+                <Column
+                  field="nama_barang"
+                  header="Name"
+                  headerStyle={{ justifyItems: "center" }}
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  bodyClassName={classNames({ "font-bold": true })}
+                  frozen
+                  sortable
+                  sortField="nama_barang"
+                />
+                <Column
+                  field="gudang_name"
+                  header="Warehouse Name"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  headerStyle={{ justifyItems: "center" }}
+                  bodyStyle={{ textAlign: "center" }}
+                  sortable
+                  sortField="gudang_name"
+                />
+                <Column
+                  field="stok_gudang"
+                  header="Warehouse Stock"
+                  filterPlaceholder="Search by name"
+                  style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
+                  headerStyle={{ justifyItems: "center" }}
+                  bodyStyle={{ textAlign: "center" }}
+                  sortable
+                  sortField="stok_gudang"
+                />
+
+                <Column
+                  field="address"
+                  header="New Stock"
+                  headerStyle={{ justifyItems: "center" }}
+                  style={{ width: 200, paddingTop: 8, paddingBottom: 8 }}
+                  bodyStyle={{ textAlign: "center" }}
+                  body={(data) => {
+                    return (
+                      <div>
+                        <InputText
+                          id="name"
+                          keyfilter="int"
+                          // value={formOpname.values.period}
+                          // onChange={(e) =>
+                          //   formOpname.setFieldValue("period", e.target.value)
+                          // }
+                          autoFocus
+                          className={`text-black border w-full py-2 px-4 "border-gray-300"
+                             rounded-lg bg-transparent`}
+                        />
+                      </div>
+                    );
+                  }}
+                />
+
+                {/* <Column
+                       field="event_end"
+                       header="Satuan"
+                       filterPlaceholder="Search by name"
+                       style={{ minWidth: "3rem" }}
+                       body={inventoryImage}
+                     /> */}
+                {/* <Column
+                       field="satuan.name"
+                       header="Category"
+                       filterPlaceholder="Search by name"
+                       style={{ minWidth: "4rem" }}
+                       body={inventoryCategory}
+                     />
+                     <Column
+                       field="satuan.name"
+                       header="Category"
+                       filterPlaceholder="Search by name"
+                       style={{ minWidth: "4rem" }}
+                       body={inventoryWarehouse}
+                     /> */}
+              </DataTable>
+            )}
           </Dialog>
         </div>
       </div>
