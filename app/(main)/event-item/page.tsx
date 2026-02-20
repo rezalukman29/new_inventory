@@ -1080,8 +1080,12 @@ const Page = (props: Props) => {
             </span>
           </div>
           <div className="flex align-items-start justify-content-between mb-3">
-            <div style={{ maxWidth: "80%",  }}>
-             <Text label={item.nama_barang} variant="large" fontWeight="bold" />
+            <div style={{ maxWidth: "80%" }}>
+              <Text
+                label={item.nama_barang}
+                variant="large"
+                fontWeight="bold"
+              />
             </div>
             <div className="text mt-1">Qty: {item.stok}</div>
           </div>
@@ -1194,54 +1198,81 @@ const Page = (props: Props) => {
               </p>
             </div>
             <Text
-            className="mt-4"
+              className="mt-4"
               label="Please take care this item, it's luxury item"
               color="gray"
               variant="base"
             />
           </div>
-          <div className="flex align-items-center justify-content-between mt-4">
-            <span className="text-2xl font-semibold"></span>
-            <div className="flex-row">
+          <div
+            style={{
+              justifyContent: "space-between",
+              marginTop: 16,
+              flexDirection: "row",
+              flex: 1,
+            }}
+          >
+            <Button
+              icon="pi pi-box"
+              severity="warning"
+              style={{ marginRight: 8 }}
+              onClick={() => {
+                setBarang(item);
+                setTimeout(() => {
+                  setPackagingDialog(true);
+                }, 500);
+              }}
+              className="button"
+            />
+            <Button
+              onClick={() => {
+                setBarang(item);
+                setTimeout(() => {
+                  setQrDialog(true);
+                }, 500);
+              }}
+              label="Scan"
+              iconPos="left"
+              style={{ borderRadius: 12, width: "69%" }}
+              severity="secondary"
+              icon="pi pi-qrcode"
+            />
+            {/* {!isCart && (
               <Button
-                icon="pi pi-box"
-                style={{ marginRight: 8 }}
-                severity="warning"
+                icon="pi pi-qrcode"
+                severity="secondary"
+                title="Scan"
                 onClick={() => {
                   setBarang(item);
                   setTimeout(() => {
-                    setPackagingDialog(true);
+                    setQrDialog(true);
                   }, 500);
                 }}
                 className="button"
-              />
-              {!isCart && (
-                <Button
-                  icon="pi pi-qrcode"
-                  severity="secondary"
-                  onClick={() => {
-                    setBarang(item);
-                    setTimeout(() => {
-                      setQrDialog(true);
-                    }, 500);
-                  }}
-                  className="button"
+                style={{ width: "69%" }}
+              >
+                <Text
+                  label={"Scan"}
+                  color="white"
+                  className="ml-2"
+                  variant="base"
                 />
-              )}
-              <Button
-                icon="pi pi-trash"
-                style={{ marginLeft: 8 }}
-                onClick={() => {
-                  if (isCart) {
-                    handleDeleteCart(item.id);
-                  } else {
-                    setSelecetd(item);
-                    setDeleteConfirmation(item);
-                  }
-                }}
-                className="button"
-              />
-            </div>
+              </Button>
+            )} */}
+
+            <Button
+              icon="pi pi-trash"
+              style={{ marginLeft: 8 }}
+              onClick={() => {
+                if (isCart) {
+                  handleDeleteCart(item.id);
+                } else {
+                  setSelecetd(item);
+                  setDeleteConfirmation(item);
+                }
+              }}
+              className="button"
+            />
           </div>
 
           {/* <Accordion activeIndex={null} style={{ marginTop: 8, width: "100%" }}>
