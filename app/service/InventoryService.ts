@@ -416,4 +416,37 @@ export const InventoryService = {
     const response = await ax.delete(`/v1/event-admin/${id}`);
     return response.data;
   },
+  addStockOpname: async (data: any): Promise<APIResponse<any>> => {
+    const response = await ax.post(`/v1/stock-opname`, data);
+    return response.data;
+  },
+  getStockOpname: async (
+    page: number,
+    search: string,
+    limit: number,
+    sort?: string,
+    sortBy?: string,
+  ): Promise<BaseResponsePagination<any[]>> => {
+    const response = await ax.get(
+      `v1/stock-opname?page=${page}&limit=${limit}${search ? `&search=${search}` : ""}`
+    , {
+      params: {
+        ...(sort && {sort: sort}),
+        ...(sortBy && {sort_by: sortBy}),
+      }
+    });
+    return response.data.data;
+  },
+  deleteStockOpname: async (id: any): Promise<APIResponse<any>> => {
+    const response = await ax.delete(`/v1/stock-opname/${id}`);
+    return response.data;
+  },
+  applyStockOpname: async (id: any): Promise<APIResponse<any>> => {
+    const response = await axEmi.put(`/v1/stock-opname/${id}/apply`);
+    return response.data;
+  },
+  rollbackStockOpname: async (id: any): Promise<APIResponse<any>> => {
+    const response = await axEmi.put(`/v1/stock-opname/${id}/rollback`);
+    return response.data;
+  },
 };
