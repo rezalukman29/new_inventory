@@ -26,6 +26,7 @@ import { STORAGE_BOOQABLE } from "@/app/util/config";
 import { TabMenu } from "primereact/tabmenu";
 import Loading from "@/app/components/atoms/loading";
 import { Skeleton } from "primereact/skeleton";
+import useWindowDimensions from "@/app/hooks/useWindowDimensions";
 
 interface ISelect {
   label: string;
@@ -50,7 +51,7 @@ const TableDemo = () => {
   const [isModify, setIsModify] = useState<boolean>(false);
   const [listEvent, setListEvent] = useState<any[]>([]);
   const [selectedStatus, setSelectedStatus] = useState(1);
-  const [height] = useDeviceSize();
+  const { width } = useWindowDimensions();
   const [page, setPage] = useState<number>(1);
   const [first, setFirst] = useState<number>(0);
   const [pageOpname, setPageOpname] = useState<number>(1);
@@ -87,6 +88,7 @@ const TableDemo = () => {
   const [isShowStockOpname, setIsShowStockOpname] = useState<boolean>(false);
   const [isStockOpname, setIsStockOpname] = useState<boolean>(false);
   const [selectedOpname, setSelectedOpname] = useState<any | null>(null);
+
   const [isModalDetailOpname, setIsModalDetailOpname] =
     useState<boolean>(false);
   const formik = useFormik<any>({
@@ -847,7 +849,10 @@ const TableDemo = () => {
   return (
     <div className="grid">
       <Toast ref={toast} />
-      <div className="col-12">
+      <div
+        className="col-12"
+        // style={{ backgroundColor: "red", flex: 1, overflow: "hidden" }}
+      >
         <div className="card">
           <h5>Warehouse Inventory</h5>
           <TabMenu
@@ -871,7 +876,7 @@ const TableDemo = () => {
               dataKey="id"
               lazy
               totalRecords={total}
-              tableStyle={{ width: 2400, fontSize: 13 }}
+              tableStyle={{ width: 2200, fontSize: 13 }}
               first={first}
               alwaysShowPaginator
               loading={isLoading}
@@ -1398,7 +1403,7 @@ const TableDemo = () => {
           )}
           <Dialog
             visible={productDialog}
-            style={{ width: "500px" }}
+            style={{ width: width * 0.5 }}
             header={isModify ? "Modify Warehouse Item" : "Add Warehouse Item"}
             modal
             className="p-fluid"
@@ -1440,7 +1445,8 @@ const TableDemo = () => {
                     }}
                     style={{
                       backgroundColor: isSelected ? "#6366F1" : "#fff",
-                      width: "100%",
+                      width: "46%",
+                      borderRadius: 12,
                     }}
                     key={`${item.id}_idx`}
                     className={`cursor-pointer ml-2 px-3 py-2 rounded flex flex-row items-center ${
@@ -1520,7 +1526,7 @@ const TableDemo = () => {
               </div>
             </div>
             <div className="flex flex-row items-center">
-              <div className="field">
+              <div className="field flex-1">
                 <label htmlFor="name">Kode</label>
                 <InputText
                   id="name"
@@ -1533,7 +1539,7 @@ const TableDemo = () => {
                 />
               </div>
               <div style={{ width: 16 }} />
-              <div className="field">
+              <div className="field flex-1">
                 <label htmlFor="name">Rack</label>
                 <InputText
                   id="name"
@@ -1547,7 +1553,7 @@ const TableDemo = () => {
               </div>
             </div>
             <div className="flex flex-row items-center">
-              <div className="field">
+              <div className="field flex-1">
                 <label htmlFor="name">Lantai</label>
                 <InputText
                   id="name"
@@ -1562,7 +1568,7 @@ const TableDemo = () => {
                 />
               </div>
               <div style={{ width: 16 }} />
-              <div className="field">
+              <div className="field flex-1">
                 <label htmlFor="name">Lorong</label>
                 <InputText
                   id="name"
@@ -1578,7 +1584,7 @@ const TableDemo = () => {
               </div>
             </div>
             <div className="flex flex-row items-center">
-              <div className="field">
+              <div className="field flex-1">
                 <label htmlFor="name">Flag 1</label>
                 <InputText
                   id="name"
@@ -1593,7 +1599,7 @@ const TableDemo = () => {
                 />
               </div>
               <div style={{ width: 16 }} />
-              <div className="field">
+              <div className="field flex-1">
                 <label htmlFor="name">Flag 2</label>
                 <InputText
                   id="name"
@@ -1608,20 +1614,22 @@ const TableDemo = () => {
                 />
               </div>
             </div>
-            <Dropdown
-              onChange={(e) =>
-                formik.setFieldValue("gudang_id", e.target.value)
-              }
-              value={formik.values.gudang_id}
-              options={[
-                ...[{ value: "", label: "Select warehouse" }],
-                ...gudang,
-              ]}
-              optionLabel="label"
-              placeholder="Select warehouse"
-              className="mr-4 flex-1"
-              // style={{ width: "100%" }}
-            />
+            <div className="field flex-1">
+              <Dropdown
+                onChange={(e) =>
+                  formik.setFieldValue("gudang_id", e.target.value)
+                }
+                value={formik.values.gudang_id}
+                options={[
+                  ...[{ value: "", label: "Select warehouse" }],
+                  ...gudang,
+                ]}
+                optionLabel="label"
+                placeholder="Select warehouse"
+                className="mr-4 flex-1"
+                // style={{ width: "100%" }}
+              />
+            </div>
           </Dialog>
           <Dialog
             header={`Log: ${barang?.nama_barang}`}
