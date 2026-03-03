@@ -442,11 +442,11 @@ export const InventoryService = {
     return response.data;
   },
   applyStockOpname: async (id: any): Promise<APIResponse<any>> => {
-    const response = await axEmi.put(`/v1/stock-opname/${id}/apply`);
+    const response = await ax.put(`/v1/stock-opname/apply/${id}`);
     return response.data;
   },
   rollbackStockOpname: async (id: any): Promise<APIResponse<any>> => {
-    const response = await axEmi.put(`/v1/stock-opname/${id}/rollback`);
+    const response = await ax.put(`/v1/stock-opname/rollback/${id}`);
     return response.data;
   },
 };
