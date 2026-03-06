@@ -41,7 +41,10 @@ const LoginPage = () => {
     }),
     validateOnChange: false,
     enableReinitialize: true,
-    onSubmit: (values) => onLogin(values),
+    onSubmit: (values) => {
+      console.log("values :", values);
+      onLogin(values);
+    },
   });
   const [width] = useDeviceSize();
 
@@ -49,6 +52,7 @@ const LoginPage = () => {
   const onLogin = async (payload: any) => {
     try {
       setIsLoading(true);
+      console.log("payload :", payload);
       const response = await InventoryService.loginFetch(payload);
       if (response.success) {
         dispatch(
@@ -89,7 +93,7 @@ const LoginPage = () => {
       });
     }
   };
-
+  console.log(formik.values);
   return (
     <div className={containerClassName}>
       {isLoading && <Loading />}
@@ -176,7 +180,7 @@ const LoginPage = () => {
                 label="Sign In"
                 disabled={!formik.values.email || !formik.values.password}
                 className="w-full p-3 text-xl"
-                onClick={onLogin}
+                onClick={() => formik.submitForm()}
               ></Button>
             </div>
           </div>

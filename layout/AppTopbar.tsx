@@ -50,12 +50,12 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
   };
 
   useEffect(() => {
-    // checkAuth();
+    checkAuth();
   }, []);
 
   const onSignOut = () => {
     localStorageService.clearAuth("auth");
-    // checkAuth();
+    checkAuth();
     toast?.current?.show({
       severity: "error",
       summary: "Logout successfully",

@@ -449,4 +449,16 @@ export const InventoryService = {
     const response = await ax.put(`/v1/stock-opname/rollback/${id}`);
     return response.data;
   },
+  addSatuan: async (data: any): Promise<APIResponse<any>> => {
+    const response = await ax.post(`/v1/satuan`, data);
+    return response.data;
+  },
+  editSatuan: async (data: any): Promise<APIResponse<any>> => {
+    const response = await ax.put(`/v1/satuan`, data);
+    return response.data;
+  },
+  deleteSatuan: async (id: any): Promise<APIResponse<any>> => {
+    const response = await ax.delete(`/v1/satuan/${id}`);
+    return response.data;
+  },
 };

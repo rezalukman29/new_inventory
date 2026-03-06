@@ -88,6 +88,8 @@ const TableDemo = () => {
   const [isShowStockOpname, setIsShowStockOpname] = useState<boolean>(false);
   const [isStockOpname, setIsStockOpname] = useState<boolean>(false);
   const [selectedOpname, setSelectedOpname] = useState<any | null>(null);
+  const [isApply, setIsApply] = useState<boolean>(false);
+  const [isRollback, setIsRollback] = useState<boolean>(false);
 
   const [isModalDetailOpname, setIsModalDetailOpname] =
     useState<boolean>(false);
@@ -382,6 +384,9 @@ const TableDemo = () => {
         detail: "Success apply stock opname",
         life: 3000,
       });
+      setSelectedOpname(null);
+      setIsApply(false);
+      setIsRollback(false);
       getOpnameList();
       setIsLoading(false);
     } catch (error: any) {
@@ -405,6 +410,9 @@ const TableDemo = () => {
         detail: "Success rollback stock opname",
         life: 3000,
       });
+      setSelectedOpname(null);
+      setIsApply(false);
+      setIsRollback(false);
       getOpnameList();
       setIsLoading(false);
     } catch (error: any) {
@@ -628,6 +636,36 @@ const TableDemo = () => {
         severity="success"
         type="submit"
         onClick={() => formik.handleSubmit()}
+        className="button"
+      />
+    </>
+  );
+
+  const opnameDialogFooter = (
+    <>
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        severity="danger"
+        onClick={() => {
+          setIsModalDetailOpname(false);
+          setSelectedOpname(null);
+          setIsApply(false);
+          setIsRollback(false);
+        }}
+        className="button"
+      />
+      <Button
+        label={isApply ? "Apply" : "Rollback"}
+        icon="pi pi-check"
+        severity={isApply ? "success" : "info"}
+        type="submit"
+        onClick={() => {
+          setIsModalDetailOpname(false);
+          isApply
+            ? onApplyStockOpname(selectedOpname?.id)
+            : onRollbackStockOpname(selectedOpname?.id);
+        }}
         className="button"
       />
     </>
@@ -1316,11 +1354,13 @@ const TableDemo = () => {
                           className={
                             data.flag === "draft" ? "pi pi-check" : "pi pi-undo"
                           }
-                          onClick={() =>
+                          onClick={() => {
+                            setSelectedOpname(data);
+                            setIsModalDetailOpname(true);
                             data.flag === "draft"
-                              ? onApplyStockOpname(data.id)
-                              : onRollbackStockOpname(data.id)
-                          }
+                              ? setIsApply(true)
+                              : setIsRollback(true);
+                          }}
                           onMouseOver={() => setOver(data.id + "option")}
                           onMouseOut={() => setOver("")}
                           style={{
@@ -1920,7 +1960,10 @@ const TableDemo = () => {
               if (!isModalDetailOpname) return;
               setIsModalDetailOpname(false);
               setSelectedOpname(null);
+              setIsApply(false);
+              setIsRollback(false);
             }}
+            footer={isApply || isRollback ? opnameDialogFooter : undefined}
           >
             <p className="m-0">
               <DataTable
@@ -1944,7 +1987,7 @@ const TableDemo = () => {
                   style={{ width: "40%" }}
                 ></Column>
                 <Column
-                  field="stock_old"
+                  field={"stock_old"}
                   header="Stock Old"
                   bodyStyle={{ textAlign: "center" }}
                   headerStyle={{ justifyItems: "center" }}

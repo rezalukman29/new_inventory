@@ -66,6 +66,11 @@ const AppMenu = () => {
           to: "/category",
         },
         {
+          label: "Unit",
+          icon: "pi pi-tags",
+          to: "/unit",
+        },
+        {
           label: "QR Code  ",
           icon: "pi pi-book",
           to: "/qrcode",
