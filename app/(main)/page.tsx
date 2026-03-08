@@ -1135,7 +1135,7 @@ const TableDemo = () => {
               <div className="flex flex-row items-center">
                 <div className="field flex-1">
                   <label htmlFor="name"> Event Start</label>
-                  {isModify ? (
+                  {new Date(event?.event_start) < new Date() ? (
                     <Text
                       fontWeight="regular"
                       color="black"
@@ -1185,7 +1185,7 @@ const TableDemo = () => {
                 <div style={{ width: 16 }} />
                 <div className="field flex-1">
                   <label htmlFor="name"> Event End</label>
-                  {isModify ? (
+                  {new Date(event?.event_start) < new Date() ? (
                     <Text
                       fontWeight="regular"
                       color="black"
@@ -1238,7 +1238,7 @@ const TableDemo = () => {
               <div className="flex flex-row items-center">
                 <div className="field flex-1">
                   <label htmlFor="name"> Date Event</label>
-                  {isModify ? (
+                  {new Date(event?.event_start) < new Date() ? (
                     <Text
                       fontWeight="regular"
                       color="black"

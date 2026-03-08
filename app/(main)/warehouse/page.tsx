@@ -16,6 +16,10 @@ import { ConfirmDialog } from "primereact/confirmdialog";
 import "../index.css";
 import { SortType } from "@/app/interfaces/interfaces";
 import useAccountController from "../useAccountController";
+import useWindowDimensions from "@/app/hooks/useWindowDimensions";
+import { isValidUrl, noImage } from "@/app/util/function";
+import { STORAGE_BOOQABLE } from "@/app/util/config";
+import { classNames } from "primereact/utils";
 
 interface ISelect {
   label: string;
@@ -31,8 +35,10 @@ const TableDemo = () => {
   const [selectedStatus, setSelectedStatus] = useState(1);
   const [height] = useDeviceSize();
   const [page, setPage] = useState<number>(1);
+  const [pageItem, setPageItem] = useState<number>(1);
   const [first, setFirst] = useState<number>(0);
-  const [pageSize, setPageSize] = useState<number>(99);
+  const [firstItem, setFirstItem] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(10);
   const [total, setTotal] = useState<number>(10);
   const [gudang, setGudang] = useState<any | null>(null);
@@ -41,9 +47,16 @@ const TableDemo = () => {
   const [selected, setSelecetd] = useState<any | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
+  const [searchValueItem, setSearchValueItem] = useState<string>("");
   let [over, setOver] = React.useState("");
   const [sort, setSort] = useState<SortType>("ASC");
   const [sortBy, setSortBy] = useState<string>("nama");
+  const [sortItem, setSortItem] = useState<SortType>("ASC");
+  const [sortByItem, setSortByItem] = useState<string>("nama_barang");
+  const [totalPagesItem, setTotalPagesItem] = useState<number>(10);
+  const [totalItem, setTotalItem] = useState<number>(10);
+  const { width } = useWindowDimensions();
+  const [items, setItems] = useState<any[]>([]);
 
   const formik = useFormik<any>({
     initialValues: {
@@ -133,13 +146,25 @@ const TableDemo = () => {
 
   useEffect(() => {
     getGudang();
-  }, [page]);
+  }, [page, sort, sortBy]);
+
+  useEffect(() => {
+    if (!!selected) {
+      getItems(selected?.id);
+    }
+
+  }, [pageItem, sortItem, sortByItem]);
 
   const onGlobalFilterChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {};
 
   const onSort = (field: string) => {
     setSortBy(field);
     setSort(sort === "ASC" ? "DESC" : "ASC");
+  };
+
+  const onSortItem = (field: string) => {
+    setSortByItem(field);
+    setSortItem(sort === "ASC" ? "DESC" : "ASC");
   };
 
   const renderHeader1 = () => {
@@ -172,7 +197,30 @@ const TableDemo = () => {
     );
   };
 
+  const renderHeader2 = () => {
+    return (
+      <div className="flex justify-content-between">
+        <span className="p-input-icon-left p-input-icon-right mr-4">
+          <i className="pi pi-search" />
+          <InputText
+            value={searchValueItem}
+            onChange={(e) => setSearchValueItem(e.target.value)}
+            placeholder="Keyword Search"
+          />
+          {searchValue && (
+            <i
+              onClick={() => setSearchValueItem("")}
+              className="pi pi-times cursor-pointer"
+            />
+          )}
+        </span>
+      </div>
+    );
+  };
+
   const header1 = renderHeader1();
+
+  const header2 = renderHeader2();
 
   const hideDialog = () => {
     setProductDialog(false);
@@ -198,6 +246,51 @@ const TableDemo = () => {
     </>
   );
 
+  const getItems = async (id: number) => {
+    try {
+      setIsLoading(true);
+      const response = await InventoryService.getBarangGudang(
+        id,
+        pageItem,
+        searchValueItem,
+        5,
+        sortItem,
+        sortByItem
+      );
+      setItems(response.data);
+      setTotalItem(response.total_records);
+      setTotalPagesItem(response.total_pages);
+      setIsLoading(false);
+      setDeleteConfirmation(true);
+    } catch (error: any) {
+      setIsLoading(false);
+    }
+  };
+
+  const inventoryImage = (item: any) => {
+    return (
+      <img
+        src={
+          isValidUrl(item.photo) &&
+          item.photo.includes("http://66.42.48.163:9000")
+            ? item?.photo?.replace(
+                "http://66.42.48.163:9000/booqable/",
+                STORAGE_BOOQABLE
+              )
+            : item.photo
+            ? `https://democreation.site/home/public/${item.photo}`
+            : noImage
+        }
+        style={{
+          width: 80,
+          height: 80,
+          borderRadius: 8,
+          cursor: "pointer",
+        }}
+      />
+    );
+  };
+
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -206,11 +299,199 @@ const TableDemo = () => {
           <h5>Warehouse</h5>
           <ConfirmDialog
             visible={deleteConfirmation}
+            style={{ width: items?.length ? width * 0.9 : undefined }}
             onHide={() => {
               setDeleteConfirmation(false);
               setSelecetd(null);
             }}
-            message={`Are you sure you want to delete warehouse ${selected?.nama}?`}
+            message={
+              items?.length ? (
+                <div style={{ flex: 1 }}>
+                  <p>Inventory in this warehouse</p>
+                  <DataTable
+                    value={items}
+                    paginator
+                    className="p-datatable-gridlines"
+                    onPage={(e) => {
+                      setFirstItem(e.first);
+                      setPageItem(Number(e.page) + 1);
+                    }}
+                    rows={5}
+                    dataKey="id"
+                    lazy
+                    totalRecords={totalItem}
+                    tableStyle={{ width: width * 0.88, fontSize: 13 }}
+                    first={firstItem}
+                    alwaysShowPaginator
+                    loading={isLoading}
+                    scrollable
+                    responsiveLayout="scroll"
+                    emptyMessage="No inventory found."
+                    header={header2}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="{first} to {last} of {totalRecords} warehouse inventory"
+                    onSort={(e) => onSortItem(e.sortField)}
+                    sortField={sortByItem}
+                    sortOrder={sortItem === "ASC" ? 1 : -1}
+                  >
+                    <Column
+                      field="nama_barang"
+                      header="Name"
+                      headerStyle={{ justifyItems: "center" }}
+                      filterPlaceholder="Search by name"
+                      style={{
+                        minWidth: "4rem",
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                      }}
+                      bodyClassName={classNames({ "font-bold": true })}
+                      frozen
+                      sortable
+                      sortField="nama_barang"
+                    />
+                    <Column
+                      field="stok_gudang"
+                      header="Warehouse Stock"
+                      filterPlaceholder="Search by name"
+                      style={{
+                        minWidth: "4rem",
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                      }}
+                      headerStyle={{ justifyItems: "center" }}
+                      bodyStyle={{ textAlign: "center" }}
+                      sortable
+                      sortField="stok_gudang"
+                    />
+                    <Column
+                      field="gudang_name"
+                      header="Warehouse Name"
+                      filterPlaceholder="Search by name"
+                      style={{
+                        minWidth: "4rem",
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                      }}
+                      headerStyle={{ justifyItems: "center" }}
+                      bodyStyle={{ textAlign: "center" }}
+                      sortable
+                      sortField="gudang_name"
+                    />
+                    <Column
+                      field="stok_barang"
+                      header="Item Stock"
+                      headerStyle={{ justifyItems: "center" }}
+                      filterPlaceholder="Search by name"
+                      style={{
+                        minWidth: "4rem",
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                      }}
+                      bodyStyle={{ textAlign: "center" }}
+                      sortable
+                      sortField="stok_barang"
+                    />
+                    <Column
+                      field="stok_minimum"
+                      header="Stok Min"
+                      headerStyle={{ justifyItems: "center" }}
+                      filterPlaceholder="Search by name"
+                      style={{
+                        minWidth: "4rem",
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                      }}
+                      bodyStyle={{ textAlign: "center" }}
+                      sortable
+                      sortField="stok_minimum"
+                    />
+                    <Column
+                      field="stock_used"
+                      header="Stok Used"
+                      headerStyle={{ justifyItems: "center" }}
+                      filterPlaceholder="Search by name"
+                      style={{
+                        minWidth: "4rem",
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                      }}
+                      bodyStyle={{ textAlign: "center" }}
+                      sortable
+                      sortField="stock_used"
+                    />
+                    <Column
+                      field="stock_used"
+                      header="Minimum Status"
+                      headerStyle={{ justifyItems: "center" }}
+                      filterPlaceholder="Search by name"
+                      style={{
+                        minWidth: "4rem",
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                      }}
+                      bodyStyle={{ textAlign: "center" }}
+                      body={(data) => {
+                        const isLow = data.stok_gudang < data.stok_minimum;
+                        const isNotSet =
+                          data.stok_minimum === 0 || !data.stok_minimum;
+                        const isSafe = data.stok_gudang >= data.stok_minimum;
+                        return (
+                          <Button
+                            label={
+                              isLow ? "Low" : isNotSet ? "Not Set" : "Safe"
+                            }
+                            outlined
+                            severity={
+                              isLow
+                                ? "danger"
+                                : isNotSet
+                                ? "secondary"
+                                : "success"
+                            }
+                            className="button"
+                          />
+                        );
+                      }}
+                    />
+
+                    <Column
+                      field="stok_minimum"
+                      header="Image"
+                      headerStyle={{ justifyItems: "center" }}
+                      filterPlaceholder="Search by name"
+                      style={{
+                        minWidth: "4rem",
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                      }}
+                      body={inventoryImage}
+                      bodyStyle={{ padding: 4, textAlign: "center" }}
+                      sortable
+                      sortField="stok_minimum"
+                    />
+                    <Column
+                      field="updated_at"
+                      header="Updated At"
+                      filterPlaceholder="Search by name"
+                      style={{ maxWidth: "9rem" }}
+                      body={(data: any) => (
+                        <p>
+                          {data.updated_at
+                            ? moment(data.updated_at as any).format(
+                                "D MMM YYYY, HH:MM"
+                              )
+                            : "-"}
+                        </p>
+                      )}
+                      sortable
+                      sortField="updated_at"
+                    />
+                  </DataTable>
+                </div>
+              ) : (
+                `Are you sure you want to delete warehouse ${selected?.nama}?`
+              )
+            }
             header="Delete Confirmation"
             icon="pi pi-exclamation-triangle"
             accept={() => onDeleteEvent(selected.id)}
@@ -276,7 +557,9 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
-                <p>{moment(data.created_at as any).format("D MMM YYYY, HH:MM")}</p>
+                <p>
+                  {moment(data.created_at as any).format("D MMM YYYY, HH:MM")}
+                </p>
               )}
               sortable
               sortField="created_at"
@@ -335,7 +618,7 @@ const TableDemo = () => {
                       onMouseOut={() => setOver("")}
                       onClick={() => {
                         setSelecetd(data);
-                        setDeleteConfirmation(true);
+                        getItems(data.id);
                       }}
                       style={{
                         fontSize: 18,
