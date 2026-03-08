@@ -1,36 +1,16 @@
 "use client";
-import { CustomerService } from "../../../demo/service/CustomerService";
-import { ProductService } from "../../../demo/service/ProductService";
-import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { Button } from "primereact/button";
-import { Calendar } from "primereact/calendar";
 import {
   Column,
-  ColumnFilterApplyTemplateOptions,
-  ColumnFilterClearTemplateOptions,
-  ColumnFilterElementTemplateOptions,
 } from "primereact/column";
 import {
   DataTable,
-  DataTableExpandedRows,
-  DataTableFilterMeta,
 } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
-import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
-import { MultiSelect } from "primereact/multiselect";
-import { ProgressBar } from "primereact/progressbar";
-import { Rating } from "primereact/rating";
-import { Slider } from "primereact/slider";
-import { ToggleButton } from "primereact/togglebutton";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import { classNames } from "primereact/utils";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import type { Demo } from "@/types";
 import { InventoryService } from "@/app/service/InventoryService";
-import { isValidUrl, noImage } from "@/app/util/function";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
-import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
 import moment from "moment";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog } from "primereact/confirmdialog";
@@ -42,6 +22,9 @@ import { useSearchParams } from "next/navigation";
 import { SortType } from "@/app/interfaces/interfaces";
 import "../index.css";
 import useAccountController from "../useAccountController";
+import { isValidUrl, noImage } from "@/app/util/function";
+import { STORAGE_BOOQABLE } from "@/app/util/config";
+import useWindowDimensions from "@/app/hooks/useWindowDimensions";
 
 interface ISelect {
   label: string;
@@ -60,6 +43,7 @@ const TableDemo = () => {
   const [first, setFirst] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(10);
+  const [items, setItems] = useState<any[]>([]);
   const [total, setTotal] = useState<number>(10);
   const [gudang, setGudang] = useState<any | null>(null);
   const [gudangs, setGudangs] = React.useState<any>([]);
@@ -73,6 +57,7 @@ const TableDemo = () => {
   const areaId: any = searchParams.get("id");
   const [sort, setSort] = useState<SortType>("ASC");
   const [sortBy, setSortBy] = useState<string>("sub_area_name");
+  const { width } = useWindowDimensions();
 
   const formik = useFormik<any>({
     initialValues: {
@@ -264,6 +249,42 @@ const TableDemo = () => {
     setSort(sort === "ASC" ? "DESC" : "ASC");
   };
 
+  const getItems = async (sub_area_id: number) => {
+    try {
+      setIsLoading(true);
+      const response = await InventoryService.getDeletedItems({ sub_area_id });
+      setItems(response.data);
+      setIsLoading(false);
+      setDeleteConfirmation(true);
+    } catch (error: any) {
+      setIsLoading(false);
+    }
+  };
+
+  const itemImage = (item: any) => {
+    return (
+      <img
+        src={
+          isValidUrl(item.photo) &&
+          item.photo.includes("http://66.42.48.163:9000")
+            ? item?.photo?.replace(
+                "http://66.42.48.163:9000/booqable/",
+                STORAGE_BOOQABLE
+              )
+            : item.photo
+            ? `https://democreation.site/home/public/${item.photo}`
+            : noImage
+        }
+        style={{
+          width: 80,
+          height: 80,
+          borderRadius: 8,
+          cursor: "pointer",
+        }}
+      />
+    );
+  };
+  
   return (
     <div className="grid">
       <Toast ref={toast} />
@@ -272,11 +293,61 @@ const TableDemo = () => {
           <h5>Sub Area</h5>
           <ConfirmDialog
             visible={deleteConfirmation}
+            style={{ width: items.length ? width * 0.7 : undefined }}
             onHide={() => {
               setDeleteConfirmation(false);
               setSelecetd(null);
             }}
-            message={`Are you sure you want to delete sub area ${selected?.sub_area_name}?`}
+            message={
+              items?.length ? (
+                <div style={{ flex: 1 }}>
+                  <p>Event items placed in this sub area</p>
+                  <DataTable
+                    value={items ?? []}
+                    paginator
+                    rows={5}
+                    // rowsPerPageOptions={[5, 10, 25, 50]}
+                    tableStyle={{ width: width * 0.65 }}
+                    paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                    currentPageReportTemplate="{first} to {last} of {totalRecords}"
+                  >
+                    <Column
+                      field="barang.nama"
+                      header="Photo"
+                      style={{ width: "10%" }}
+                      body={itemImage}
+                    ></Column>
+                    <Column
+                      field="nama_barang"
+                      header="Name"
+                      style={{ width: "30%" }}
+                    ></Column>
+                    <Column
+                      field={"qty"}
+                      header="Qty"
+                      bodyStyle={{ textAlign: "center" }}
+                      headerStyle={{ justifyItems: "center" }}
+                      style={{ width: "10%" }}
+                    ></Column>
+                    <Column
+                      field="gudang[0].nama"
+                      header="Warehouse"
+                      style={{ width: "20%" }}
+                      body={(data) => {
+                        return <p>{data?.gudang?.length ? data?.gudang[0]?.nama : "-"}</p>;
+                      }}
+                    ></Column>
+                    <Column
+                      field="event.name"
+                      header="Event"
+                      style={{ width: "30%" }}
+                    ></Column>
+                  </DataTable>
+                </div>
+              ) : (
+                `Are you sure you want to delete sub area ${selected?.sub_area_name}?`
+              )
+            }
             header="Delete Confirmation"
             icon="pi pi-exclamation-triangle"
             accept={() => onDeleteEvent(selected.id)}
@@ -402,7 +473,7 @@ const TableDemo = () => {
                       className="pi pi-trash"
                       onClick={() => {
                         setSelecetd(data);
-                        setDeleteConfirmation(true);
+                        getItems(data.id);
                       }}
                       onMouseOver={() => setOver(data.id + "delete")}
                       onMouseOut={() => setOver("")}

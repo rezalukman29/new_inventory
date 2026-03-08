@@ -48,12 +48,10 @@ export const InventoryService = {
         sort: filter.sort,
         sort_by: filter.sortBy,
         ...(filter.search && { search: filter.search }),
-        ...(filter.isUpcoming && {event_start: moment().format(
-          'YYYY-MM-DD',
-        )}),
-        ...(!filter.isUpcoming && {event_end: moment().format(
-          'YYYY-MM-DD',
-        )})
+        ...(filter.isUpcoming && {
+          event_start: moment().format("YYYY-MM-DD"),
+        }),
+        ...(!filter.isUpcoming && { event_end: moment().format("YYYY-MM-DD") }),
       },
     });
     return response.data.data;
@@ -115,18 +113,19 @@ export const InventoryService = {
     search: string,
     limit: number,
     sort?: string,
-    sortBy?: string,
+    sortBy?: string
   ): Promise<BaseResponsePagination<BarangGudangI[]>> => {
     const response = await ax.get(
       `v1/barang-gudang/detail?${
         gudangId === "All" || gudangId === null ? "" : `gudang_id=${gudangId}&`
-      }page=${page}&limit=${limit}${search ? `&search=${search}` : ""}`
-    , {
-      params: {
-        ...(sort && {sort: sort}),
-        ...(sortBy && {sort_by: sortBy}),
+      }page=${page}&limit=${limit}${search ? `&search=${search}` : ""}`,
+      {
+        params: {
+          ...(sort && { sort: sort }),
+          ...(sortBy && { sort_by: sortBy }),
+        },
       }
-    });
+    );
     return response.data.data;
   },
   getItemInventory: async ({
@@ -425,16 +424,19 @@ export const InventoryService = {
     search: string,
     limit: number,
     sort?: string,
-    sortBy?: string,
+    sortBy?: string
   ): Promise<BaseResponsePagination<any[]>> => {
     const response = await ax.get(
-      `v1/stock-opname?page=${page}&limit=${limit}${search ? `&search=${search}` : ""}`
-    , {
-      params: {
-        ...(sort && {sort: sort}),
-        ...(sortBy && {sort_by: sortBy}),
+      `v1/stock-opname?page=${page}&limit=${limit}${
+        search ? `&search=${search}` : ""
+      }`,
+      {
+        params: {
+          ...(sort && { sort: sort }),
+          ...(sortBy && { sort_by: sortBy }),
+        },
       }
-    });
+    );
     return response.data.data;
   },
   deleteStockOpname: async (id: any): Promise<APIResponse<any>> => {
@@ -459,6 +461,21 @@ export const InventoryService = {
   },
   deleteSatuan: async (id: any): Promise<APIResponse<any>> => {
     const response = await ax.delete(`/v1/satuan/${id}`);
+    return response.data;
+  },
+  getDeletedItems: async ({
+    area_id,
+    sub_area_id,
+  }: {
+    area_id?: number;
+    sub_area_id?: number;
+  }): Promise<APIResponse<any[]>> => {
+    const response = await ax.get("v3/fix-list-item-event-by-area", {
+      params: {
+        ...(area_id && { area_id }),
+        ...(sub_area_id && { sub_area_id }),
+      },
+    });
     return response.data;
   },
 };
