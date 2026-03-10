@@ -230,10 +230,9 @@ const TableDemo = () => {
               setFirst(e.first);
               setPage(Number(e.page) + 1);
             }}
-            rows={listCategory.length}
+            rows={10}
             dataKey="id"
             totalRecords={listCategory.length}
-            lazy
             tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
