@@ -87,7 +87,7 @@ const TableDemo = () => {
 
   const datepickerFormat = (value: Date) => {
     return {
-      day: moment(value)?.day() + 1,
+      day: new Date(value)?.getDate(),
       month: moment(value)?.month() + 1,
       year: moment(value)?.year(),
     };
@@ -132,8 +132,12 @@ const TableDemo = () => {
       const payload: any = {
         description: values.description,
         name: values.name,
-        event_start: `${formik.values.event_start?.year}-${formik.values.event_start?.month}-${formik.values.event_start?.day}`,
-        event_end: `${formik.values.event_end?.year}-${formik.values.event_end?.month}-${formik.values.event_end?.day}`,
+        event_start: formatDatePayload(
+          `${formik.values.event_start?.year}-${formik.values.event_start?.month}-${formik.values.event_start?.day}`
+        ),
+        event_end: formatDatePayload(
+          `${formik.values.event_end?.year}-${formik.values.event_end?.month}-${formik.values.event_end?.day}`
+        ),
         PIC: values.PIC,
         event_code: values.event_code,
         is_complete: 0,
@@ -146,7 +150,9 @@ const TableDemo = () => {
         event_running: "",
         notes: values.notes,
         scan_type: values.scan_type,
-        date_event: `${formik.values.date_event?.year}-${formik.values.date_event?.month}-${formik.values.date_event?.day}`,
+        date_event: formatDatePayload(
+          `${formik.values.date_event?.year}-${formik.values.date_event?.month}-${formik.values.date_event?.day}`
+        ),
       };
       if (isModify) {
         const result: APIResponse<any> = await InventoryService.editEvent({
@@ -190,7 +196,8 @@ const TableDemo = () => {
       formik.resetForm();
       setBase64("");
       setIsLoading(false);
-
+      setIsModify(false);
+      setEvent(null);
       getListEvent();
     },
   });
@@ -481,6 +488,8 @@ const TableDemo = () => {
               severity="success"
               className="button mr-2"
               onClick={() => {
+                setIsModify(false);
+                setEvent(null);
                 activeIndex === 2
                   ? setAdminDialog(true)
                   : setProductDialog(true);
@@ -505,6 +514,7 @@ const TableDemo = () => {
   const hideDialog = () => {
     setProductDialog(false);
     setIsModify(false);
+    setEvent(null);
     setAdminDialog(false);
     formikAdmin.resetForm();
   };
@@ -546,9 +556,19 @@ const TableDemo = () => {
     };
   });
 
+  function formatDate(input: string) {
+    const [day, month, year] = input.split("-");
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+
+  function formatDatePayload(input: string) {
+    const [year, month, day] = input.split("-");
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+  console.log(formik.values);
   return (
     <>
-      {isLoading || isLoadingPrint && <Loading />}
+      {isLoading || (isLoadingPrint && <Loading />)}
       <div className="grid">
         <Toast ref={toast} />
         <div className="col-12">
@@ -1139,14 +1159,22 @@ const TableDemo = () => {
                     <Text
                       fontWeight="regular"
                       color="black"
-                      label={`${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`}
+                      label={moment(
+                        formatDate(
+                          `${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`
+                        )
+                      ).format("LL")}
                       textAlign="left"
                       variant="base"
                     />
                   ) : (
                     <InputText
                       id="name"
-                      value={`${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`}
+                      value={moment(
+                        formatDate(
+                          `${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`
+                        )
+                      ).format("LL")}
                       onFocus={() => {
                         setShowEnd(false);
                         setShowStart(true);
@@ -1189,7 +1217,11 @@ const TableDemo = () => {
                     <Text
                       fontWeight="regular"
                       color="black"
-                      label={`${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`}
+                      label={moment(
+                        formatDate(
+                          `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
+                        )
+                      ).format("LL")}
                       textAlign="left"
                       variant="base"
                     />
@@ -1198,7 +1230,11 @@ const TableDemo = () => {
                       id="name"
                       value={
                         formik.values.event_end
-                          ? `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
+                          ? moment(
+                              formatDate(
+                                `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
+                              )
+                            ).format("LL")
                           : ""
                       }
                       onFocus={() => {
@@ -1244,7 +1280,11 @@ const TableDemo = () => {
                       color="black"
                       label={
                         formik.values.date_event && formik.values.date_event.day
-                          ? `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`
+                          ? moment(
+                              formatDate(
+                                `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`
+                              )
+                            ).format("LL")
                           : "No Data"
                       }
                       textAlign="left"
@@ -1255,7 +1295,11 @@ const TableDemo = () => {
                       id="name"
                       value={
                         formik.values.date_event
-                          ? `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`
+                          ? moment(
+                              formatDate(
+                                `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`
+                              )
+                            ).format("LL")
                           : ""
                       }
                       onFocus={() => {
@@ -1553,9 +1597,12 @@ const TableDemo = () => {
                       <td>{idx + 1}</td>
                       <td>{item.name}</td>
                       <td>{item.description}</td>
-                      <td style={{ textAlign: "left", width: 200 }}>{item.address}</td>
+                      <td style={{ textAlign: "left", width: 200 }}>
+                        {item.address}
+                      </td>
                       <td>{item.PIC}</td>
-                      <td>{users?.data?.users?.length && item.admins?.length
+                      <td>
+                        {users?.data?.users?.length && item.admins?.length
                           ? item.admins
                               ?.map(
                                 (el: any) =>
@@ -1564,7 +1611,8 @@ const TableDemo = () => {
                                   )?.fullname
                               )
                               ?.join(", ")
-                          : "-"}</td>
+                          : "-"}
+                      </td>
                       <td style={{ textAlign: "left", width: 70 }}>
                         {moment(item.event_start as any).format("D MMM YYYY")}
                       </td>
