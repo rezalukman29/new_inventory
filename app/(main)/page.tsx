@@ -50,6 +50,7 @@ const TableDemo = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModify, setIsModify] = useState<boolean>(false);
   const [listEvent, setListEvent] = useState<any[]>([]);
+  const [eventLog, setEventLog] = useState<any[]>([]);
   const [selectedStatus, setSelectedStatus] = useState(1);
   const [width] = useDeviceSize();
   const [page, setPage] = useState<number>(1);
@@ -61,6 +62,7 @@ const TableDemo = () => {
   const [adminDialog, setAdminDialog] = useState(false);
   const [showStart, setShowStart] = useState<boolean>(false);
   const [showEnd, setShowEnd] = useState<boolean>(false);
+  const [showEventLog, setShowEventlog] = useState<boolean>(false);
   const [showDate, setShowDate] = useState<boolean>(false);
   const [event, setEvent] = useState<any | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
@@ -78,6 +80,8 @@ const TableDemo = () => {
   const [totalAdmin, setTotalAdmin] = useState<number>(10);
   const [sortAdmin, setSortAdmin] = useState<SortType>("DESC");
   const [sortByAdmin, setSortByAdmin] = useState<string>("created_at");
+  const [products, setProducts] = useState([]);
+  const [expandedRows, setExpandedRows] = useState<any>(null);
 
   const items = [
     { label: "Upcoming Event", icon: "pi pi-home" },
@@ -133,10 +137,10 @@ const TableDemo = () => {
         description: values.description,
         name: values.name,
         event_start: formatDatePayload(
-          `${formik.values.event_start?.year}-${formik.values.event_start?.month}-${formik.values.event_start?.day}`
+          `${formik.values.event_start?.year}-${formik.values.event_start?.month}-${formik.values.event_start?.day}`,
         ),
         event_end: formatDatePayload(
-          `${formik.values.event_end?.year}-${formik.values.event_end?.month}-${formik.values.event_end?.day}`
+          `${formik.values.event_end?.year}-${formik.values.event_end?.month}-${formik.values.event_end?.day}`,
         ),
         PIC: values.PIC,
         event_code: values.event_code,
@@ -151,7 +155,7 @@ const TableDemo = () => {
         notes: values.notes,
         scan_type: values.scan_type,
         date_event: formatDatePayload(
-          `${formik.values.date_event?.year}-${formik.values.date_event?.month}-${formik.values.date_event?.day}`
+          `${formik.values.date_event?.year}-${formik.values.date_event?.month}-${formik.values.date_event?.day}`,
         ),
       };
       if (isModify) {
@@ -416,7 +420,7 @@ const TableDemo = () => {
               data.cell.x + 2,
               data.cell.y + 2,
               28,
-              28
+              28,
             );
           }
         }
@@ -441,7 +445,7 @@ const TableDemo = () => {
               if (a.created_at < b.created_at) return -1;
               return 0;
             })
-            .map((el: any) => el?.base64)
+            .map((el: any) => el?.base64),
         );
       }, 200);
     } catch (error: any) {
@@ -565,10 +569,95 @@ const TableDemo = () => {
     const [year, month, day] = input.split("-");
     return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   }
-  console.log(formik.values);
+  const fetchLog = async (data: any) => {
+    try {
+      setEvent(data);
+      setIsLoading(true);
+      const response = await InventoryService.getEventlog(data.id);
+      setEventLog(
+        response.data?.map((el: any, idx: number) => {
+          return {
+            id: idx + 1,
+            ...el,
+          };
+        }),
+      );
+      setIsLoading(false);
+      setShowEventlog(true);
+    } catch (error: any) {
+      setIsLoading(false);
+      toast?.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.response?.data?.message,
+        life: 3000,
+      });
+    }
+  };
+
+  const expandAll = () => {
+    let _expandedRows: any = {};
+
+    eventLog.forEach((p) => (_expandedRows[`${p.id}`] = true));
+
+    setExpandedRows(_expandedRows);
+  };
+
+  const collapseAll = () => {
+    setExpandedRows(null);
+  };
+
+  const allowExpansion = (rowData: any) => {
+    return rowData.logs.length > 0;
+  };
+
+  const rowExpansionTemplate = (data: any) => {
+    return (
+      <div className="p-3">
+        <h5>Logs at {moment(data.date as any).format("D MMM YYYY")}</h5>
+        <DataTable value={data.logs}>
+          <Column
+            field="customer"
+            header="Customer"
+            sortable
+            body={(data: any) => (
+              <p>
+                {moment(data.action_time as any).format("D MMM YYYY HH:mm:ss")}
+              </p>
+            )}
+          ></Column>
+          <Column field="action" header="Activity" sortable></Column>
+          {/* <Column
+            field="customer"
+            header="Detail"
+            sortable
+            body={(data: any) => (
+              <>
+              {data}
+              </>
+
+            )}
+          ></Column> */}
+        </DataTable>
+      </div>
+    );
+  };
+
+  const header = (
+    <div className="flex flex-wrap justify-content-end gap-2">
+      <Button icon="pi pi-plus" label="Expand All" onClick={expandAll} text />
+      <Button
+        icon="pi pi-minus"
+        label="Collapse All"
+        onClick={collapseAll}
+        text
+      />
+    </div>
+  );
+
   return (
     <>
-      {isLoading || (isLoadingPrint && <Loading />)}
+      {isLoading || isLoadingPrint ? <Loading /> : null}
       <div className="grid">
         <Toast ref={toast} />
         <div className="col-12">
@@ -644,7 +733,7 @@ const TableDemo = () => {
                       field="address"
                       header="Action"
                       filterPlaceholder="Search by name"
-                      style={{ width: 130, paddingTop: 8, paddingBottom: 8 }}
+                      style={{ width: 170, paddingTop: 8, paddingBottom: 8 }}
                       frozen
                       bodyClassName={classNames({ "font-bold": true })}
                       body={(data) => (
@@ -683,6 +772,17 @@ const TableDemo = () => {
                             onClick={() => {
                               setEvent(data);
                               setDeleteConfirmation(true);
+                            }}
+                            style={{
+                              fontSize: 18,
+                              marginLeft: 20,
+                              cursor: "pointer",
+                            }}
+                          ></div>
+                          <div
+                            className="pi pi-history"
+                            onClick={() => {
+                              fetchLog(data);
                             }}
                             style={{
                               fontSize: 18,
@@ -833,8 +933,8 @@ const TableDemo = () => {
                               ?.map(
                                 (el: any) =>
                                   users?.data?.users?.find(
-                                    (item: any) => item.id === el
-                                  )?.fullname
+                                    (item: any) => item.id === el,
+                                  )?.fullname,
                               )
                               ?.join(", ")
                           : "-"}
@@ -937,7 +1037,7 @@ const TableDemo = () => {
                         {Array.isArray(users?.data?.users)
                           ? users?.data?.users?.find(
                               (el: any) =>
-                                Number(el.id) === Number(data.user_id)
+                                Number(el.id) === Number(data.user_id),
                             )?.fullname ?? "-"
                           : "-"}
                       </p>
@@ -1161,8 +1261,8 @@ const TableDemo = () => {
                       color="black"
                       label={moment(
                         formatDate(
-                          `${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`
-                        )
+                          `${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`,
+                        ),
                       ).format("LL")}
                       textAlign="left"
                       variant="base"
@@ -1172,8 +1272,8 @@ const TableDemo = () => {
                       id="name"
                       value={moment(
                         formatDate(
-                          `${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`
-                        )
+                          `${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`,
+                        ),
                       ).format("LL")}
                       onFocus={() => {
                         setShowEnd(false);
@@ -1219,8 +1319,8 @@ const TableDemo = () => {
                       color="black"
                       label={moment(
                         formatDate(
-                          `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
-                        )
+                          `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`,
+                        ),
                       ).format("LL")}
                       textAlign="left"
                       variant="base"
@@ -1232,8 +1332,8 @@ const TableDemo = () => {
                         formik.values.event_end
                           ? moment(
                               formatDate(
-                                `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
-                              )
+                                `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`,
+                              ),
                             ).format("LL")
                           : ""
                       }
@@ -1282,8 +1382,8 @@ const TableDemo = () => {
                         formik.values.date_event && formik.values.date_event.day
                           ? moment(
                               formatDate(
-                                `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`
-                              )
+                                `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`,
+                              ),
                             ).format("LL")
                           : "No Data"
                       }
@@ -1297,8 +1397,8 @@ const TableDemo = () => {
                         formik.values.date_event
                           ? moment(
                               formatDate(
-                                `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`
-                              )
+                                `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`,
+                              ),
                             ).format("LL")
                           : ""
                       }
@@ -1366,7 +1466,7 @@ const TableDemo = () => {
                       color="black"
                       label={
                         eventStatus?.data?.data?.find(
-                          (el: any) => el.id === formik.values.status
+                          (el: any) => el.id === formik.values.status,
                         )?.name as string
                       }
                       textAlign="left"
@@ -1472,7 +1572,7 @@ const TableDemo = () => {
                                   event?.images?.includes("66.42.48.163")
                                     ? event?.images?.replace(
                                         "http://66.42.48.163:9000/booqable/",
-                                        STORAGE_BOOQABLE
+                                        STORAGE_BOOQABLE,
                                       )
                                     : event.images
                                     ? `https://democreation.site/home/public/${event?.images}`
@@ -1572,6 +1672,54 @@ const TableDemo = () => {
               </div>
             </Dialog>
 
+            <Dialog
+              header={`Log event: ${event?.name}`}
+              visible={showEventLog}
+              style={{ width: "70%" }}
+              onHide={() => {
+                if (!showEventLog) return;
+                setShowEventlog(false);
+                setExpandedRows(null);
+              }}
+            >
+              <p className="m-0">
+                <DataTable
+                  value={eventLog}
+                  rows={5}
+                  expandedRows={expandedRows}
+                  // onRowExpand={e =>  setExpandedRows(e.data)}
+                  onRowToggle={(e) => setExpandedRows(e.data)}
+                  className="p-datatable-gridlines"
+                  paginator
+                  rowExpansionTemplate={rowExpansionTemplate}
+                  dataKey="id"
+                  totalRecords={eventLog?.length}
+                  emptyMessage="No logs found."
+                  tableStyle={{ minWidth: "60rem" }}
+                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                  currentPageReportTemplate="{first} to {last} of {totalRecords} logs"
+                >
+                  <Column expander={allowExpansion} style={{ width: "5rem" }} />
+                  <Column
+                    field="created_at"
+                    header="Date"
+                    filterPlaceholder="Search by name"
+                    style={{ minWidth: "3rem" }}
+                    body={(data: any) => (
+                      <p>{moment(data.date as any).format("D MMM YYYY")}</p>
+                    )}
+                  />
+                  <Column
+                    field="created_at"
+                    header="Date"
+                    filterPlaceholder="Search by name"
+                    style={{ minWidth: "3rem" }}
+                    body={(data: any) => <p>{data.logs.length} Logs</p>}
+                  />
+                </DataTable>
+              </p>
+            </Dialog>
+
             <table id="table1" style={{ color: "#000", display: "none" }}>
               <tr>
                 <th>No</th>
@@ -1607,8 +1755,8 @@ const TableDemo = () => {
                               ?.map(
                                 (el: any) =>
                                   users?.data?.users?.find(
-                                    (item: any) => item.id === el
-                                  )?.fullname
+                                    (item: any) => item.id === el,
+                                  )?.fullname,
                               )
                               ?.join(", ")
                           : "-"}

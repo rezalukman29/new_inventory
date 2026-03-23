@@ -472,4 +472,10 @@ export const InventoryService = {
     });
     return response.data;
   },
+    getEventlog: async (
+    id: number
+  ): Promise<APIResponse<any>> => {
+    const response = await ax.get(`/v3/event-log/${id}`);
+    return response.data;
+  },
 };
