@@ -8,6 +8,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useRef,
+  useState,
 } from "react";
 import { AppTopbarRef } from "@/types";
 import { LayoutContext } from "./context/layoutcontext";
@@ -16,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { Toast } from "primereact/toast";
 import { useDispatch } from "react-redux";
 import { setProfile } from "@/app/store/profile";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
   const { layoutConfig, layoutState, onMenuToggle, showProfileSidebar } =
@@ -23,6 +25,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
   const menubuttonRef = useRef(null);
   const topbarmenuRef = useRef(null);
   const topbarmenubuttonRef = useRef(null);
+    const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const toast = useRef<any>(null);
   useImperativeHandle(ref, () => ({
     menubutton: menubuttonRef.current,
@@ -41,7 +44,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
           fullname: data?.fullname,
           email: data?.email,
           user_type: data?.user_type,
-        })
+        }),
       );
       return;
     } else {
@@ -66,6 +69,21 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
 
   return (
     <div className="layout-topbar">
+      <ConfirmDialog
+        visible={deleteConfirmation}
+        onHide={() => {
+          setDeleteConfirmation(false);
+
+        }}
+        message={'Are you sure wanto to Sign Out?'
+        }
+        header="Delete Confirmation"
+        icon="pi pi-exclamation-triangle"
+        accept={onSignOut }
+        reject={() => {
+
+        }}
+      />
       <Toast ref={toast} />
       <Link href="/" className="layout-topbar-logo">
         <span>EMI Inventory</span>
@@ -107,7 +125,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
         <button
           type="button"
           className="p-link layout-topbar-button"
-          onClick={onSignOut}
+          onClick={() => setDeleteConfirmation(true)}
         >
           <i className="pi pi-sign-out"></i>
           <span>Settings</span>
