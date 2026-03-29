@@ -6,7 +6,7 @@ import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { InventoryService } from "@/app/service/InventoryService";
-import { isValidUrl, noImage } from "@/app/util/function";
+import { currency, isValidUrl, noImage } from "@/app/util/function";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import { Toast } from "primereact/toast";
 import { Dialog } from "primereact/dialog";
@@ -107,6 +107,7 @@ const TableDemo = () => {
       lorong: isModify ? barang.lorong : "",
       flag_1: isModify ? barang.flag_1 : "",
       flag_2: isModify ? barang.flag_2 : "",
+      valuation: isModify ? barang.valuation : "",
     },
     validationSchema: Yup.object({
       stok: Yup.string().required("Required"),
@@ -990,6 +991,26 @@ const TableDemo = () => {
                 sortField="stock_used"
               />
               <Column
+                field="updated_at"
+                header="Valuation"
+                filterPlaceholder="Search by name"
+                style={{ maxWidth: "9rem" }}
+                body={(data: any) => (
+                  <p>{data.valuation ? currency(data.valuation) : "0"}</p>
+                )}
+                sortable
+                sortField="valuation"
+              />
+                            <Column
+                field="updated_at"
+                header="Total Valuation"
+                filterPlaceholder="Search by name"
+                style={{ maxWidth: "9rem" }}
+                body={(data: any) => (
+                  <p>{data.valuation ? currency(Number(data.valuation) * data.stok_barang) : "0"}</p>
+                )}
+              />
+              <Column
                 field="stock_used"
                 header="Minimum Status"
                 headerStyle={{ justifyItems: "center" }}
@@ -1654,21 +1675,48 @@ const TableDemo = () => {
                 />
               </div>
             </div>
-            <div className="field flex-1">
-              <Dropdown
-                onChange={(e) =>
-                  formik.setFieldValue("gudang_id", e.target.value)
-                }
-                value={formik.values.gudang_id}
-                options={[
-                  ...[{ value: "", label: "Select warehouse" }],
-                  ...gudang,
-                ]}
-                optionLabel="label"
-                placeholder="Select warehouse"
-                className="mr-4 flex-1"
-                // style={{ width: "100%" }}
-              />
+            <div className="flex flex-row items-center">
+              <div className="field flex-1">
+                <label htmlFor="name">Valuation</label>
+                <InputText
+                  id="name"
+                  value={currency(Number(formik.values.valuation))}
+                  onChange={(e) => {
+                    let cleaned = e.target.value.replace(/[^0-9]/g, "");
+
+                    // Hilangkan leading zero
+                    if (cleaned.length > 1 && cleaned.startsWith("0")) {
+                      cleaned = cleaned.replace(/^0+/, "");
+                    }
+
+                    formik.setFieldValue("valuation", cleaned);
+                  }}
+                  autoFocus
+                  className={`text-black border w-full py-2 px-4 ${
+                    formik.errors.valuation
+                      ? "border-red-600"
+                      : "border-gray-300"
+                  } rounded-lg bg-transparent`}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="field flex-1">
+                <label htmlFor="name">Warehouse</label>
+                <Dropdown
+                  onChange={(e) =>
+                    formik.setFieldValue("gudang_id", e.target.value)
+                  }
+                  value={formik.values.gudang_id}
+                  options={[
+                    ...[{ value: "", label: "Select warehouse" }],
+                    ...gudang,
+                  ]}
+                  optionLabel="label"
+                  placeholder="Select warehouse"
+                  className="mr-4 flex-1"
+                  // style={{ width: "100%" }}
+                />
+              </div>
             </div>
           </Dialog>
           <Dialog

@@ -254,7 +254,7 @@ export const InventoryService = {
     return response.data;
   },
   postLogin: async (data: any): Promise<APIResponse<any>> => {
-    const response = await ax.post(`/v1/login`, data);
+    const response = await ax.post(`/v1/login-emi`, data);
     return response.data;
   },
   loginFetch: async (body: any): Promise<APIResponse<any>> => {

@@ -1,14 +1,14 @@
 import { useQuery, UseQueryOptions } from "react-query";
 
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
-import axEmi from "@/app/service/axiosEmi";
+import ax from "@/app/service/axios";
 
 export const getUsers = async ({
   params,
 }: {
   params: any;
 }): Promise<any> => {
-  const response = await axEmi.get(`/v2/get-all-user`, { params });
+  const response = await ax.get(`/v1/get-all-user`, { params });
   return response.data;
 };
 

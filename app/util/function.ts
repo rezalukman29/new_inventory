@@ -90,3 +90,9 @@ const toDataURL = (url: string) =>
           reader.readAsDataURL(blob);
         })
     );
+
+export const currency = (value: number) => {
+  if (!value) return "";
+
+  return new Intl.NumberFormat("id-ID").format(value);
+};
