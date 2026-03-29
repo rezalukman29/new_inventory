@@ -257,7 +257,7 @@ export default function LoginPage() {
   const onLogin = async (payload: any) => {
     try {
       setIsLoading(true);
-      const response = await InventoryService.loginFetch(payload);
+      const response = await InventoryService.postLogin(payload);
       if (response.success) {
         dispatch(
           setProfile({
