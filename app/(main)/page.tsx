@@ -34,7 +34,7 @@ import { classNames } from "primereact/utils";
 import { TabMenu } from "primereact/tabmenu";
 import useGetUsers from "../hooks/api/useGetUsers";
 import { STORAGE_BOOQABLE } from "../util/config";
-import { convertBase64Event } from "../util/function";
+import { convertBase64Event, currency } from "../util/function";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -137,10 +137,10 @@ const TableDemo = () => {
         description: values.description,
         name: values.name,
         event_start: formatDatePayload(
-          `${formik.values.event_start?.year}-${formik.values.event_start?.month}-${formik.values.event_start?.day}`,
+          `${formik.values.event_start?.year}-${formik.values.event_start?.month}-${formik.values.event_start?.day}`
         ),
         event_end: formatDatePayload(
-          `${formik.values.event_end?.year}-${formik.values.event_end?.month}-${formik.values.event_end?.day}`,
+          `${formik.values.event_end?.year}-${formik.values.event_end?.month}-${formik.values.event_end?.day}`
         ),
         PIC: values.PIC,
         event_code: values.event_code,
@@ -155,7 +155,7 @@ const TableDemo = () => {
         notes: values.notes,
         scan_type: values.scan_type,
         date_event: formatDatePayload(
-          `${formik.values.date_event?.year}-${formik.values.date_event?.month}-${formik.values.date_event?.day}`,
+          `${formik.values.date_event?.year}-${formik.values.date_event?.month}-${formik.values.date_event?.day}`
         ),
       };
       if (isModify) {
@@ -420,7 +420,7 @@ const TableDemo = () => {
               data.cell.x + 2,
               data.cell.y + 2,
               28,
-              28,
+              28
             );
           }
         }
@@ -445,7 +445,7 @@ const TableDemo = () => {
               if (a.created_at < b.created_at) return -1;
               return 0;
             })
-            .map((el: any) => el?.base64),
+            .map((el: any) => el?.base64)
         );
       }, 200);
     } catch (error: any) {
@@ -580,7 +580,7 @@ const TableDemo = () => {
             id: idx + 1,
             ...el,
           };
-        }),
+        })
       );
       setIsLoading(false);
       setShowEventlog(true);
@@ -906,6 +906,21 @@ const TableDemo = () => {
                     sortField="address"
                   />
                   <Column
+                    field="event.scan_type"
+                    header="Valuation"
+                    filterPlaceholder="Search by name"
+                    style={{
+                      minWidth: "4rem",
+                      paddingTop: 8,
+                      paddingBottom: 8,
+                    }}
+                    body={(data: any) => (
+                      <p>{data.valuation ? currency(data.valuation) : "0"}</p>
+                    )}
+                    sortable
+                    sortField="valuation"
+                  />
+                  <Column
                     field="scan_type"
                     header="QR Type"
                     filterPlaceholder="Search by name"
@@ -933,8 +948,8 @@ const TableDemo = () => {
                               ?.map(
                                 (el: any) =>
                                   users?.data?.users?.find(
-                                    (item: any) => item.id === el,
-                                  )?.fullname,
+                                    (item: any) => item.id === el
+                                  )?.fullname
                               )
                               ?.join(", ")
                           : "-"}
@@ -1037,7 +1052,7 @@ const TableDemo = () => {
                         {Array.isArray(users?.data?.users)
                           ? users?.data?.users?.find(
                               (el: any) =>
-                                Number(el.id) === Number(data.user_id),
+                                Number(el.id) === Number(data.user_id)
                             )?.fullname ?? "-"
                           : "-"}
                       </p>
@@ -1261,8 +1276,8 @@ const TableDemo = () => {
                       color="black"
                       label={moment(
                         formatDate(
-                          `${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`,
-                        ),
+                          `${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`
+                        )
                       ).format("LL")}
                       textAlign="left"
                       variant="base"
@@ -1272,8 +1287,8 @@ const TableDemo = () => {
                       id="name"
                       value={moment(
                         formatDate(
-                          `${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`,
-                        ),
+                          `${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`
+                        )
                       ).format("LL")}
                       onFocus={() => {
                         setShowEnd(false);
@@ -1319,8 +1334,8 @@ const TableDemo = () => {
                       color="black"
                       label={moment(
                         formatDate(
-                          `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`,
-                        ),
+                          `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
+                        )
                       ).format("LL")}
                       textAlign="left"
                       variant="base"
@@ -1332,8 +1347,8 @@ const TableDemo = () => {
                         formik.values.event_end
                           ? moment(
                               formatDate(
-                                `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`,
-                              ),
+                                `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
+                              )
                             ).format("LL")
                           : ""
                       }
@@ -1382,8 +1397,8 @@ const TableDemo = () => {
                         formik.values.date_event && formik.values.date_event.day
                           ? moment(
                               formatDate(
-                                `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`,
-                              ),
+                                `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`
+                              )
                             ).format("LL")
                           : "No Data"
                       }
@@ -1397,8 +1412,8 @@ const TableDemo = () => {
                         formik.values.date_event
                           ? moment(
                               formatDate(
-                                `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`,
-                              ),
+                                `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`
+                              )
                             ).format("LL")
                           : ""
                       }
@@ -1466,7 +1481,7 @@ const TableDemo = () => {
                       color="black"
                       label={
                         eventStatus?.data?.data?.find(
-                          (el: any) => el.id === formik.values.status,
+                          (el: any) => el.id === formik.values.status
                         )?.name as string
                       }
                       textAlign="left"
@@ -1572,7 +1587,7 @@ const TableDemo = () => {
                                   event?.images?.includes("66.42.48.163")
                                     ? event?.images?.replace(
                                         "http://66.42.48.163:9000/booqable/",
-                                        STORAGE_BOOQABLE,
+                                        STORAGE_BOOQABLE
                                       )
                                     : event.images
                                     ? `https://democreation.site/home/public/${event?.images}`
@@ -1755,8 +1770,8 @@ const TableDemo = () => {
                               ?.map(
                                 (el: any) =>
                                   users?.data?.users?.find(
-                                    (item: any) => item.id === el,
-                                  )?.fullname,
+                                    (item: any) => item.id === el
+                                  )?.fullname
                               )
                               ?.join(", ")
                           : "-"}
