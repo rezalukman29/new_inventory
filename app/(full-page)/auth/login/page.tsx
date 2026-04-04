@@ -16,6 +16,7 @@ import { useDispatch } from "react-redux";
 import { setProfile } from "@/app/store/profile";
 import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import Loading from "@/app/components/atoms/loading";
+import OtpInput from "react-otp-input";
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
@@ -238,6 +239,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [activeMenu, setActiveMenu] = useState("LOGIN");
+  const [token, setTokens] = useState<any>();
 
   const formik = useFormik<any>({
     initialValues: {
@@ -246,12 +248,21 @@ export default function LoginPage() {
     },
     validationSchema: Yup.object({
       email: Yup.string().required("Required"),
-      password: Yup.string().required("Required"),
+      password:
+        activeMenu === "LOGIN" || activeMenu === "FORGOT_SEND_OTP"
+          ? Yup.string().required("Required")
+          : Yup.string().optional(),
     }),
     validateOnChange: false,
     enableReinitialize: true,
     onSubmit: (values) => {
-      onLogin(values);
+      if (activeMenu === "LOGIN") {
+        onLogin(values);
+      } else if (activeMenu === "FORGOT_INPUT_EMAIL") {
+        onSendOtp(values.email);
+      } else {
+        verifyOtp(values);
+      }
     },
   });
 
@@ -299,6 +310,77 @@ export default function LoginPage() {
     }
   };
 
+  const onSendOtp = async (email: string) => {
+    try {
+      setIsLoading(true);
+      const response = await InventoryService.sendOtp(email);
+      if (response.success) {
+        setIsLoading(false);
+        toast?.current?.show({
+          severity: "success",
+          summary: "Send Otp Success",
+          detail: "Please check your email",
+          life: 3000,
+        });
+        setActiveMenu("FORGOT_SEND_OTP");
+      } else {
+        setIsLoading(false);
+        toast?.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: response.message,
+          life: 3000,
+        });
+      }
+    } catch (error: any) {
+      setIsLoading(false);
+      toast?.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.response.data.message,
+        life: 3000,
+      });
+    }
+  };
+
+  const verifyOtp = async (data: any) => {
+    try {
+      setIsLoading(true);
+      const response = await InventoryService.resetPassword({
+        email: data.email,
+        otp: token,
+        new_password: data.password,
+      });
+      if (response.success) {
+        setIsLoading(false);
+        toast?.current?.show({
+          severity: "success",
+          summary: "Reset password successfully",
+          detail: "Please login",
+          life: 3000,
+        });
+        setActiveMenu("LOGIN");
+        formik.resetForm();
+      } else {
+        setIsLoading(false);
+        toast?.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: response.message,
+          life: 3000,
+        });
+      }
+    } catch (error: any) {
+      setIsLoading(false);
+      toast?.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.response.data.message,
+        life: 3000,
+      });
+    }
+  };
+
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const [email, setEmail] = useState("");
@@ -321,8 +403,14 @@ export default function LoginPage() {
     transition: "all 0.2s",
   };
 
+  const isDisableSubmit =
+    isLoading ||
+    (activeMenu === "FORGOT_SEND_OTP" && !formik.values.password) ||
+    (activeMenu === "FORGOT_SEND_OTP" && !token.length);
+
   return (
     <div style={styles.page}>
+      <Toast ref={toast} />
       <style>{spinKeyframes}</style>
 
       <div style={styles.card}>
@@ -360,51 +448,44 @@ export default function LoginPage() {
             </svg>
           </div>
 
-          <h1 style={styles.headerTitle}>Welcome Back</h1>
-          <p style={styles.headerSubtitle}>Sign in to EMI Inventory</p>
+          <h1 style={styles.headerTitle}>
+            {activeMenu === "LOGIN"
+              ? "Welcome Back"
+              : activeMenu === "FORGOT_INPUT_EMAIL" ||
+                activeMenu === "FORGOT_SEND_OTP"
+              ? "Forgot password"
+              : ""}{" "}
+          </h1>
+          {activeMenu === "LOGIN" && (
+            <p style={styles.headerSubtitle}>Sign in to EMI Inventory</p>
+          )}
         </div>
 
         {/* Form */}
         <div style={styles.formSection}>
           {/* Email */}
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Email Address</label>
-            <div style={styles.inputWrapper}>
-              <span style={styles.inputIcon}>
-                <svg
-                  width="16"
-                  height="16"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-              </span>
-              <input
-                type="email"
-                value={formik.values.email}
-                onChange={(e) => formik.setFieldValue("email", e.target.value)}
-                onFocus={() => setEmailFocus(true)}
-                onBlur={() => setEmailFocus(false)}
-                placeholder="Enter your email"
-                style={{
-                  ...styles.input,
-                  ...(emailFocus ? styles.inputFocused : {}),
+
+          {activeMenu === "FORGOT_SEND_OTP" ? (
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>OTP</label>
+              <OtpInput
+                value={token}
+                onChange={setTokens}
+                numInputs={6}
+                renderSeparator={<span></span>}
+                renderInput={(props) => <input {...props} />}
+                inputStyle={{
+                  width: 40,
+                  height: 60,
+                  borderRadius: 6,
+                  borderWidth: 1,
                 }}
+                containerStyle={{ gap: 8 }}
               />
             </div>
-          </div>
-
-          {/* Password */}
-          {activeMenu === "LOGIN" && (
+          ) : (
             <div style={styles.fieldGroup}>
-              <label style={styles.label}>Password</label>
+              <label style={styles.label}>Email Address</label>
               <div style={styles.inputWrapper}>
                 <span style={styles.inputIcon}>
                   <svg
@@ -418,69 +499,117 @@ export default function LoginPage() {
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                     />
                   </svg>
                 </span>
                 <input
-                  type={showPassword ? "text" : "password"}
-                  value={formik.values.password}
-                  onFocus={() => setPassFocus(true)}
-                  onBlur={() => setPassFocus(false)}
+                  type="email"
+                  value={formik.values.email}
                   onChange={(e) =>
-                    formik.setFieldValue("password", e.target.value)
+                    formik.setFieldValue("email", e.target.value)
                   }
-                  placeholder="Enter your password"
+                  onFocus={() => setEmailFocus(true)}
+                  onBlur={() => setEmailFocus(false)}
+                  placeholder="Enter your email"
                   style={{
                     ...styles.input,
-                    paddingRight: "40px",
-                    ...(passFocus ? styles.inputFocused : {}),
+                    ...(emailFocus ? styles.inputFocused : {}),
                   }}
                 />
-                <button
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={styles.eyeButton}
-                >
-                  {showPassword ? (
-                    <svg
-                      width="16"
-                      height="16"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      width="16"
-                      height="16"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                  )}
-                </button>
               </div>
             </div>
           )}
+
+          {/* Password */}
+          {(activeMenu === "LOGIN" ||
+            activeMenu === "FORGOT_SEND_OTP") && (
+              <div style={styles.fieldGroup}>
+                <label style={styles.label}>
+                  {activeMenu === "FORGOT_SEND_OTP"
+                    ? "New Password"
+                    : "Password"}
+                </label>
+                <div style={styles.inputWrapper}>
+                  <span style={styles.inputIcon}>
+                    <svg
+                      width="16"
+                      height="16"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                  </span>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={formik.values.password}
+                    onFocus={() => setPassFocus(true)}
+                    onBlur={() => setPassFocus(false)}
+                    onChange={(e) =>
+                      formik.setFieldValue("password", e.target.value)
+                    }
+                    placeholder={
+                      activeMenu === "FORGOT_SEND_OTP"
+                        ? "Enter your new password"
+                        : "Enter your password"
+                    }
+                    style={{
+                      ...styles.input,
+                      paddingRight: "40px",
+                      ...(passFocus ? styles.inputFocused : {}),
+                    }}
+                  />
+                  <button
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={styles.eyeButton}
+                  >
+                    {showPassword ? (
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
 
           {/* Remember & Forgot */}
           {activeMenu === "LOGIN" && (
@@ -521,10 +650,10 @@ export default function LoginPage() {
           {/* Sign In Button */}
           <button
             onClick={handleSubmit}
-            disabled={isLoading}
+            disabled={isDisableSubmit}
             style={{
               ...styles.signInBtn,
-              ...(isLoading ? styles.signInBtnLoading : {}),
+              ...(isDisableSubmit ? styles.signInBtnLoading : {}),
             }}
           >
             {isLoading ? (
@@ -546,10 +675,14 @@ export default function LoginPage() {
                   />
                   <path fill="white" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
-                Signing in...
+                Loading...
               </>
-            ) : (
+            ) : activeMenu === "LOGIN" ? (
               "Sign In"
+            ) : activeMenu === "FORGOT_INPUT_EMAIL" ? (
+              "Send OTP"
+            ) : (
+              "Submit"
             )}
           </button>
         </div>
@@ -559,14 +692,24 @@ export default function LoginPage() {
           <p style={styles.footerText}>
             {activeMenu === "LOGIN"
               ? "Don't have an account?"
+              : activeMenu === "FORGOT_SEND_OTP"
+              ? "Didn't receive email"
               : "Already have an account?"}{" "}
             <button
               onClick={() =>
-                activeMenu !== "LOGIN" ? setActiveMenu("LOGIN") : undefined
+                activeMenu === "LOGIN"
+                  ? undefined
+                  : activeMenu === "FORGOT_SEND_OTP"
+                  ? onSendOtp(formik.values.email)
+                  : setActiveMenu("LOGIN")
               }
               style={styles.signUpLink}
             >
-              {activeMenu === "LOGIN" ? "Sign Up" : "Login"}
+              {activeMenu === "LOGIN"
+                ? "Sign Up"
+                : activeMenu === "FORGOT_SEND_OTP"
+                ? "Resent"
+                : "Login"}
             </button>
           </p>
         </div>

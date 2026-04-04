@@ -484,4 +484,14 @@ export const InventoryService = {
     const response = await ax.get(`/v3/event-log/${id}`);
     return response.data;
   },
+  sendOtp: async (email: any): Promise<APIResponse<any>> => {
+    const response = await ax.post(`/v1/forgot-password-otp`, {
+      email
+    });
+    return response.data;
+  },
+  resetPassword: async (payload: any): Promise<APIResponse<any>> => {
+    const response = await ax.post(`/v1/reset-password`, payload);
+    return response.data;
+  },
 };
