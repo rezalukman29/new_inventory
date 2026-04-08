@@ -37,6 +37,8 @@ import { STORAGE_BOOQABLE } from "../util/config";
 import { convertBase64Event, currency } from "../util/function";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import Label from "../components/atoms/Label";
+import { styles } from "./styles";
 
 interface ISelect {
   label: string;
@@ -82,6 +84,12 @@ const TableDemo = () => {
   const [sortByAdmin, setSortByAdmin] = useState<string>("created_at");
   const [products, setProducts] = useState([]);
   const [expandedRows, setExpandedRows] = useState<any>(null);
+
+  const fileInputRef = useRef<any>(null);
+
+  const handleClick = () => {
+    fileInputRef?.current?.click(); // trigger file picker
+  };
 
   const items = [
     { label: "Upcoming Event", icon: "pi pi-home" },
@@ -527,17 +535,20 @@ const TableDemo = () => {
     <>
       <Button
         label="Cancel"
-        severity="danger"
         icon="pi pi-times"
-        style={{ width: 120 }}
+        style={{
+          width: 120,
+          color: "#3B3b3B",
+          backgroundColor: "transparent",
+          borderColor: "#C4C4C4",
+        }}
         onClick={hideDialog}
         className="button"
       />
       <Button
-        label={isModify ? "Update" : "Save"}
+        label={isModify ? "Update" : "Save Event"}
         icon="pi pi-check"
-        severity="success"
-        style={{ width: 120 }}
+        style={{ width: 140 }}
         onClick={() =>
           activeIndex === 2 ? formikAdmin.handleSubmit() : formik.handleSubmit()
         }
@@ -1191,15 +1202,93 @@ const TableDemo = () => {
             <Dialog
               visible={productDialog}
               style={{ width: "800px" }}
-              header={isModify ? "Modify Event" : "Add Event"}
+              header={
+                <div
+                  style={{
+                    flexDirection: "row",
+                    display: "flex",
+                    gap: 12,
+                    alignItems: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      backgroundColor: "#6366f1",
+                      width: 50,
+                      height: 50,
+                      display: "flex",
+                      borderRadius: 12,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <i
+                      className="pi pi-calendar"
+                      style={{ fontSize: "1.3rem", color: "#ffffff" }}
+                    ></i>
+                  </div>
+
+                  <div
+                    style={{
+                      flexDirection: "column",
+                      position: "relative",
+                      width: "100%",
+                    }}
+                  >
+                    <Text
+                      label={isModify ? "Update Event" : "Add Event"}
+                      fontWeight="bold"
+                      variant="ultra-large"
+                      style={{
+                        lineHeight: 1,
+                        position: "absolute",
+                        bottom: -18,
+                      }}
+                    />
+                    <Text
+                      label={"Fill in the details to create a new event"}
+                      style={{ position: "absolute", color: "red" }}
+                      className="font-medium"
+                    />
+                  </div>
+                </div>
+              }
               modal
               className="p-fluid"
               footer={productDialogFooter}
               onHide={hideDialog}
             >
+              <div
+                className="flex mb-3 gap-2"
+                style={{ flexDirection: "row", alignItems: "center" }}
+              >
+                <div
+                  style={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: "#6366f1",
+                    borderRadius: 8,
+                  }}
+                />
+
+                <a
+                  className="font-bold"
+                  style={{ color: "#808080", fontSize: 14 }}
+                >
+                  BASIC INFORMATION
+                </a>
+                <div
+                  style={{
+                    height: 1,
+                    backgroundColor: "#D3D3D3",
+                    flex: 1,
+                    display: "flex",
+                  }}
+                />
+              </div>
               <div className="flex flex-row items-center">
                 <div className="field flex-1">
-                  <label htmlFor="name">Name</label>
+                  <Label title="Name" isRequired />
                   <InputText
                     id="name"
                     value={formik.values.name}
@@ -1207,15 +1296,15 @@ const TableDemo = () => {
                       formik.setFieldValue("name", e.target.value)
                     }
                     autoFocus
-                    className={`text-black border w-full py-2 px-4 ${
+                    className={`text-black border w-full font-medium py-2 px-3 ${
                       formik.errors.name ? "border-red-600" : "border-gray-300"
-                    } rounded-lg bg-transparent`}
-                    style={{ height: 44 }}
+                    }`}
+                    style={styles.textInput}
                   />
                 </div>
                 <div style={{ width: 16 }} />
                 <div className="field flex-1">
-                  <label htmlFor="name"> Event Code</label>
+                  <Label title="Event Code" isRequired />
                   <InputText
                     id="name"
                     value={formik.values.event_code}
@@ -1223,53 +1312,67 @@ const TableDemo = () => {
                       formik.setFieldValue("event_code", e.target.value)
                     }
                     autoFocus
-                    className={`text-black border w-full py-2 px-4 ${
+                    className={`text-black border w-full font-medium py-2 px-3 ${
                       formik.errors.event_code
                         ? "border-red-600"
                         : "border-gray-300"
-                    } rounded-lg bg-transparent`}
-                    style={{ height: 44 }}
+                    } `}
+                    style={styles.textInput}
                   />
                 </div>
               </div>
               <div className="flex flex-row items-center">
                 <div className="field flex-1">
-                  <label htmlFor="name">Description</label>
-                  <InputText
+                  <Label title="Description" />
+                  <textarea
                     id="name"
                     value={formik.values.description}
                     onChange={(e) =>
                       formik.setFieldValue("description", e.target.value)
                     }
                     autoFocus
-                    className={`text-black border w-full py-2 px-4 ${
+                    className={`resize text-black border w-full font-medium py-2 px-3 ${
                       formik.errors.description
                         ? "border-red-600"
                         : "border-gray-300"
-                    } rounded-lg bg-transparent`}
-                    style={{ height: 44 }}
-                  />
-                </div>
-                <div style={{ width: 16 }} />
-                <div className="field flex-1">
-                  <label htmlFor="name">PIC</label>
-                  <InputText
-                    id="name"
-                    value={formik.values.PIC as string}
-                    onChange={(e) =>
-                      formik.setFieldValue("PIC", e.target.value)
-                    }
-                    autoFocus
-                    className={`text-black border w-full py-2 px-4 ${
-                      formik.errors.PIC ? "border-red-600" : "border-gray-300"
-                    } rounded-lg bg-transparent`}
-                    style={{ height: 44 }}
+                    } `}
+                    style={styles.textArea}
                   />
                 </div>
               </div>
+
+              <div
+                className="flex mb-3 gap-2 mt-4"
+                style={{ flexDirection: "row", alignItems: "center" }}
+              >
+                <div
+                  style={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: "#E3963E",
+                    borderRadius: 8,
+                  }}
+                />
+
+                <a
+                  className="font-bold"
+                  style={{ color: "#808080", fontSize: 14 }}
+                >
+                  SCHEDULE
+                </a>
+                <div
+                  style={{
+                    height: 1,
+                    backgroundColor: "#D3D3D3",
+                    flex: 1,
+                    display: "flex",
+                  }}
+                />
+              </div>
+
               <div className="flex flex-row items-center">
                 <div className="field flex-1">
-                  <label htmlFor="name"> Event Start</label>
+                  <Label title="Event Start" isRequired />
                   {new Date(event?.event_start) < new Date() ? (
                     <Text
                       fontWeight="regular"
@@ -1289,18 +1392,18 @@ const TableDemo = () => {
                         formatDate(
                           `${formik.values.event_start?.day}-${formik.values.event_start?.month}-${formik.values.event_start?.year}`
                         )
-                      ).format("LL")}
+                      ).format("DD/MM/YYYY")}
                       onFocus={() => {
                         setShowEnd(false);
                         setShowStart(true);
                         setShowDate(false);
                       }}
-                      className={`text-black border w-full py-2 px-4 ${
+                      className={`text-black border w-full font-medium py-2 px-3 ${
                         formik.errors.event_start
                           ? "border-red-600"
                           : "border-gray-300"
-                      } rounded-lg bg-transparent`}
-                      style={{ height: 44 }}
+                      } `}
+                      style={styles.textInput}
                     />
                   )}
                   {showStart && (
@@ -1327,7 +1430,7 @@ const TableDemo = () => {
                 </div>
                 <div style={{ width: 16 }} />
                 <div className="field flex-1">
-                  <label htmlFor="name"> Event End</label>
+                  <Label title="Event End" isRequired />
                   {new Date(event?.event_start) < new Date() ? (
                     <Text
                       fontWeight="regular"
@@ -1349,7 +1452,7 @@ const TableDemo = () => {
                               formatDate(
                                 `${formik.values.event_end?.day}-${formik.values.event_end?.month}-${formik.values.event_end?.year}`
                               )
-                            ).format("LL")
+                            ).format("DD/MM/YYYY")
                           : ""
                       }
                       onFocus={() => {
@@ -1357,12 +1460,12 @@ const TableDemo = () => {
                         setShowStart(false);
                         setShowDate(false);
                       }}
-                      className={`text-black border w-full py-2 px-4 ${
+                      className={`text-black border w-full font-medium py-2 px-3 ${
                         formik.errors.event_end
                           ? "border-red-600"
                           : "border-gray-300"
-                      } rounded-lg bg-transparent`}
-                      style={{ height: 44 }}
+                      } `}
+                      style={styles.textInput}
                     />
                   )}
                   {showEnd && (
@@ -1385,10 +1488,9 @@ const TableDemo = () => {
                     </div>
                   )}
                 </div>
-              </div>
-              <div className="flex flex-row items-center">
+                <div style={{ width: 16 }} />
                 <div className="field flex-1">
-                  <label htmlFor="name"> Date Event</label>
+                  <Label title="Date Event" isRequired />
                   {new Date(event?.event_start) < new Date() ? (
                     <Text
                       fontWeight="regular"
@@ -1414,7 +1516,7 @@ const TableDemo = () => {
                               formatDate(
                                 `${formik.values.date_event?.day}-${formik.values.date_event?.month}-${formik.values.date_event?.year}`
                               )
-                            ).format("LL")
+                            ).format("DD/MM/YYYY")
                           : ""
                       }
                       onFocus={() => {
@@ -1422,12 +1524,12 @@ const TableDemo = () => {
                         setShowStart(false);
                         setShowDate(true);
                       }}
-                      className={`text-black border w-full py-2 px-4 ${
+                      className={`text-black border w-full font-medium py-2 px-3 ${
                         formik.errors.date_event
                           ? "border-red-600"
                           : "border-gray-300"
-                      } rounded-lg bg-transparent`}
-                      style={{ height: 44 }}
+                      } `}
+                      style={styles.textInput}
                     />
                   )}
                   {showDate && (
@@ -1451,30 +1553,55 @@ const TableDemo = () => {
                     </div>
                   )}
                 </div>
-                <div style={{ width: 16 }} />
-                <div className="field flex-1"></div>
+              </div>
+              <div
+                className="flex mb-3 gap-2 mt-4"
+                style={{ flexDirection: "row", alignItems: "center" }}
+              >
+                <div
+                  style={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: "#00A36C",
+                    borderRadius: 8,
+                  }}
+                />
+
+                <a
+                  className="font-bold"
+                  style={{ color: "#808080", fontSize: 14 }}
+                >
+                  DETAILS
+                </a>
+                <div
+                  style={{
+                    height: 1,
+                    backgroundColor: "#D3D3D3",
+                    flex: 1,
+                    display: "flex",
+                  }}
+                />
               </div>
               <div className="flex flex-row items-center">
                 <div className="field flex-1">
-                  <label htmlFor="name">Address</label>
+                  <Label title="PIC" />
                   <InputText
                     id="name"
-                    value={formik.values.address}
+                    value={formik.values.PIC as string}
                     onChange={(e) =>
-                      formik.setFieldValue("address", e.target.value)
+                      formik.setFieldValue("PIC", e.target.value)
                     }
                     autoFocus
-                    className={`text-black border w-full py-2 px-4 ${
-                      formik.errors.address
-                        ? "border-red-600"
-                        : "border-gray-300"
-                    } rounded-lg bg-transparent`}
-                    style={{ height: 44 }}
+                    className={`text-black border w-full font-medium py-2 px-3 ${
+                      formik.errors.PIC ? "border-red-600" : "border-gray-300"
+                    } `}
+                    style={styles.textInput}
+                    placeholder="Person in charge"
                   />
                 </div>
                 <div style={{ width: 16 }} />
                 <div className="field flex-1">
-                  <label htmlFor="name">Status</label>
+                  <Label title="Status" />
                   {isModify ? (
                     <Text
                       fontWeight="regular"
@@ -1500,18 +1627,36 @@ const TableDemo = () => {
                       })}
                       optionLabel="label"
                       placeholder="Select status"
-                      className={`flex-1 rounded ${
+                      className={`flex-1 rounded font-medium ${
                         formik.errors.status
                           ? "border-red-600"
                           : "border-gray-300"
                       }`}
-                      // style={{ width: "100%" }}
+                      style={styles.textInput}
                     />
                   )}
                 </div>
               </div>
               <div className="flex flex-row items-center">
                 <div className="field flex-1">
+                  <Label title="Address" />
+                  <InputText
+                    id="name"
+                    value={formik.values.address}
+                    onChange={(e) =>
+                      formik.setFieldValue("address", e.target.value)
+                    }
+                    autoFocus
+                    className={`text-black border w-full font-medium py-2 px-3 ${
+                      formik.errors.address
+                        ? "border-red-600"
+                        : "border-gray-300"
+                    } `}
+                    style={styles.textInput}
+                    placeholder="Event location / address"
+                  />
+                </div>
+                {/* <div className="field flex-1">
                   <label htmlFor="notes">Note</label>
                   <InputText
                     id="notes"
@@ -1520,15 +1665,15 @@ const TableDemo = () => {
                       formik.setFieldValue("notes", e.target.value)
                     }
                     autoFocus
-                    className={`text-black border w-full py-2 px-4 ${
+                    className={`text-black border w-full font-medium py-2 px-3 ${
                       formik.errors.notes ? "border-red-600" : "border-gray-300"
-                    } rounded-lg bg-transparent`}
-                    style={{ height: 44 }}
+                    } `}
+                    style={styles.textInput}
                   />
-                </div>
+                </div> */}
                 <div style={{ width: 16 }} />
                 <div className="field flex-1">
-                  <label htmlFor="notes">QR Type</label>
+                  <Label title="Qr Type" />
                   <Dropdown
                     onChange={(e) =>
                       formik.setFieldValue("scan_type", e.target.value)
@@ -1537,24 +1682,70 @@ const TableDemo = () => {
                     options={SCAN_TYPE}
                     optionLabel="label"
                     placeholder="Select QR Type"
-                    className={`flex-1 rounded ${
+                    className={`flex-1 rounded font-medium ${
                       formik.errors.scan_type
                         ? "border-red-600"
                         : "border-gray-300"
                     }`}
+                    style={styles.textInput}
                   />
                 </div>
               </div>
+              <div
+                className="flex mb-3 gap-2 mt-4"
+                style={{ flexDirection: "row", alignItems: "center" }}
+              >
+                <div
+                  style={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: "#C41E3A",
+                    borderRadius: 8,
+                  }}
+                />
+
+                <a
+                  className="font-bold"
+                  style={{ color: "#808080", fontSize: 14 }}
+                >
+                  ADDITIONAL
+                </a>
+                <div
+                  style={{
+                    height: 1,
+                    backgroundColor: "#D3D3D3",
+                    flex: 1,
+                    display: "flex",
+                  }}
+                />
+              </div>
               <div className="flex flex-row items-center">
                 <div className="field flex-1">
-                  <label htmlFor="notes">Image</label>
+                  <Label title="Note" />
+                  <textarea
+                    id="name"
+                    value={formik.values.notes}
+                    onChange={(e) =>
+                      formik.setFieldValue("notes", e.target.value)
+                    }
+                    className={`resize text-black border w-full font-medium py-2 px-3 ${
+                      formik.errors.notes ? "border-red-600" : "border-gray-300"
+                    } `}
+                    style={styles.textArea}
+                    placeholder="Any additional notes..."
+                  />
+                </div>
+                <div style={{ width: 16 }} />
+                <div className="field flex-1">
+                  <Label title="Image" />
+
                   {base64 ? (
                     <div className="flex flex-row gap-x-4 items-center">
                       <img
                         src={base64}
                         style={{
-                          height: 100,
-                          width: 180,
+                          height: 120,
+                          width: "100%",
                           objectFit: "cover",
                         }}
                       />
@@ -1594,8 +1785,8 @@ const TableDemo = () => {
                                     : event
                                 }
                                 style={{
-                                  width: 86,
-                                  height: 86,
+                                  width: 120,
+                                  height: 120,
                                   borderRadius: 8,
                                 }}
                               />
@@ -1603,17 +1794,68 @@ const TableDemo = () => {
                             <input
                               type="file"
                               style={{ color: "#000" }}
-                              className="form-control"
+                              className="form-control ml-4"
                               onChange={(e) => handleProfile(e)}
                             />
                           </>
                         ) : (
-                          <input
-                            type="file"
-                            style={{ color: "#000" }}
-                            className="form-control"
-                            onChange={(e) => handleProfile(e)}
-                          />
+                          <>
+                            <div
+                              className="border border-1"
+                              onClick={handleClick}
+                              style={{
+                                width: "100%",
+                                height: 120,
+                                backgroundColor: "#F5F5F5",
+                                borderRadius: 10,
+                                borderWidth: 10,
+                                borderColor: "#d1d5db",
+                                borderStyle: "dashed",
+                                display: "flex",
+                                justifyContent: "center",
+                                flexDirection: "column",
+                                cursor: "pointer",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  backgroundColor: "#c7d2fe",
+                                  height: 36,
+                                  width: 36,
+                                  justifyContent: "center",
+                                  alignSelf: "center",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  borderRadius: 4,
+                                }}
+                              >
+                                <Icon
+                                  icon="prime:cloud-upload"
+                                  className="cursor-pointer"
+                                  fontSize={24}
+                                  color="#6366f1"
+                                  onClick={() => setBase64("")}
+                                />
+                              </div>
+                              <Text
+                                label={"Click to upload image"}
+                                textAlign="center"
+                                fontWeight="semi-bold"
+                                style={{ marginBottom: 0 }}
+                              />
+                              <Text
+                                label={"PNG, JPG, GIF up to 10MB"}
+                                textAlign="center"
+                              />
+                            </div>
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              style={{ display: "none" }}
+                              onChange={(e) => handleProfile(e)}
+                            />
+                          </>
                         )}
                         {/* {isModify && barang.photo && (
                           <Icon

@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { CSSProperties, ReactElement } from 'react';
 
 export type FontWeightType =
   | 'extra-bold'
@@ -45,4 +45,5 @@ export interface TextStyleProps {
 export interface TextProps extends TextStyleProps {
   label: string | ReactElement | null;
   className?: string;
+  style?: CSSProperties
 }

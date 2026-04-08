@@ -74,6 +74,7 @@ export const Text = (props: TextProps) => {
           'text-left',
         props.className
       )}
+      style={props.style}
     >
       {props.label}
     </p>
