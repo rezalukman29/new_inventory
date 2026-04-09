@@ -715,7 +715,7 @@ const TableDemo = () => {
                 <DataTable
                   value={listEvent}
                   paginator
-                  className="p-datatable-gridlines"
+                  className=" p-datatable-gridlines"
                   onPage={(e) => {
                     setFirst(e.first);
                     setPage(Number(e.page) + 1);
@@ -762,12 +762,12 @@ const TableDemo = () => {
                               router.push(`/event-item?event=${data.id}`);
                             }}
                             className="pi pi-shopping-cart"
-                            style={{ fontSize: 18, cursor: "pointer" }}
+                            style={{ fontSize: 16, cursor: "pointer" }}
                           ></div>
                           <div
                             className="pi pi-file-edit"
                             style={{
-                              fontSize: 18,
+                              fontSize: 16,
                               marginLeft: 20,
                               cursor: "pointer",
                             }}
@@ -785,7 +785,7 @@ const TableDemo = () => {
                               setDeleteConfirmation(true);
                             }}
                             style={{
-                              fontSize: 18,
+                              fontSize: 16,
                               marginLeft: 20,
                               cursor: "pointer",
                             }}
@@ -796,7 +796,7 @@ const TableDemo = () => {
                               fetchLog(data);
                             }}
                             style={{
-                              fontSize: 18,
+                              fontSize: 16,
                               marginLeft: 20,
                               cursor: "pointer",
                             }}
@@ -1034,7 +1034,7 @@ const TableDemo = () => {
                               router.push(`/event-item?event=${data.event.id}`);
                             }}
                             className="pi pi-shopping-cart"
-                            style={{ fontSize: 18, cursor: "pointer" }}
+                            style={{ fontSize: 16, cursor: "pointer" }}
                           ></div>
                           <div
                             className="pi pi-trash"
@@ -1043,7 +1043,7 @@ const TableDemo = () => {
                               setDeleteConfirmation(true);
                             }}
                             style={{
-                              fontSize: 18,
+                              fontSize: 16,
                               marginLeft: 20,
                               cursor: "pointer",
                             }}
@@ -1105,7 +1105,7 @@ const TableDemo = () => {
                     }}
                     body={(data: any) => (
                       <p>
-                        {moment(data.event.event_start as any).format("LLL")}
+                        {moment(data?.event?.event_start as any).format("LLL")}
                       </p>
                     )}
                     sortable
@@ -1121,7 +1121,7 @@ const TableDemo = () => {
                       paddingBottom: 8,
                     }}
                     body={(data: any) => (
-                      <p>{moment(data.event.event_end as any).format("LLL")}</p>
+                      <p>{moment(data?.event?.event_end as any).format("LLL")}</p>
                     )}
                     sortable
                     sortField="event_end"
@@ -1254,12 +1254,12 @@ const TableDemo = () => {
                 </div>
               }
               modal
-              className="p-fluid"
+              className="custom-dialog p-fluid"
               footer={productDialogFooter}
               onHide={hideDialog}
             >
               <div
-                className="flex mb-3 gap-2"
+                className="flex mb-3 gap-2 mt-4"
                 style={{ flexDirection: "row", alignItems: "center" }}
               >
                 <div
@@ -1280,7 +1280,7 @@ const TableDemo = () => {
                 <div
                   style={{
                     height: 1,
-                    backgroundColor: "#D3D3D3",
+                    backgroundColor: "#e5e7eb",
                     flex: 1,
                     display: "flex",
                   }}
@@ -1576,7 +1576,7 @@ const TableDemo = () => {
                 <div
                   style={{
                     height: 1,
-                    backgroundColor: "#D3D3D3",
+                    backgroundColor: "#e5e7eb",
                     flex: 1,
                     display: "flex",
                   }}
@@ -1627,7 +1627,7 @@ const TableDemo = () => {
                       })}
                       optionLabel="label"
                       placeholder="Select status"
-                      className={`flex-1 rounded font-medium ${
+                      className={`custom-dropdown flex-1 rounded font-medium ${
                         formik.errors.status
                           ? "border-red-600"
                           : "border-gray-300"
@@ -1682,7 +1682,7 @@ const TableDemo = () => {
                     options={SCAN_TYPE}
                     optionLabel="label"
                     placeholder="Select QR Type"
-                    className={`flex-1 rounded font-medium ${
+                    className={`custom-dropdown flex-1 rounded font-medium ${
                       formik.errors.scan_type
                         ? "border-red-600"
                         : "border-gray-300"
@@ -1713,7 +1713,7 @@ const TableDemo = () => {
                 <div
                   style={{
                     height: 1,
-                    backgroundColor: "#D3D3D3",
+                    backgroundColor: "#e5e7eb",
                     flex: 1,
                     display: "flex",
                   }}
@@ -1877,7 +1877,7 @@ const TableDemo = () => {
               style={{ width: "450px" }}
               header={"Invite User"}
               modal
-              className="p-fluid"
+              className="custom-dialog p-fluid"
               footer={productDialogFooter}
               onHide={() => {
                 setAdminDialog(false);
@@ -1938,6 +1938,7 @@ const TableDemo = () => {
                 setShowEventlog(false);
                 setExpandedRows(null);
               }}
+              className="custom-dialog p-fluid"
             >
               <p className="m-0">
                 <DataTable
