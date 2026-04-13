@@ -451,7 +451,7 @@ const TableDemo = () => {
                         <div
                           className="pi pi-file-edit"
                           style={{
-                            fontSize: 18,
+                            fontSize: 16,
                             marginLeft: 20,
                             cursor: "pointer",
                           }}
@@ -469,7 +469,7 @@ const TableDemo = () => {
                             setDeleteConfirmation(true);
                           }}
                           style={{
-                            fontSize: 18,
+                            fontSize: 16,
                             marginLeft: 20,
                             cursor: "pointer",
                           }}
