@@ -234,10 +234,12 @@ const TableDemo = () => {
 
   return (
     <div className="grid">
+      <div className="sub-header">
+        <h5>Event Inventory List</h5>
+      </div>
       <Toast ref={toast} />
       <div className="col-12">
         <div className="card">
-          <h5>Event Inventory List</h5>
           <ConfirmDialog
             visible={deleteConfirmation}
             onHide={() => {
@@ -285,7 +287,7 @@ const TableDemo = () => {
               style={{ minWidth: "4rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
                 <p
-                  style={{ cursor: "pointer", fontWeight: 'bold' }}
+                  style={{ cursor: "pointer", fontWeight: "bold" }}
                   onClick={(e) => {
                     localStorageService.clearCart("cart");
                     router.push(`/event-item?event=${data.id}`);

@@ -1,11 +1,7 @@
 "use client";
 import { Button } from "primereact/button";
-import {
-  Column,
-} from "primereact/column";
-import {
-  DataTable,
-} from "primereact/datatable";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -138,7 +134,9 @@ const TableDemo = () => {
       const response = await InventoryService.getSubArea({ sort, sortBy });
       if (areaId) {
         setListSubArea(
-          response.data?.data?.filter((el: any) => Number(el.area_id) === Number(areaId))
+          response.data?.data?.filter(
+            (el: any) => Number(el.area_id) === Number(areaId)
+          )
         );
       } else {
         setListSubArea(response.data.data);
@@ -284,13 +282,15 @@ const TableDemo = () => {
       />
     );
   };
-  
+
   return (
     <div className="grid">
+      <div className="sub-header">
+        <h5>Sub Area</h5>
+      </div>
       <Toast ref={toast} />
       <div className="col-12">
         <div className="card">
-          <h5>Sub Area</h5>
           <ConfirmDialog
             visible={deleteConfirmation}
             style={{ width: items.length ? width * 0.7 : undefined }}
@@ -334,7 +334,11 @@ const TableDemo = () => {
                       header="Warehouse"
                       style={{ width: "20%" }}
                       body={(data) => {
-                        return <p>{data?.gudang?.length ? data?.gudang[0]?.nama : "-"}</p>;
+                        return (
+                          <p>
+                            {data?.gudang?.length ? data?.gudang[0]?.nama : "-"}
+                          </p>
+                        );
                       }}
                     ></Column>
                     <Column
@@ -357,15 +361,20 @@ const TableDemo = () => {
             }}
           />
           <DataTable
-            value={listSubArea.filter(
-              (el) =>
-                el.sub_area_name &&
-                el.sub_area_name.match(new RegExp(searchValue, "i"))
-            ).sort(function(a,b){
-              // Turn your strings into dates, and then subtract them
-              // to get a value that is either negative, positive, or zero.
-              return new Date(b.created_at) as any - (new Date(a.created_at) as any);
-            })}
+            value={listSubArea
+              .filter(
+                (el) =>
+                  el.sub_area_name &&
+                  el.sub_area_name.match(new RegExp(searchValue, "i"))
+              )
+              .sort(function (a, b) {
+                // Turn your strings into dates, and then subtract them
+                // to get a value that is either negative, positive, or zero.
+                return (
+                  (new Date(b.created_at) as any) -
+                  (new Date(a.created_at) as any)
+                );
+              })}
             paginator
             className="p-datatable-gridlines"
             onPage={(e) => {
@@ -416,12 +425,14 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
-                <p>{moment(data.created_at as any).format("D MMM YYYY, HH:MM")}</p>
+                <p>
+                  {moment(data.created_at as any).format("D MMM YYYY, HH:MM")}
+                </p>
               )}
               sortable
               sortField="created_at"
             />
-                        <Column
+            <Column
               field="updated_at"
               header="Updated At"
               filterPlaceholder="Search by name"

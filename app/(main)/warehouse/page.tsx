@@ -152,7 +152,6 @@ const TableDemo = () => {
     if (!!selected) {
       getItems(selected?.id);
     }
-
   }, [pageItem, sortItem, sortByItem]);
 
   const onGlobalFilterChange1 = (e: React.ChangeEvent<HTMLInputElement>) => {};
@@ -293,10 +292,12 @@ const TableDemo = () => {
 
   return (
     <div className="grid">
+      <div className="sub-header">
+        <h5>Warehouse</h5>
+      </div>
       <Toast ref={toast} />
       <div className="col-12">
         <div className="card">
-          <h5>Warehouse</h5>
           <ConfirmDialog
             visible={deleteConfirmation}
             style={{ width: items?.length ? width * 0.9 : undefined }}
