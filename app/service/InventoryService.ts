@@ -48,10 +48,11 @@ export const InventoryService = {
         sort: filter.sort,
         sort_by: filter.sortBy,
         ...(filter.search && { search: filter.search }),
-        ...(filter.isUpcoming && {
+        ...(filter.isUpcoming && !filter.onGoing && {
           event_start: moment().format("YYYY-MM-DD"),
         }),
-        ...(!filter.isUpcoming && { event_end: moment().format("YYYY-MM-DD") }),
+        ...(!filter.isUpcoming && !filter.onGoing && { event_end: moment().format("YYYY-MM-DD") }),
+        ...(filter.onGoing && { ongoing: true }),
       },
     });
     return response.data.data;

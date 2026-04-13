@@ -463,7 +463,7 @@ const TableDemo = () => {
                       onMouseOver={() => setOver(data.id + "edit")}
                       onMouseOut={() => setOver("")}
                       style={{
-                        fontSize: 18,
+                        fontSize: 16,
                         cursor: "pointer",
                         color: over === data.id + "edit" ? "blue" : undefined,
                       }}
@@ -478,7 +478,7 @@ const TableDemo = () => {
                       onMouseOver={() => setOver(data.id + "delete")}
                       onMouseOut={() => setOver("")}
                       style={{
-                        fontSize: 18,
+                        fontSize: 16,
                         marginLeft: 20,
                         cursor: "pointer",
                         color: over === data.id + "delete" ? "blue" : undefined,

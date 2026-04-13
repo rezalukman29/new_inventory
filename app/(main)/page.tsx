@@ -92,6 +92,7 @@ const TableDemo = () => {
   };
 
   const items = [
+    { label: "Ongoing Event", icon: "pi pi-play" },
     { label: "Upcoming Event", icon: "pi pi-home" },
     { label: "Past Event", icon: "pi pi-chart-line" },
     { label: "Invite User", icon: "pi pi-users" },
@@ -256,11 +257,12 @@ const TableDemo = () => {
       setIsLoading(true);
       const response = await InventoryService.getEvent({
         page,
-        limit: activeIndex === 2 ? 1000 : size ?? pageSize,
+        limit: activeIndex === 3 ? 1000 : size ?? pageSize,
         search: searchValue,
         sort,
         sortBy,
-        ...(activeIndex !== 2 && { isUpcoming: activeIndex === 0 }),
+        ...(activeIndex !== 3 && { isUpcoming: activeIndex === 1 }),
+        ...(activeIndex !== 3 && { onGoing: activeIndex === 0 }),
       });
       setListEvent(response.data);
       setTotal(response.total_records);
@@ -678,6 +680,11 @@ const TableDemo = () => {
               model={items}
               activeIndex={activeIndex}
               onTabChange={(e) => setActiveIndex(e.index)}
+              pt={{
+                menuitem: (a) => {
+                  console.log(a)
+                }
+              }}
             />
             <ConfirmDialog
               visible={deleteConfirmation}
@@ -707,20 +714,20 @@ const TableDemo = () => {
               style={{
                 flex: 1,
                 overflowX: "auto",
-                width: width * 0.73,
+                width: width * 0.795,
                 marginTop: 24,
               }}
             >
-              {activeIndex !== 2 ? (
+              {activeIndex !== 3 ? (
                 <DataTable
                   value={listEvent}
                   paginator
-                  className=" p-datatable-gridlines"
+                  className="p-datatable-gridlines"
                   onPage={(e) => {
                     setFirst(e.first);
                     setPage(Number(e.page) + 1);
                   }}
-                  tableStyle={{ width: 1800, fontSize: 13 }}
+                  tableStyle={{  fontSize: 13 }}
                   rows={pageSize}
                   dataKey="id"
                   totalRecords={total}

@@ -1234,7 +1234,7 @@ const TableDemo = () => {
               {barang?.nama}
             </p>
           </OverlayPanel>
-          <div style={{ flex: 1, overflowX: "auto", width: width * 0.73 }}>
+          <div style={{ flex: 1, overflowX: "auto", width: width * 0.785 }}>
             {isLoading ? (
               <Loading />
             ) : (
@@ -1380,7 +1380,7 @@ const TableDemo = () => {
                             onMouseOut={() => setOver("")}
                             className="pi pi-file-edit"
                             style={{
-                              fontSize: 18,
+                              fontSize: 16,
                               cursor: "pointer",
                               color:
                                 over === data.id + "edit" ? "blue" : undefined,
@@ -1395,7 +1395,7 @@ const TableDemo = () => {
                             onMouseOver={() => setOver(data.id + "delete")}
                             onMouseOut={() => setOver("")}
                             style={{
-                              fontSize: 18,
+                              fontSize: 16,
                               marginLeft: 12,
                               cursor: "pointer",
                               color:
@@ -1427,7 +1427,7 @@ const TableDemo = () => {
                               setPageLog(1);
                             }}
                             style={{
-                              fontSize: 18,
+                              fontSize: 16,
                               marginLeft: 12,
                               cursor: "pointer",
                               color:

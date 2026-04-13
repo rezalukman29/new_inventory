@@ -448,7 +448,7 @@ const TableDemo = () => {
                     <div
                       onClick={(e) => router.push(`/sub_area?id=${data.id}`)}
                       className="pi pi-folder"
-                      style={{ fontSize: 18, cursor: "pointer" }}
+                      style={{ fontSize: 16, cursor: "pointer" }}
                     ></div>
                     <div
                       className="pi pi-file-edit"
@@ -460,7 +460,7 @@ const TableDemo = () => {
                       onMouseOver={() => setOver(data.id + "edit")}
                       onMouseOut={() => setOver("")}
                       style={{
-                        fontSize: 18,
+                        fontSize: 16,
                         marginLeft: 20,
                         cursor: "pointer",
                         color: over === data.id + "edit" ? "blue" : undefined,
@@ -476,7 +476,7 @@ const TableDemo = () => {
                       onMouseOver={() => setOver(data.id + "delete")}
                       onMouseOut={() => setOver("")}
                       style={{
-                        fontSize: 18,
+                        fontSize: 16,
                         marginLeft: 20,
                         cursor: "pointer",
                         color: over === data.id + "delete" ? "blue" : undefined,
