@@ -107,7 +107,7 @@ const AppMenuitem = (props: AppMenuItemProps) => {
           style={{left: -16}}
         >
           <i className={classNames("layout-menuitem-icon", item!.icon)}></i>
-          <span className="layout-menuitem-text">{item!.label}</span>
+          <span style={{fontSize: 13}} className="layout-menuitem-text">{item!.label}</span>
           {item!.items && (
             <i className="pi pi-fw pi-angle-down layout-submenu-toggler"></i>
           )}

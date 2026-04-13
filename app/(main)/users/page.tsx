@@ -343,11 +343,13 @@ const TableDemo = () => {
   return (
     <>
       {isLoading && <Loading />}
+      <div className="sub-header">
+        <h5>Users</h5>
+      </div>
       <div className="grid">
         <Toast ref={toast} />
         <div className="col-12">
           <div className="card">
-            <h5>Users</h5>
             <ConfirmDialog
               visible={deleteConfirmation}
               onHide={() => {

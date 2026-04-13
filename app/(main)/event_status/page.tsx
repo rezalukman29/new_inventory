@@ -203,10 +203,12 @@ const TableDemo = () => {
 
   return (
     <div className="grid">
+      <div className="sub-header">
+        <h5>Event Status</h5>
+      </div>
       <Toast ref={toast} />
       <div className="col-12">
         <div className="card">
-          <h5>Event Status</h5>
           <ConfirmDialog
             visible={deleteConfirmation}
             onHide={() => {

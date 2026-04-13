@@ -211,10 +211,12 @@ const TableDemo = () => {
 
   return (
     <div className="grid">
+      <div className="sub-header">
+        <h5>Log Activity</h5>
+      </div>
       <Toast ref={toast} />
       <div className="col-12">
         <div className="card">
-          <h5>Log Activity</h5>
           <DataTable
             value={logs}
             paginator
@@ -275,7 +277,9 @@ const TableDemo = () => {
               filterPlaceholder="Search by name"
               style={{ minWidth: "3rem", paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
-                <p>{moment(data.created_at as any).format("D MMM YYYY, HH:MM")}</p>
+                <p>
+                  {moment(data.created_at as any).format("D MMM YYYY, HH:MM")}
+                </p>
               )}
             />
             {/* <Column

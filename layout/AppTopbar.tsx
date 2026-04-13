@@ -86,7 +86,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
       />
       <Toast ref={toast} />
       <Link href="/" className="layout-topbar-logo">
-        <span>EMI Inventory</span>
+        <span style={{fontSize: 14.5}}>EMI Inventory</span>
       </Link>
 
       <button

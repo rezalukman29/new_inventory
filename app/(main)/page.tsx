@@ -474,6 +474,7 @@ const TableDemo = () => {
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder="Keyword Search"
               onKeyDown={handleKeyDown}
+              style={{ width: 480 }}
             />
             {searchValue && (
               <i
@@ -672,20 +673,23 @@ const TableDemo = () => {
     <>
       {isLoading || isLoadingPrint ? <Loading /> : null}
       <div className="grid">
+        <div className="sub-header">
+          <h5>Event</h5>
+          <TabMenu
+            model={items}
+            activeIndex={activeIndex}
+            onTabChange={(e) => setActiveIndex(e.index)}
+            pt={{
+              menuitem: (a) => {
+                console.log(a);
+              },
+            }}
+            className="pb-3"
+          />
+        </div>
         <Toast ref={toast} />
         <div className="col-12">
           <div className="card">
-            <h5>Event</h5>
-            <TabMenu
-              model={items}
-              activeIndex={activeIndex}
-              onTabChange={(e) => setActiveIndex(e.index)}
-              pt={{
-                menuitem: (a) => {
-                  console.log(a)
-                }
-              }}
-            />
             <ConfirmDialog
               visible={deleteConfirmation}
               onHide={() => {
@@ -715,7 +719,6 @@ const TableDemo = () => {
                 flex: 1,
                 overflowX: "auto",
                 width: width * 0.795,
-                marginTop: 24,
               }}
             >
               {activeIndex !== 3 ? (
@@ -727,7 +730,7 @@ const TableDemo = () => {
                     setFirst(e.first);
                     setPage(Number(e.page) + 1);
                   }}
-                  tableStyle={{  fontSize: 13 }}
+                  tableStyle={{ fontSize: 13 }}
                   rows={pageSize}
                   dataKey="id"
                   totalRecords={total}
@@ -1128,7 +1131,9 @@ const TableDemo = () => {
                       paddingBottom: 8,
                     }}
                     body={(data: any) => (
-                      <p>{moment(data?.event?.event_end as any).format("LLL")}</p>
+                      <p>
+                        {moment(data?.event?.event_end as any).format("LLL")}
+                      </p>
                     )}
                     sortable
                     sortField="event_end"

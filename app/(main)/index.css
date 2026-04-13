@@ -1,7 +1,7 @@
 .button {
-  height: 40px;
-  border-radius: 12px;
-  font-size: 12px;
+  height: 30px;
+  border-radius: 6px;
+  font-size: 13px;
 }
 
 .p-dropdown-label {
@@ -10,12 +10,11 @@
 
 .p-dropdown-item {
   font-size: 14px;
-} 
+}
 
 .p-dropdown .p-dropdown-label {
   padding: 8px 12px; /* default biasanya lebih besar */
 }
-
 
 .p-dialog {
   border-radius: 16px;
@@ -32,14 +31,89 @@
 }
 
 .p-inputtext {
-  height: 40px;
+  height: 30px;
   font-size: 14px;
   padding: 0 36px;
   display: flex;
   align-items: center;
 }
 
-.p-tabmenu .p-menuitem-text {
-  font-size: 14px;
+/* container utama */
+.p-tabmenu {
+  background: transparent !important;
 }
 
+/* nav wrapper */
+.p-tabmenu-nav {
+  background: transparent !important;
+}
+
+/* tiap tab item */
+.p-tabmenu .p-menuitem-link {
+  background: transparent !important;
+}
+
+.p-tabmenu .p-menuitem-text {
+  font-size: 13px;
+}
+
+/* =========================
+   DATATABLE - NO BORDER ALL
+========================= */
+
+/* Wrapper utama */
+.p-datatable {
+  border: none !important;
+}
+
+/* Table */
+.p-datatable table {
+  border: none !important;
+  border-collapse: collapse !important;
+}
+
+/* Header & Body cell */
+.p-datatable [data-pc-section="headercell"],
+.p-datatable [data-pc-section="bodycell"] {
+  border: none !important;
+}
+
+/* Row */
+.p-datatable tr {
+  border: none !important;
+}
+
+/* Header container (yang ada search, button, dll) */
+.p-datatable-header {
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Footer container */
+.p-datatable-footer {
+  border: none !important;
+}
+
+/* Paginator */
+.p-paginator {
+  border: none !important;
+  font-size: 14px !important;
+}
+
+/* Optional: hilangkan divider dalam paginator */
+.p-paginator .p-paginator-pages .p-paginator-page {
+  border: none !important;
+}
+
+.p-paginator .p-paginator-page,
+.p-paginator .p-paginator-prev,
+.p-paginator .p-paginator-next,
+.p-paginator .p-paginator-first,
+.p-paginator .p-paginator-last {
+  font-size: 14px !important;
+}
+
+.sub-header {
+  flex-direction: column;
+  padding-left: 8px;
+}

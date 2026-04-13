@@ -237,10 +237,12 @@ const TableDemo = () => {
 
   return (
     <div className="grid">
+      <div className="sub-header">
+        <h5>Area</h5>
+      </div>
       <Toast ref={toast} />
       <div className="col-12">
         <div className="card">
-          <h5>Area</h5>
           <ConfirmDialog
             visible={deleteConfirmation}
             style={{ width: items?.length ? width * 0.7 : undefined }}
@@ -284,7 +286,11 @@ const TableDemo = () => {
                       header="Warehouse"
                       style={{ width: "20%" }}
                       body={(data) => {
-                        return <p>{data?.gudang?.length ? data?.gudang[0]?.nama : "-"}</p>;
+                        return (
+                          <p>
+                            {data?.gudang?.length ? data?.gudang[0]?.nama : "-"}
+                          </p>
+                        );
                       }}
                     ></Column>
                     <Column

@@ -95,10 +95,12 @@ const TableDemo = () => {
 
   return (
     <div className="grid">
+      <div className="sub-header">
+        <h5>Syncronize Inventory</h5>
+      </div>
       <Toast ref={toast} />
       <div className="col-12">
         <div className="card">
-          <h5>Syncronize Inventory</h5>
           <DataTable
             value={listArea
               ?.filter((el) => !!el.nama_barang)

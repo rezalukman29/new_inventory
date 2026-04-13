@@ -281,8 +281,7 @@ const TableDemo = () => {
           items
             ?.sort(function (a: any, b: any) {
               if (a.nama > b.nama) return 1;
-              if (a.nama < b.nama
-                ) return -1;
+              if (a.nama < b.nama) return -1;
               return 0;
             })
             .map((el: any) => el?.base64)
@@ -1190,11 +1189,13 @@ const TableDemo = () => {
 
   return (
     <div className="grid">
+      <div className="sub-header">
+        <h5>Inventory</h5>
+      </div>
       <Toast ref={toast} />
       {isLoadingPrint && <Loading />}
       <div className="col-12">
         <div className="card">
-          <h5>Inventory</h5>
           <ConfirmDialog
             visible={deleteConfirmation}
             onHide={() => {

@@ -888,12 +888,16 @@ const TableDemo = () => {
   return (
     <div className="grid">
       <Toast ref={toast} />
+      <div className="sub-header">
+        <div className="sub-header">
+          <h5>Warehouse Inventory</h5>
+        </div>
+      </div>
       <div
         className="col-12"
         // style={{ backgroundColor: "red", flex: 1, overflow: "hidden" }}
       >
         <div className="card">
-          <h5>Warehouse Inventory</h5>
           <TabMenu
             model={items}
             activeIndex={activeIndex}
