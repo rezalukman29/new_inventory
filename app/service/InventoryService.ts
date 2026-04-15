@@ -495,4 +495,8 @@ export const InventoryService = {
     const response = await ax.post(`/v1/reset-password`, payload);
     return response.data;
   },
+  getEventSummary: async (eventId: string) => {
+    const response = await ax.get(`v1/event-summary/${eventId}`);
+    return response.data.data;
+  },
 };
