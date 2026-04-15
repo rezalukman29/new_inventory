@@ -754,7 +754,7 @@ const TableDemo = () => {
                       field="address"
                       header="Action"
                       filterPlaceholder="Search by name"
-                      style={{ width: 170, paddingTop: 8, paddingBottom: 8 }}
+                      style={{ width: 200, paddingTop: 8, paddingBottom: 8 }}
                       frozen
                       bodyClassName={classNames({ "font-bold": true })}
                       body={(data) => (
@@ -775,10 +775,23 @@ const TableDemo = () => {
                             style={{ fontSize: 16, cursor: "pointer" }}
                           ></div>
                           <div
+                            onClick={(e) => {
+                              localStorageService.clearCart("cart");
+                              router.push(`/event-summary?event=${data.id}`);
+                            }}
+                            className="pi pi-chart-bar"
+                            style={{
+                              fontSize: 16,
+                              cursor: "pointer",
+                              marginLeft: 12,
+                              color: '#7c3aed'
+                            }}
+                          ></div>
+                          <div
                             className="pi pi-file-edit"
                             style={{
                               fontSize: 16,
-                              marginLeft: 20,
+                              marginLeft: 12,
                               cursor: "pointer",
                             }}
                             onClick={() => {
@@ -796,7 +809,7 @@ const TableDemo = () => {
                             }}
                             style={{
                               fontSize: 16,
-                              marginLeft: 20,
+                              marginLeft: 12,
                               cursor: "pointer",
                             }}
                           ></div>
@@ -807,7 +820,7 @@ const TableDemo = () => {
                             }}
                             style={{
                               fontSize: 16,
-                              marginLeft: 20,
+                              marginLeft: 12,
                               cursor: "pointer",
                             }}
                           ></div>

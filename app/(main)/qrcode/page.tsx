@@ -257,7 +257,7 @@ const TableDemo = () => {
       setTotalPages(0);
     }
   };
-  console.log(selected);
+
   const getListSubArea = async () => {
     try {
       const response = await InventoryService.getSubArea({
