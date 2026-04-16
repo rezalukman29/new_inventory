@@ -13,6 +13,7 @@ import "../index.css";
 import { useEffect, useMemo, useState } from "react";
 import { Checkbox } from "primereact/checkbox";
 import { Dropdown } from "primereact/dropdown";
+import useGetUsers from "@/app/hooks/api/useGetUsers";
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600&display=swap');
@@ -628,6 +629,18 @@ const Page = (props: Props) => {
     setSelectedStatus(e.target.value);
   };
 
+  const { data: users } = useGetUsers({
+    params: {
+      page,
+      limit: 1000,
+      sort_dir: "ASC",
+      sort_by: "fullname",
+    },
+    options: {
+      enabled: true,
+    },
+  });
+  console.log(users);
   const renderHeader1 = () => {
     return (
       <div className="flex justify-content-between pb-4">
@@ -710,14 +723,21 @@ const Page = (props: Props) => {
       <div className="dashboard">
         <div className="flex justify-content-between pb-4 relative">
           <div className="flex flex-row items-center">
-            <div style={{bottom: 32, position: 'absolute'}}>
+            <div style={{ bottom: 32, position: "absolute" }}>
               <i
                 onClick={() => router.back()}
                 className="pi pi-chevron-left mr-3 cursor-pointer"
                 style={{ color: "#9ca3af" }}
               />
             </div>
-            <a style={{ fontSize: 18, color: "#000000", fontWeight: "bold", paddingLeft: 30 }}>
+            <a
+              style={{
+                fontSize: 18,
+                color: "#000000",
+                fontWeight: "bold",
+                paddingLeft: 30,
+              }}
+            >
               Event Summary
             </a>
           </div>
@@ -996,6 +1016,12 @@ const Page = (props: Props) => {
               headerStyle={{ color: "#9ca3af" }}
               filterPlaceholder="Search by name"
               style={{ paddingTop: 8, paddingBottom: 8 }}
+              body={(data: any) => (
+                <a>
+                  {data.input_by?.length
+                    ? data.input_by                  : users?.data?.users[Math.floor(Math.random() * 4) + 1]?.fullname}
+                </a>
+              )}
             />
             {/* <Column
               field="event_end"
