@@ -20,7 +20,7 @@ import Loading from "@/app/components/atoms/loading";
 const ScanPage = () => {
   const params = useParams();
   const [barang, setBarang] = useState<any>(null);
-  const [areas, setAreas] = useState<any[]>([]);
+  const [areas, setAreas] = useState<any>();
   const toast = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   // const { isFetching: isFetchingPrint, refetch: refetchEventItemPrint } =
@@ -106,7 +106,7 @@ const ScanPage = () => {
       setIsLoading(false);
     }
   };
-
+console.log(areas)
   const RenderItem = (item: any) => {
     return (
       <div className="col-12 lg:col-4" style={{ alignSelf: "center" }}>
@@ -120,13 +120,13 @@ const ScanPage = () => {
                     " | " +
                     item.gudang[0]?.stock +
                     " pcs"
-                  : (areas?.find((el: any) => el.id === item.list_id)
+                  : (areas?.data?.find((el: any) => el.id === item.list_id)
                       ?.name as string)}
               </span>
             </div>
             <span className={`product-badge status-instock`}>
               {item.list_id
-                ? areas?.find((el: any) => el.id === item.list_id)?.name
+                ? areas?.data?.find((el: any) => el.id === item.list_id)?.name
                 : "No Area"}
             </span>
           </div>
