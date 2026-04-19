@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Button } from "primereact/button";
 import { Password } from "primereact/password";
@@ -240,6 +240,8 @@ export default function LoginPage() {
   const router = useRouter();
   const [activeMenu, setActiveMenu] = useState("LOGIN");
   const [token, setTokens] = useState<any>();
+  const searchParams = useSearchParams();
+  let scan: any = searchParams.get("scan");
 
   const formik = useFormik<any>({
     initialValues: {
@@ -288,7 +290,12 @@ export default function LoginPage() {
         });
         setTimeout(() => {
           setIsLoading(false);
-          router.push("/");
+          if (!!scan) {
+            router.push(`/pages/scan/${scan}`);
+          } else {
+            router.push("/");
+          }
+        
         }, 1000);
       } else {
         setIsLoading(false);
