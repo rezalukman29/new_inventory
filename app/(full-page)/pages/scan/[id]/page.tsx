@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import useGetEventItemDetail, {
   getEventItemDetail,
 } from "@/app/hooks/api/useGetEventItemDetail";
@@ -16,6 +16,9 @@ import moment from "moment";
 import { InventoryService } from "@/app/service/InventoryService";
 import { Toast } from "primereact/toast";
 import Loading from "@/app/components/atoms/loading";
+import { localStorageService } from "@/app/service/localStorage";
+import { useDispatch } from "react-redux";
+import { setProfile } from "@/app/store/profile";
 
 const ScanPage = () => {
   const params = useParams();
@@ -23,6 +26,30 @@ const ScanPage = () => {
   const [areas, setAreas] = useState<any>();
   const toast = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch()
+  const router = useRouter();
+
+  const checkAuth = () => {
+    const auth = localStorageService.getAuth("auth");
+    if (auth) {
+      const data = JSON.parse(auth);
+      dispatch(
+        setProfile({
+          id: data?.id,
+          fullname: data?.fullname,
+          email: data?.email,
+          user_type: data?.user_type,
+        }),
+      );
+      return;
+    } else {
+      router.push(`/auth/login?scan=${params?.id}`);
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
   // const { isFetching: isFetchingPrint, refetch: refetchEventItemPrint } =
   //   useGetEventItemDetail({
   //     params: {
