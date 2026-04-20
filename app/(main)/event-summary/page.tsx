@@ -1017,10 +1017,33 @@ const Page = (props: Props) => {
               filterPlaceholder="Search by name"
               style={{ paddingTop: 8, paddingBottom: 8 }}
               body={(data: any) => (
-                <a>
-                  {data.input_by?.length
-                    ? data.input_by                  : users?.data?.users[Math.floor(Math.random() * 4) + 1]?.fullname}
-                </a>
+                <div>
+                  <div className="flex flex-row items-center">
+                    <a style={{ color: '#4b5563', paddingRight: 4 }}>{`Input by:`}</a>
+                    <a style={{ color: '#4b5563' }} className="font-semibold">
+                      {data.input_by?.length
+                        ? data.input_by
+                        : users?.data?.users[Math.floor(Math.random() * 4) + 1]
+                            ?.fullname}
+                    </a>
+                  </div>
+                  {data.scan_in_by?.length ? (
+                    <div className="flex flex-row items-center mt-1">
+                      <a style={{ color: '#4b5563', paddingRight: 4  }}>{`Scan IN by:`}</a>
+                      <a style={{ color: '#4b5563' }}  className="font-semibold">
+                        {data.scan_in_by?.join(" ,")}
+                      </a>
+                    </div>
+                  ) : null}
+                  {data.scan_out_by?.length ? (
+                    <div className="flex flex-row items-center  mt-1">
+                      <a style={{ color: '#4b5563', paddingRight: 4  }}>{`Scan Out by:`}</a>
+                        <a style={{ color: '#4b5563' }}  className="font-semibold">
+                        {data.scan_out_by?.join(" ,")}
+                      </a>
+                    </div>
+                  ) : null}
+                </div>
               )}
             />
             {/* <Column
