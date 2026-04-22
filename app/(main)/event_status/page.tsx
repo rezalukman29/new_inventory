@@ -18,6 +18,8 @@ import "../index.css";
 import useAccountController from "../useAccountController";
 import { Dropdown } from "primereact/dropdown";
 import moment from "moment";
+import Label from "@/app/components/atoms/Label";
+import { styles } from "../styles";
 
 interface ISelect {
   label: string;
@@ -181,21 +183,26 @@ const TableDemo = () => {
 
   const productDialogFooter = (
     <>
-      <Button
+          <Button
         label="Cancel"
-        severity="danger"
         icon="pi pi-times"
+        style={{
+          width: 120,
+          color: "#3B3b3B",
+          backgroundColor: "transparent",
+          borderColor: "#C4C4C4",
+        }}
         onClick={hideDialog}
         className="button"
       />
       <Button
-        label="Save"
+        label="Save Event Status"
         icon="pi pi-check"
-        severity="success"
-        style={{ width: 120 }}
+        style={{ width: 180 }}
         onClick={() => formik.handleSubmit()}
         className="button"
       />
+
     </>
   );
 
@@ -237,7 +244,6 @@ const TableDemo = () => {
             }}
             rows={statusList.length}
             dataKey="id"
-            tableStyle={{ fontSize: 13 }}
             totalRecords={statusList.length}
             first={first}
             alwaysShowPaginator
@@ -387,12 +393,12 @@ const TableDemo = () => {
             style={{ width: "450px" }}
             header={isModify ? "Modify Event Status" : "Add Event Status"}
             modal
-            className="p-fluid"
+            className="custom-dialog p-fluid"
             footer={productDialogFooter}
             onHide={hideDialog}
           >
-            <div className="field">
-              <label htmlFor="name">Order</label>
+            <div className="field mt-4">
+              <Label title="Order" isRequired />
               <InputText
                 id="name"
                 value={formik.values.order_data}
@@ -405,11 +411,12 @@ const TableDemo = () => {
                   formik.errors.order_data
                     ? "border-red-600"
                     : "border-gray-300"
-                } rounded-lg bg-transparent`}
+                } `}
+                style={styles.textInput}
               />
             </div>
             <div className="field">
-              <label htmlFor="name">Name</label>
+              <Label title="Name" isRequired />
               <InputText
                 id="name"
                 value={formik.values.name}
@@ -417,12 +424,12 @@ const TableDemo = () => {
                 autoFocus
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.name ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
+                } `}
+                style={styles.textInput}
               />
             </div>
             <div className="field">
-              <label htmlFor="action">Action</label>
-
+              <Label title="Action" />
               <Dropdown
                 onChange={(e) => formik.setFieldValue("action", e.target.value)}
                 value={formik.values.action}
@@ -442,15 +449,14 @@ const TableDemo = () => {
                 ]}
                 optionLabel="label"
                 placeholder="Select status"
-                className={`flex-1 rounded ${
+                className={`custom-dropdown flex-1 ${
                   formik.errors.action ? "border-red-600" : "border-gray-300"
                 }`}
+                style={styles.textInput}
               />
             </div>
             <div className="field" style={{ flexDirection: "column" }}>
-              <label htmlFor="name" style={{ width: "100%" }}>
-                Show Scan Result
-              </label>
+              <Label title="Show Scan Result" />
               <InputSwitch
                 checked={formik.values.is_show_scan_result === 1 ? true : false}
                 onChange={(e) =>

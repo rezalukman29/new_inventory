@@ -8,7 +8,7 @@ type Props = {
 const Label = ({ title, isRequired }: Props) => {
   return (
     <div className="mb-2">
-      <label htmlFor={title} className="font-semibold" style={{ fontSize: 14 }}>
+      <label htmlFor={title} className="font-semibold" style={{ fontSize: 12 }}>
         {title}
       </label>
       {isRequired && (

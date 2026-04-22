@@ -119,7 +119,6 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={listArea.length}
             lazy
-            tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}

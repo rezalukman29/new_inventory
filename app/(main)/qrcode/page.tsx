@@ -30,6 +30,7 @@ import { Icon } from "@iconify/react";
 import { Text } from "@/app/components/atoms/Text";
 import { Checkbox } from "primereact/checkbox";
 import "../index.css";
+import { styles } from "../styles";
 
 const TableDemo = () => {
   const { Canvas } = useQRCode();
@@ -125,7 +126,6 @@ const TableDemo = () => {
         let listArea: any = await InventoryService.getListAreaByEvent(
           Number(selectedEvent) as any
         );
-        console.log("listt :", listArea);
         const listingArea = listArea?.map((item: any) => {
           return {
             label: item.area_name,
@@ -564,6 +564,7 @@ const TableDemo = () => {
             optionLabel="label"
             placeholder="Select Option"
             className="w-full md:w-14rem mr-4"
+            style={styles.textInput}
           />
           {isLoading || isFetching || loadingGet ? (
             <Loading />
@@ -596,6 +597,7 @@ const TableDemo = () => {
                 optionLabel="label"
                 placeholder="Select Event"
                 className="w-full md:w-14rem mr-4"
+                style={styles.textInput}
               />
               {selectedEvent && (
                 <Dropdown
@@ -605,6 +607,7 @@ const TableDemo = () => {
                   optionLabel="label"
                   placeholder="Select Area"
                   className="w-full md:w-14rem mr-4"
+                  style={styles.textInput}
                 />
               )}
               {selectedArea && (

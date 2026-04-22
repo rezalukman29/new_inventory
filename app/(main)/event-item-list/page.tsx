@@ -263,7 +263,6 @@ const TableDemo = () => {
               setFirst(e.first);
               setPage(Number(e.page) + 1);
             }}
-            tableStyle={{ fontSize: 13 }}
             rows={pageSize}
             dataKey="id"
             totalRecords={total}

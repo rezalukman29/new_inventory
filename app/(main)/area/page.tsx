@@ -20,6 +20,8 @@ import useAccountController from "../useAccountController";
 import useWindowDimensions from "@/app/hooks/useWindowDimensions";
 import { isValidUrl, noImage } from "@/app/util/function";
 import { STORAGE_BOOQABLE } from "@/app/util/config";
+import Label from "@/app/components/atoms/Label";
+import { styles } from "../styles";
 
 const TableDemo = () => {
   const router = useRouter();
@@ -188,16 +190,20 @@ const TableDemo = () => {
     <>
       <Button
         label="Cancel"
-        severity="danger"
         icon="pi pi-times"
+        style={{
+          width: 120,
+          color: "#3B3b3B",
+          backgroundColor: "transparent",
+          borderColor: "#C4C4C4",
+        }}
         onClick={hideDialog}
         className="button"
       />
       <Button
-        label="Save"
+        label={"Save Area"}
         icon="pi pi-check"
-        severity="success"
-        style={{ width: 120 }}
+        style={{ width: 140 }}
         onClick={() => formik.handleSubmit()}
         className="button"
       />
@@ -319,7 +325,7 @@ const TableDemo = () => {
                   paginator
                   rows={5}
                   rowsPerPageOptions={[5, 10, 25, 50]}
-                  tableStyle={{ width: 300, fontSize: 13 }}
+                  tableStyle={{ width: 300 }}
                   paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
                   currentPageReportTemplate="{first} to {last} of {totalRecords}"
                 >
@@ -371,7 +377,6 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={listArea.length}
             lazy
-            tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -519,12 +524,12 @@ const TableDemo = () => {
             style={{ width: "450px" }}
             header={isModify ? "Modify Area" : "Add Area"}
             modal
-            className="p-fluid"
+            className="custom-dialog p-fluid"
             footer={productDialogFooter}
             onHide={hideDialog}
           >
-            <div className="field">
-              <label htmlFor="name">Name</label>
+            <div className="field mt-4">
+              <Label title="Name" isRequired />
               <InputText
                 id="name"
                 value={formik.values.name}
@@ -532,11 +537,12 @@ const TableDemo = () => {
                 autoFocus
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.name ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
+                }`}
+                style={styles.textInput}
               />
             </div>
             <div className="field">
-              <label htmlFor="name">Description</label>
+              <Label title="Description" />
               <InputText
                 id="name"
                 value={formik.values.description}
@@ -548,7 +554,8 @@ const TableDemo = () => {
                   formik.errors.description
                     ? "border-red-600"
                     : "border-gray-300"
-                } rounded-lg bg-transparent`}
+                }`}
+                style={styles.textInput}
               />
             </div>
           </Dialog>

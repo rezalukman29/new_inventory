@@ -39,6 +39,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Label from "../components/atoms/Label";
 import { styles } from "./styles";
+import { InputTextarea } from "primereact/inputtextarea";
+import useWindowDimensions from "../hooks/useWindowDimensions";
 
 interface ISelect {
   label: string;
@@ -54,7 +56,6 @@ const TableDemo = () => {
   const [listEvent, setListEvent] = useState<any[]>([]);
   const [eventLog, setEventLog] = useState<any[]>([]);
   const [selectedStatus, setSelectedStatus] = useState(1);
-  const [width] = useDeviceSize();
   const [page, setPage] = useState<number>(1);
   const [first, setFirst] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
@@ -84,6 +85,7 @@ const TableDemo = () => {
   const [sortByAdmin, setSortByAdmin] = useState<string>("created_at");
   const [products, setProducts] = useState([]);
   const [expandedRows, setExpandedRows] = useState<any>(null);
+  const { width } = useWindowDimensions();
 
   const fileInputRef = useRef<any>(null);
 
@@ -505,7 +507,7 @@ const TableDemo = () => {
               onClick={() => {
                 setIsModify(false);
                 setEvent(null);
-                activeIndex === 2
+                activeIndex === 3
                   ? setAdminDialog(true)
                   : setProductDialog(true);
               }}
@@ -730,7 +732,6 @@ const TableDemo = () => {
                     setFirst(e.first);
                     setPage(Number(e.page) + 1);
                   }}
-                  tableStyle={{ fontSize: 13 }}
                   rows={pageSize}
                   dataKey="id"
                   totalRecords={total}
@@ -784,7 +785,7 @@ const TableDemo = () => {
                               fontSize: 16,
                               cursor: "pointer",
                               marginLeft: 12,
-                              color: '#7c3aed'
+                              color: "#7c3aed",
                             }}
                           ></div>
                           <div
@@ -1015,7 +1016,7 @@ const TableDemo = () => {
                     setFirstAdmin(e.first);
                     setPageAdmin(Number(e.page) + 1);
                   }}
-                  tableStyle={{ width: 1800, fontSize: 13 }}
+                  tableStyle={{ width: 1800 }}
                   rows={pageSizeAdmin}
                   dataKey="id"
                   totalRecords={totalAdmin}
@@ -1226,7 +1227,7 @@ const TableDemo = () => {
             </div>
             <Dialog
               visible={productDialog}
-              style={{ width: "800px" }}
+              style={{ width: width * 0.5 }}
               header={
                 <div
                   style={{
@@ -1747,17 +1748,17 @@ const TableDemo = () => {
               <div className="flex flex-row items-center">
                 <div className="field flex-1">
                   <Label title="Note" />
-                  <textarea
-                    id="name"
+                  <InputTextarea
                     value={formik.values.notes}
                     onChange={(e) =>
                       formik.setFieldValue("notes", e.target.value)
                     }
-                    className={`resize text-black border w-full font-medium py-2 px-3 ${
+                    rows={5}
+                    cols={30}
+                    placeholder="Any additional notes..."
+                    className={` ${
                       formik.errors.notes ? "border-red-600" : "border-gray-300"
                     } `}
-                    style={styles.textArea}
-                    placeholder="Any additional notes..."
                   />
                 </div>
                 <div style={{ width: 16 }} />
@@ -1899,7 +1900,7 @@ const TableDemo = () => {
             </Dialog>
             <Dialog
               visible={adminDialog}
-              style={{ width: "450px" }}
+              style={{ width: width * 0.3 }}
               header={"Invite User"}
               modal
               className="custom-dialog p-fluid"
@@ -1909,7 +1910,7 @@ const TableDemo = () => {
                 formikAdmin.resetForm();
               }}
             >
-              <div className="field">
+              <div className="field mt-4">
                 <label htmlFor="name">User</label>
                 {users?.data?.users?.length ? (
                   <Dropdown
