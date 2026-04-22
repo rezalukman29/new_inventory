@@ -133,7 +133,7 @@ const ScanPage = () => {
       setIsLoading(false);
     }
   };
-console.log(areas)
+
   const RenderItem = (item: any) => {
     return (
       <div className="col-12 lg:col-4" style={{ alignSelf: "center" }}>

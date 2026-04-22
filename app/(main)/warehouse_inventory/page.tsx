@@ -27,6 +27,8 @@ import { TabMenu } from "primereact/tabmenu";
 import Loading from "@/app/components/atoms/loading";
 import { Skeleton } from "primereact/skeleton";
 import useWindowDimensions from "@/app/hooks/useWindowDimensions";
+import Label from "@/app/components/atoms/Label";
+import { styles } from "../styles";
 
 interface ISelect {
   label: string;
@@ -464,7 +466,10 @@ const TableDemo = () => {
       <div className="flex justify-content-between">
         <div className="flex">
           <span className="p-input-icon-left p-input-icon-right mr-4">
-            <i className="pi pi-search" />
+            <i
+              className="pi pi-search"
+              style={{ position: "absolute", top: 16 }}
+            />
             <InputText
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
@@ -484,7 +489,7 @@ const TableDemo = () => {
             options={[...[{ value: "All", label: "All warehouse" }], ...gudang]}
             optionLabel="label"
             placeholder="Select warehouse"
-            className="w-full md:w-14rem mr-4"
+            className="dropdown-header w-full md:w-14rem mr-4"
           />
           <Button
             label="Search"
@@ -627,15 +632,19 @@ const TableDemo = () => {
       <Button
         label="Cancel"
         icon="pi pi-times"
-        severity="danger"
+        style={{
+          width: 120,
+          color: "#3B3b3B",
+          backgroundColor: "transparent",
+          borderColor: "#C4C4C4",
+        }}
         onClick={hideDialog}
         className="button"
       />
       <Button
-        label="Save"
+        label={isModify ? "Update" : "Save Item"}
         icon="pi pi-check"
-        severity="success"
-        type="submit"
+        style={{ width: 140 }}
         onClick={() => formik.handleSubmit()}
         className="button"
       />
@@ -677,7 +686,12 @@ const TableDemo = () => {
       <Button
         label="Cancel"
         icon="pi pi-times"
-        severity="danger"
+        style={{
+          width: 120,
+          color: "#3B3b3B",
+          backgroundColor: "transparent",
+          borderColor: "#C4C4C4",
+        }}
         onClick={() => {
           setIsShowStockOpname(false);
           setIsStockOpname(false);
@@ -688,11 +702,9 @@ const TableDemo = () => {
       <Button
         label={isStockOpname ? "Submit" : "Create"}
         icon="pi pi-check"
-        severity="success"
-        type="submit"
+        style={{ width: 140 }}
         onClick={() => formOpname.handleSubmit()}
         className="button"
-        disabled={isStockOpname && !formOpname.values.data?.length}
       />
     </>
   );
@@ -927,7 +939,7 @@ const TableDemo = () => {
                 dataKey="id"
                 lazy
                 totalRecords={total}
-                tableStyle={{ width: 2200, fontSize: 13 }}
+                tableStyle={{ width: 2200 }}
                 first={first}
                 alwaysShowPaginator
                 loading={isLoading}
@@ -1279,7 +1291,6 @@ const TableDemo = () => {
                 dataKey="id"
                 lazy
                 totalRecords={totalOpname}
-                tableStyle={{ fontSize: 13 }}
                 first={firstOpname}
                 alwaysShowPaginator
                 loading={isLoading}
@@ -1490,12 +1501,12 @@ const TableDemo = () => {
             style={{ width: width * 0.5 }}
             header={isModify ? "Modify Warehouse Item" : "Add Warehouse Item"}
             modal
-            className="p-fluid"
+            className="custom-dialog p-fluid"
             footer={productDialogFooter}
             onHide={hideDialog}
           >
-            <div className="field">
-              <label htmlFor="name">keywords</label>
+            <div className="field mt-4">
+              <Label title="Keywords" />
               <div className="flex flex-row items-center">
                 <InputText
                   id="name"
@@ -1570,7 +1581,7 @@ const TableDemo = () => {
             <div style={{ height: 16 }} />
             <div className="flex flex-row items-center">
               <div className="field flex-1">
-                <label htmlFor="name">Stok</label>
+                <Label title="Stok" isRequired />
                 <InputText
                   id="name"
                   value={formik.values.stok}
@@ -1588,12 +1599,13 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.stok ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
               <div style={{ width: 16 }} />
               <div className="field flex-1">
-                <label htmlFor="name">Stok minimum</label>
+                <Label title="Stok Minimum" isRequired />
                 <InputText
                   id="name"
                   value={formik.values.stok_minimum}
@@ -1605,13 +1617,14 @@ const TableDemo = () => {
                     formik.errors.stok_minimum
                       ? "border-red-600"
                       : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
             </div>
             <div className="flex flex-row items-center">
               <div className="field flex-1">
-                <label htmlFor="name">Kode</label>
+                <Label title="Kode" />
                 <InputText
                   id="name"
                   value={formik.values.kode}
@@ -1619,12 +1632,13 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.kode ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
               <div style={{ width: 16 }} />
               <div className="field flex-1">
-                <label htmlFor="name">Rack</label>
+                <Label title="Rack" />
                 <InputText
                   id="name"
                   value={formik.values.rack}
@@ -1632,13 +1646,14 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.rack ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
             </div>
             <div className="flex flex-row items-center">
               <div className="field flex-1">
-                <label htmlFor="name">Lantai</label>
+                <Label title="Lantai" />
                 <InputText
                   id="name"
                   value={formik.values.lantai}
@@ -1648,12 +1663,13 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.lantai ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
               <div style={{ width: 16 }} />
               <div className="field flex-1">
-                <label htmlFor="name">Lorong</label>
+                <Label title="Lorong" />
                 <InputText
                   id="name"
                   value={formik.values.lorong}
@@ -1663,13 +1679,14 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.lorong ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
             </div>
             <div className="flex flex-row items-center">
               <div className="field flex-1">
-                <label htmlFor="name">Flag 1</label>
+                <Label title="Flag 1" />
                 <InputText
                   id="name"
                   value={formik.values.flag_1}
@@ -1679,12 +1696,13 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.flag_1 ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
               <div style={{ width: 16 }} />
               <div className="field flex-1">
-                <label htmlFor="name">Flag 2</label>
+                <Label title="Flag 2" />
                 <InputText
                   id="name"
                   value={formik.values.flag_2}
@@ -1694,13 +1712,14 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.flag_2 ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
             </div>
             <div className="flex flex-row items-center">
               <div className="field flex-1">
-                <label htmlFor="name">Valuation</label>
+                <Label title="Valuation" />
                 <InputText
                   id="name"
                   value={currency(Number(formik.values.valuation))}
@@ -1719,12 +1738,13 @@ const TableDemo = () => {
                     formik.errors.valuation
                       ? "border-red-600"
                       : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
               <div style={{ width: 16 }} />
               <div className="field flex-1">
-                <label htmlFor="name">Warehouse</label>
+                <Label title="Warehouse" />
                 <Dropdown
                   onChange={(e) =>
                     formik.setFieldValue("gudang_id", e.target.value)
@@ -1737,7 +1757,7 @@ const TableDemo = () => {
                   optionLabel="label"
                   placeholder="Select warehouse"
                   className="mr-4 flex-1"
-                  // style={{ width: "100%" }}
+                  style={styles.textInput}
                 />
               </div>
             </div>
@@ -1847,7 +1867,7 @@ const TableDemo = () => {
             style={{ width: isStockOpname ? "900px" : "450px" }}
             header={"Stock Opname"}
             modal
-            className="p-fluid"
+            className="custom-dialog p-fluid"
             footer={stockOpnameFooter}
             onHide={() => {
               setIsShowStockOpname(false);
@@ -1855,8 +1875,8 @@ const TableDemo = () => {
               formOpname.resetForm();
             }}
           >
-            <div className="field">
-              <label htmlFor="name">Period</label>
+            <div className="field mt-4">
+              <Label title="Period" isRequired />
               <InputText
                 id="name"
                 value={formOpname.values.period}
@@ -1868,11 +1888,12 @@ const TableDemo = () => {
                   formOpname.errors.period
                     ? "border-red-600"
                     : "border-gray-300"
-                } rounded-lg bg-transparent`}
+                } `}
+                style={styles.textInput}
               />
             </div>
             <div className="field">
-              <label htmlFor="name">Remark</label>
+              <Label title="Remark" isRequired />
               <InputText
                 id="name"
                 value={formOpname.values.remark}
@@ -1883,7 +1904,8 @@ const TableDemo = () => {
                   formOpname.errors.remark
                     ? "border-red-600"
                     : "border-gray-300"
-                } rounded-lg bg-transparent`}
+                } `}
+                style={styles.textInput}
               />
             </div>
             {isStockOpname && (
@@ -1903,7 +1925,7 @@ const TableDemo = () => {
                   dataKey="id"
                   lazy
                   totalRecords={total}
-                  tableStyle={{ width: "100%", fontSize: 13 }}
+                  tableStyle={{ width: "100%" }}
                   first={first}
                   alwaysShowPaginator
                   loading={isLoading}
@@ -1988,7 +2010,7 @@ const TableDemo = () => {
                                 }
                                 autoFocus
                                 className={`text-black border w-full py-2 px-4 "border-gray-300"
-                             rounded-lg bg-transparent`}
+                             `}
                               />
                             </div>
                           );

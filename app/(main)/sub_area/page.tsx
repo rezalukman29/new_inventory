@@ -21,6 +21,8 @@ import useAccountController from "../useAccountController";
 import { isValidUrl, noImage } from "@/app/util/function";
 import { STORAGE_BOOQABLE } from "@/app/util/config";
 import useWindowDimensions from "@/app/hooks/useWindowDimensions";
+import Label from "@/app/components/atoms/Label";
+import { styles } from "../styles";
 
 interface ISelect {
   label: string;
@@ -61,6 +63,7 @@ const TableDemo = () => {
       sub_area_name: isModify ? selected.sub_area_name : "",
     },
     validationSchema: Yup.object({
+      area_id: Yup.string().required("Required"),
       sub_area_name: Yup.string().required("Required"),
     }),
     validateOnChange: false,
@@ -217,14 +220,19 @@ const TableDemo = () => {
       <Button
         label="Cancel"
         icon="pi pi-times"
-        severity="danger"
+        style={{
+          width: 120,
+          color: "#3B3b3B",
+          backgroundColor: "transparent",
+          borderColor: "#C4C4C4",
+        }}
         onClick={hideDialog}
         className="button"
       />
       <Button
-        label="Save"
+        label="Save Sub Area"
         icon="pi pi-check"
-        severity="success"
+        style={{ width: 160 }}
         onClick={() => formik.handleSubmit()}
         className="button"
       />
@@ -385,7 +393,6 @@ const TableDemo = () => {
             dataKey="id"
             totalRecords={listSubArea.length}
             lazy
-            tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -526,29 +533,28 @@ const TableDemo = () => {
             style={{ width: "450px" }}
             header={isModify ? "Modify Sub Area" : "Add Sub Area"}
             modal
-            className="p-fluid"
+            className="custom-dialog p-fluid"
             footer={productDialogFooter}
             onHide={hideDialog}
           >
-            <div className="field">
-              <label htmlFor="name">Area</label>
+            <div className="field mt-4">
+              <Label title="Area" isRequired />
               <Dropdown
                 onChange={(e) =>
                   formik.setFieldValue("area_id", e.target.value)
                 }
                 value={formik.values.area_id}
-                options={[
-                  ...[{ value: "", label: "Select area" }],
-                  ...areaOption,
-                ]}
+                options={[...areaOption]}
                 optionLabel="label"
-                placeholder="Select warehouse"
-                className="mr-4 flex-1"
-                // style={{ width: "100%" }}
+                placeholder="Select area"
+                className={`custom-dropdown flex-1 rounded font-medium ${
+                  formik.errors.area_id ? "border-red-600" : "border-gray-300"
+                }`}
+                style={styles.textInput}
               />
             </div>
             <div className="field">
-              <label htmlFor="name">Sub Area Name</label>
+              <Label title="Sub Area Name" isRequired />
               <InputText
                 id="name"
                 value={formik.values.sub_area_name}
@@ -560,7 +566,8 @@ const TableDemo = () => {
                   formik.errors.sub_area_name
                     ? "border-red-600"
                     : "border-gray-300"
-                } rounded-lg bg-transparent`}
+                } `}
+                style={styles.textInput}
               />
             </div>
           </Dialog>

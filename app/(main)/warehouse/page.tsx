@@ -20,6 +20,8 @@ import useWindowDimensions from "@/app/hooks/useWindowDimensions";
 import { isValidUrl, noImage } from "@/app/util/function";
 import { STORAGE_BOOQABLE } from "@/app/util/config";
 import { classNames } from "primereact/utils";
+import Label from "@/app/components/atoms/Label";
+import { styles } from "../styles";
 
 interface ISelect {
   label: string;
@@ -321,7 +323,7 @@ const TableDemo = () => {
                     dataKey="id"
                     lazy
                     totalRecords={totalItem}
-                    tableStyle={{ width: width * 0.88, fontSize: 13 }}
+                    tableStyle={{ width: width * 0.88 }}
                     first={firstItem}
                     alwaysShowPaginator
                     loading={isLoading}
@@ -515,7 +517,6 @@ const TableDemo = () => {
             rows={pageSize}
             dataKey="id"
             totalRecords={gudangs.length}
-            tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -659,12 +660,12 @@ const TableDemo = () => {
             style={{ width: "450px" }}
             header={isModify ? "Modify Warehouse" : "Add Warehouse"}
             modal
-            className="p-fluid"
+            className="custom-dialog p-fluid"
             footer={productDialogFooter}
             onHide={hideDialog}
           >
-            <div className="field">
-              <label htmlFor="name">Name</label>
+            <div className="field mt-4">
+              <Label title="Name" isRequired />
               <InputText
                 id="name"
                 value={formik.values.nama}
@@ -672,30 +673,33 @@ const TableDemo = () => {
                 autoFocus
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.nama ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
+                } `}
+                  style={styles.textInput}
+                />
             </div>
             <div className="field">
-              <label htmlFor="name">Location</label>
+              <Label title="Location" isRequired />
               <InputText
                 id="name"
                 value={formik.values.lokasi}
                 onChange={(e) => formik.setFieldValue("lokasi", e.target.value)}
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.lokasi ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
+                } `}
+                  style={styles.textInput}
+                />
             </div>
             <div className="field">
-              <label htmlFor="name">PIC</label>
+              <Label title="PIC" isRequired />
               <InputText
                 id="name"
                 value={formik.values.pic}
                 onChange={(e) => formik.setFieldValue("pic", e.target.value)}
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.pic ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
+                } `}
+                  style={styles.textInput}
+                />
             </div>
           </Dialog>
         </div>

@@ -10,28 +10,22 @@ import useDeviceSize from "@/app/hooks/getWindowsDimension";
 import useGetEventStatus from "@/app/hooks/api/useGetEventStatus";
 import moment from "moment";
 import { Toast } from "primereact/toast";
-import { PayloadAddEventI } from "@/app/interfaces/InventoryInterface";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Day, utils } from "react-modern-calendar-datepicker";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
 import { Dialog } from "primereact/dialog";
-import { Calendar } from "@hassanmojab/react-modern-calendar-datepicker";
 import "./DatePicker.css";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { SortType } from "@/app/interfaces/interfaces";
 import { useRouter } from "next/navigation";
-import { Text } from "@/app/components/atoms/Text";
-import { Icon } from "@iconify/react";
 import "./index.css";
 
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store/store";
 import Loading from "@/app/components/atoms/loading";
 import { localStorageService } from "@/app/service/localStorage";
-import { SCAN_TYPE } from "@/app/util/data";
 import { getUsers } from "@/app/hooks/api/useGetUsers";
 import useAccountController from "../useAccountController";
+import Label from "@/app/components/atoms/Label";
+import { styles } from "../styles";
 
 interface ISelect {
   label: string;
@@ -62,7 +56,6 @@ const TableDemo = () => {
   const [sortBy, setSortBy] = useState<string>("created_at");
   const [base64, setBase64] = useState<string>();
   const [selected, setSelecetd] = useState<any | null>(null);
-  console.log(isAdmin);
   const datepickerFormat = (value: Date) => {
     return {
       day: moment(value)?.day() + 1,
@@ -90,7 +83,7 @@ const TableDemo = () => {
     validationSchema: Yup.object({
       fullname: Yup.string().required("Required"),
       password: Yup.string().required("Required"),
-      email: Yup.string().email('Invalid email address').required("Required"),
+      email: Yup.string().email("Invalid email address").required("Required"),
       user_type: Yup.string().required("Required"),
     }),
     validateOnChange: false,
@@ -129,17 +122,15 @@ const TableDemo = () => {
             detail: "Adding User",
             life: 3000,
           });
-        } catch(error: any) {
+        } catch (error: any) {
           toast?.current?.show({
             severity: "error",
             summary: error?.response?.data?.message,
             detail: "",
             life: 3000,
           });
-          console.log(error?.response?.data?.message)
           setIsLoading(false);
         }
-
       }
       formik.resetForm();
       setBase64("");
@@ -164,13 +155,12 @@ const TableDemo = () => {
           ...(!isAdmin && { user_type: "EMPLOYEE" }),
         },
       });
-      console.log(response);
       setListEvent(response.data.users);
       setTotal(response.data.total);
       setTotalPages(response.data.total_pages);
       setIsLoading(false);
     } catch (error: any) {
-      if (error?.response?.data?.message === 'expired token, please relogin') {
+      if (error?.response?.data?.message === "expired token, please relogin") {
         localStorageService.clearAuth("auth");
         checkAuth();
         toast?.current?.show({
@@ -268,7 +258,10 @@ const TableDemo = () => {
       <div className="flex justify-content-between">
         <div className="flex">
           <span className="p-input-icon-left p-input-icon-right mr-4">
-            <i className="pi pi-search" />
+            <i
+              className="pi pi-search"
+              style={{ position: "absolute", top: 16 }}
+            />
             <InputText
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
@@ -314,22 +307,26 @@ const TableDemo = () => {
 
   const productDialogFooter = (
     <>
-      <Button
+          <Button
         label="Cancel"
-        severity="danger"
         icon="pi pi-times"
-        style={{ width: 120 }}
+        style={{
+          width: 120,
+          color: "#3B3b3B",
+          backgroundColor: "transparent",
+          borderColor: "#C4C4C4",
+        }}
         onClick={hideDialog}
         className="button"
       />
       <Button
-        label={isModify ? "Update" : "Save"}
+        label={isModify ? "Update User" : "Save User"}
         icon="pi pi-check"
-        severity="success"
-        style={{ width: 120 }}
+        style={{ width: 140 }}
         onClick={() => formik.handleSubmit()}
         className="button"
       />
+
     </>
   );
 
@@ -424,7 +421,11 @@ const TableDemo = () => {
                   sortable
                   sortField="created_at"
                   body={(data: any) => (
-                    <p>{moment(data.created_at as any).format("D MMM YYYY, HH:MM")}</p>
+                    <p>
+                      {moment(data.created_at as any).format(
+                        "D MMM YYYY, HH:MM"
+                      )}
+                    </p>
                   )}
                 />
                 <Column
@@ -508,26 +509,29 @@ const TableDemo = () => {
               style={{ width: "450px" }}
               header={isModify ? "Modify User" : "Add User"}
               modal
-              className="p-fluid"
+              className="custom-dialog p-fluid"
               footer={productDialogFooter}
               onHide={hideDialog}
             >
-              <div className="field">
-                <label htmlFor="name">Name</label>
+              <div className="field mt-4">
+                <Label title="Name" isRequired />
                 <InputText
                   id="name"
                   value={formik.values.fullname}
-                  onChange={(e) => formik.setFieldValue("fullname", e.target.value)}
+                  onChange={(e) =>
+                    formik.setFieldValue("fullname", e.target.value)
+                  }
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.fullname
                       ? "border-red-600"
                       : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  }`}
+                  style={styles.textInput}
                 />
               </div>
               <div className="field">
-                <label htmlFor="name">Email</label>
+                <Label title="Email" isRequired />
                 <InputText
                   id="name"
                   value={formik.values.description}
@@ -537,11 +541,12 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.email ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
               <div className="field">
-                <label htmlFor="name">Password</label>
+                <Label title="Password" isRequired />
                 <InputText
                   id="name"
                   value={formik.values.password}
@@ -553,7 +558,8 @@ const TableDemo = () => {
                     formik.errors.password
                       ? "border-red-600"
                       : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  }`}
+                  style={styles.textInput}
                 />
               </div>
               <div className="field flex-1">
@@ -569,10 +575,12 @@ const TableDemo = () => {
                   ]}
                   optionLabel="label"
                   placeholder="Select Option"
-                  className="w-full md:w-14rem mr-4"
+                  className="flex-1"
                   style={{
+                    ...styles.textInput,
                     ...(formik.errors.user_type && { borderColor: "red" }),
                   }}
+
                 />
               </div>
             </Dialog>

@@ -1,24 +1,42 @@
 .button {
   height: 30px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 12px;
+}
+
+.p-dropdown {
+  height: 40px !important;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  background-color: "#F5F5F5";
+}
+
+.dropdown-header {
+  height: 30px !important;
+  border-radius: 6px;
 }
 
 .p-dropdown-label {
-  font-size: 14px;
+  font-size: 90px;
 }
 
 .p-dropdown-item {
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .p-dropdown .p-dropdown-label {
   padding: 8px 12px; /* default biasanya lebih besar */
+  font-size: 12px;
 }
 
 .p-dialog {
   border-radius: 16px;
   overflow: hidden; /* penting biar isi ikut rounded */
+}
+
+.custom-dialog .p-dialog-header {
+  border-bottom: 1px solid #e5e7eb; /* abu-abu tipis */
 }
 
 .custom-dialog .p-dialog-header {
@@ -32,11 +50,12 @@
 
 .p-inputtext {
   height: 30px;
-  font-size: 14px;
+  font-size: 12px;
   padding: 0 36px;
   display: flex;
   align-items: center;
 }
+
 
 /* container utama */
 .p-tabmenu {
@@ -54,7 +73,7 @@
 }
 
 .p-tabmenu .p-menuitem-text {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 /* =========================
@@ -64,6 +83,7 @@
 /* Wrapper utama */
 .p-datatable {
   border: none !important;
+  font-size: 12px !important;
 }
 
 /* Table */
@@ -76,6 +96,8 @@
 .p-datatable [data-pc-section="headercell"],
 .p-datatable [data-pc-section="bodycell"] {
   border: none !important;
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 
 /* Row */
@@ -116,4 +138,24 @@
 .sub-header {
   flex-direction: column;
   padding-left: 8px;
+}
+
+textarea:focus {
+  outline: none; /* hilangkan default biru browser */
+}
+
+.p-inputtextarea {
+  padding: 12px 16px !important;
+  font-size: 12px;
+  height: 120px !important;
+}
+
+.p-confirm-dialog .p-confirm-dialog-message {
+  font-size: 14px !important;
+}
+
+.p-confirm-dialog .p-button {
+  height: 30px;
+  border-radius: 6px;
+  font-size: 12px;
 }

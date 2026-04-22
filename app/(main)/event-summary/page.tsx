@@ -640,7 +640,7 @@ const Page = (props: Props) => {
       enabled: true,
     },
   });
-  console.log(users);
+
   const renderHeader1 = () => {
     return (
       <div className="flex justify-content-between pb-4">
@@ -937,7 +937,6 @@ const Page = (props: Props) => {
             rows={10}
             dataKey="id"
             totalRecords={filteringItemDetails.length}
-            tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={loadingGet}

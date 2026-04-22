@@ -10,6 +10,7 @@ import {
   ColumnFilterClearTemplateOptions,
   ColumnFilterElementTemplateOptions,
 } from "primereact/column";
+import { Text } from "@/app/components/atoms/Text";
 import {
   DataTable,
   DataTableExpandedRows,
@@ -33,6 +34,7 @@ import {
   isValidUrl,
   noImage,
 } from "@/app/util/function";
+import { styles } from "../styles";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { APIResponse } from "@/app/interfaces/BaseApiResponse";
@@ -52,6 +54,9 @@ import useAccountController from "../useAccountController";
 import { STORAGE_BOOQABLE } from "@/app/util/config";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import Label from "@/app/components/atoms/Label";
+import { InputTextarea } from "primereact/inputtextarea";
+import useWindowDimensions from "@/app/hooks/useWindowDimensions";
 
 export interface ISelect {
   label: string;
@@ -69,7 +74,7 @@ const TableDemo = () => {
   const [listBarang, setListBarang] = useState<any[]>([]);
   const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
   const [itemDetal, setItemDetail] = useState<boolean>(false);
-  const [width] = useDeviceSize();
+  const { width } = useWindowDimensions();
   const [listSatuan, setListSatuan] = useState<ISelect[]>([]);
   const [listCategory, setListCategory] = useState<ISelect[]>([]);
   const [logs, setLogs] = useState<any[]>([]);
@@ -91,6 +96,12 @@ const TableDemo = () => {
   const [firstLog, setFirstLog] = useState<number>(0);
   const [sort, setSort] = useState<SortType>("ASC");
   const [sortBy, setSortBy] = useState<string>("name");
+
+  const fileInputRef = useRef<any>(null);
+
+  const handleClick = () => {
+    fileInputRef?.current?.click(); // trigger file picker
+  };
 
   const onPageChange = (page: number) => setPage(page);
 
@@ -1155,17 +1166,6 @@ const TableDemo = () => {
 
   let [over, setOver] = React.useState("");
 
-  const Label = (label: string) => {
-    return (
-      <div style={{ flexDirection: "row" }}>
-        <label htmlFor="name">{label}</label>
-        <label htmlFor="name" style={{ color: "red" }}>
-          *
-        </label>
-      </div>
-    );
-  };
-
   const onSort = (field: string) => {
     setSortBy(field);
     setSort(sort === "ASC" ? "DESC" : "ASC");
@@ -1254,7 +1254,7 @@ const TableDemo = () => {
                 first={first}
                 scrollable
                 alwaysShowPaginator
-                tableStyle={{ width: 1800, fontSize: 13 }}
+                tableStyle={{ width: 1800 }}
                 loading={isLoading}
                 emptyMessage="No customers found."
                 header={header1}
@@ -1447,15 +1447,15 @@ const TableDemo = () => {
 
           <Dialog
             visible={productDialog}
-            style={{ width: "800px" }}
+            style={{ width: width * 0.5 }}
             header={isModify ? "Modify Inventory" : "Add Inventory"}
             modal
-            className="p-fluid"
+            className="custom-dialog p-fluid"
             footer={productDialogFooter}
             onHide={hideDialog}
           >
-            <div className="field">
-              {Label("Name")}
+            <div className="field mt-4">
+              <Label title="Name" isRequired />
               <InputText
                 id="name"
                 value={formik.values.nama}
@@ -1466,19 +1466,39 @@ const TableDemo = () => {
                 autoFocus
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.nama ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
+                } `}
+                  style={styles.textInput}
+                />
             </div>
-            <div className="flex-1">
-              <label htmlFor="name">Image</label>
-              <div style={{ paddingTop: 8, paddingBottom: 8 }}>
+            <div className="flex flex-row items-center mt-3">
+              <div className="field flex-1">
+                <Label title="Description" />
+                <InputTextarea
+                  value={formik.values.description}
+                  onChange={(e) =>
+                    formik.setFieldValue("notes", e.target.value)
+                  }
+                  rows={5}
+                  cols={30}
+                  placeholder="Any additional description..."
+                  className={`h-12 ${
+                    formik.errors.description
+                      ? "border-red-600"
+                      : "border-gray-300"
+                  } `}
+                  style={styles.textInput}
+                />
+              </div>
+              <div style={{ width: 16 }} />
+              <div className="flex-1">
+                <Label title="Image" />
                 {base64 ? (
                   <div className="flex flex-row gap-x-4 items-center">
                     <img
                       src={base64}
                       style={{
-                        height: 100,
-                        width: 180,
+                        height: 120,
+                        width: "100%",
                         objectFit: "cover",
                       }}
                     />
@@ -1518,8 +1538,8 @@ const TableDemo = () => {
                                   : noImage
                               }
                               style={{
-                                width: 86,
-                                height: 86,
+                                width: 120,
+                                height: 120,
                                 borderRadius: 8,
                               }}
                             />
@@ -1527,17 +1547,68 @@ const TableDemo = () => {
                           <input
                             type="file"
                             style={{ color: "#000" }}
-                            className="form-control"
+                            className="form-control ml-4"
                             onChange={(e) => handleProfile(e)}
                           />
                         </>
                       ) : (
-                        <input
-                          type="file"
-                          style={{ color: "#000" }}
-                          className="form-control"
-                          onChange={(e) => handleProfile(e)}
-                        />
+                        <>
+                          <div
+                            className="border border-1"
+                            onClick={handleClick}
+                            style={{
+                              width: "100%",
+                              height: 120,
+                              backgroundColor: "#F5F5F5",
+                              borderRadius: 10,
+                              borderWidth: 10,
+                              borderColor: "#d1d5db",
+                              borderStyle: "dashed",
+                              display: "flex",
+                              justifyContent: "center",
+                              flexDirection: "column",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <div
+                              style={{
+                                backgroundColor: "#c7d2fe",
+                                height: 36,
+                                width: 36,
+                                justifyContent: "center",
+                                alignSelf: "center",
+                                display: "flex",
+                                alignItems: "center",
+                                borderRadius: 4,
+                              }}
+                            >
+                              <Icon
+                                icon="prime:cloud-upload"
+                                className="cursor-pointer"
+                                fontSize={24}
+                                color="#6366f1"
+                                onClick={() => setBase64("")}
+                              />
+                            </div>
+                            <Text
+                              label={"Click to upload image"}
+                              textAlign="center"
+                              fontWeight="semi-bold"
+                              style={{ marginBottom: 0 }}
+                            />
+                            <Text
+                              label={"PNG, JPG, GIF up to 10MB"}
+                              textAlign="center"
+                            />
+                          </div>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            onChange={(e) => handleProfile(e)}
+                          />
+                        </>
                       )}
                       {/* {isModify && barang.photo && (
                           <Icon
@@ -1553,9 +1624,9 @@ const TableDemo = () => {
                 )}
               </div>
             </div>
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row items-center mt-3">
               <div className="field" style={{ flex: 1 }}>
-                {Label("Item Code")}
+                <Label title="Item Code" isRequired />
                 <InputText
                   id="code"
                   value={formik.values.code}
@@ -1566,12 +1637,13 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.code ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
               <div style={{ width: 16 }} />
               <div className="field" style={{ flex: 1 }}>
-                {Label("Stock")}
+                <Label title="Stock" isRequired />
                 <InputText
                   id="stok"
                   value={formik.values.stok}
@@ -1583,25 +1655,14 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.stok ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
             </div>
-            <div className="field">
-              <label htmlFor="detail">Description</label>
-              <InputText
-                id="detail"
-                value={formik.values.detail}
-                onChange={(e) => formik.setFieldValue("detail", e.target.value)}
-                autoFocus
-                className={`text-black border w-full py-2 px-4 ${
-                  formik.errors.detail ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
-            </div>
             <div className="flex flex-row items-center">
               <div className="field flex-1">
-                {Label("Unit")}
+                <Label title="Unit" isRequired />
                 <Dropdown
                   onChange={(e) => {
                     formik.setFieldValue("satuan_id", e.target.value);
@@ -1616,6 +1677,7 @@ const TableDemo = () => {
                   placeholder="Select unit"
                   className="flex-1"
                   style={{
+                    ...styles.textInput,
                     ...(formik.errors.satuan_id && { borderColor: "red" }),
                   }}
                   // style={{ width: "100%"}}
@@ -1623,7 +1685,7 @@ const TableDemo = () => {
               </div>
               <div style={{ width: 16 }} />
               <div className="field flex-1">
-                {Label("Category")}
+                <Label title="Category" isRequired />
                 <Dropdown
                   onChange={(e) => {
                     formik.setFieldValue("kategori_id", e.target.value);
@@ -1638,6 +1700,7 @@ const TableDemo = () => {
                   placeholder="Select category"
                   className="flex-1"
                   style={{
+                    ...styles.textInput,
                     ...(formik.errors.kategori_id && { borderColor: "red" }),
                   }}
                 />
@@ -1645,7 +1708,7 @@ const TableDemo = () => {
             </div>
             <div className="flex flex-row items-center">
               <div className="field" style={{ flex: 1 }}>
-                <label htmlFor="panjang">Panjang</label>
+                <Label title="Panjang" />
                 <InputText
                   id="panjang"
                   value={formik.values.panjang}
@@ -1656,12 +1719,13 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.panjang ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
               <div style={{ width: 16 }} />
               <div className="field" style={{ flex: 1 }}>
-                <label htmlFor="lebar">Lebar</label>
+                <Label title="Lebar" />
                 <InputText
                   id="lebar"
                   value={formik.values.lebar}
@@ -1672,13 +1736,14 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.lebar ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
             </div>
             <div className="flex flex-row items-center">
               <div className="field" style={{ flex: 1 }}>
-                <label htmlFor="panjang">Tinggi</label>
+                <Label title="Tinggi" />
                 <InputText
                   id="panjang"
                   value={formik.values.tinggi}
@@ -1689,12 +1754,13 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.tinggi ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
               <div style={{ width: 16 }} />
               <div className="field" style={{ flex: 1 }}>
-                <label htmlFor="berat">Berat</label>
+                <Label title="Berat" />
                 <InputText
                   id="berat"
                   value={formik.values.berat}
@@ -1704,13 +1770,14 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.berat ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
             </div>
             <div className="flex flex-row items-center">
               <div className="field" style={{ flex: 1 }}>
-                <label htmlFor="lantai">Lantai</label>
+                <Label title="Lantai" />
                 <InputText
                   id="lantai"
                   value={formik.values.lantai}
@@ -1720,12 +1787,13 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.lantai ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
               <div style={{ width: 16 }} />
               <div className="field" style={{ flex: 1 }}>
-                <label htmlFor="lorong">Lorong</label>
+                <Label title="Lorong" />
                 <InputText
                   id="lorong"
                   value={formik.values.lorong}
@@ -1735,13 +1803,14 @@ const TableDemo = () => {
                   autoFocus
                   className={`text-black border w-full py-2 px-4 ${
                     formik.errors.lorong ? "border-red-600" : "border-gray-300"
-                  } rounded-lg bg-transparent`}
+                  } `}
+                  style={styles.textInput}
                 />
               </div>
             </div>
 
             <div className="field">
-              <label htmlFor="name">Rack</label>
+              <Label title="Rack" />
               <InputText
                 id="name"
                 value={formik.values.rack}
@@ -1749,8 +1818,9 @@ const TableDemo = () => {
                 autoFocus
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.rack ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
-              />
+                } `}
+                  style={styles.textInput}
+                />
             </div>
           </Dialog>
           <Dialog

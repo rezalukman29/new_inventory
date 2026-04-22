@@ -16,6 +16,8 @@ import { Dialog } from "primereact/dialog";
 import { SortType } from "@/app/interfaces/interfaces";
 import "../index.css";
 import useAccountController from "../useAccountController";
+import Label from "@/app/components/atoms/Label";
+import { styles } from "../styles";
 
 const TableDemo = () => {
   const toast = useRef<any>(null);
@@ -175,14 +177,19 @@ const TableDemo = () => {
       <Button
         label="Cancel"
         icon="pi pi-times"
-        severity="danger"
+        style={{
+          width: 120,
+          color: "#3B3b3B",
+          backgroundColor: "transparent",
+          borderColor: "#C4C4C4",
+        }}
         onClick={hideDialog}
         className="button"
       />
       <Button
-        label="Save"
+        label="Save Category"
         icon="pi pi-check"
-        severity="success"
+        style={{ width: 160 }}
         onClick={() => formik.handleSubmit()}
         className="button"
       />
@@ -235,7 +242,6 @@ const TableDemo = () => {
             rows={10}
             dataKey="id"
             totalRecords={listCategory.length}
-            tableStyle={{ fontSize: 13 }}
             first={first}
             alwaysShowPaginator
             loading={isLoading}
@@ -371,12 +377,12 @@ const TableDemo = () => {
             style={{ width: "450px" }}
             header={isModify ? "Modify Category" : "Add Category"}
             modal
-            className="p-fluid"
+            className="custom-dialog p-fluid"
             footer={productDialogFooter}
             onHide={hideDialog}
           >
-            <div className="field">
-              <label htmlFor="name">Name</label>
+            <div className="field mt-4">
+              <Label title="Name" isRequired />
               <InputText
                 id="name"
                 value={formik.values.name}
@@ -384,11 +390,12 @@ const TableDemo = () => {
                 autoFocus
                 className={`text-black border w-full py-2 px-4 ${
                   formik.errors.name ? "border-red-600" : "border-gray-300"
-                } rounded-lg bg-transparent`}
+                } `}
+                style={styles.textInput}
               />
             </div>
             <div className="field">
-              <label htmlFor="name">Description</label>
+              <Label title="Description" />
               <InputText
                 id="name"
                 value={formik.values.description}
@@ -400,7 +407,8 @@ const TableDemo = () => {
                   formik.errors.description
                     ? "border-red-600"
                     : "border-gray-300"
-                } rounded-lg bg-transparent`}
+                } `}
+                style={styles.textInput}
               />
             </div>
           </Dialog>
